@@ -1,5 +1,6 @@
+use crate::tokens::collateral_token::PSP22CollateralRef;
 use openbrush::{
-    contracts::traits::{psp22::extensions::mintable::PSP22MintableRef, psp22::PSP22Ref},
+    contracts::traits::psp22::PSP22Ref,
     storage::Mapping,
     traits::{AccountId, Balance, Storage},
 };
@@ -47,18 +48,21 @@ impl<T: Storage<Data>> Pool for T {
         let depositor = Self::env().caller();
         let pool = Self::env().account_id();
 
-
         let current_deposited = self.total_deposited(asset)?;
         let current_share = self.total_share(asset)?;
         if PSP22Ref::transfer_from(&asset, depositor, pool, amount, Vec::<u8>::new()).is_err() {
             return Err(Error::TransferAssetFailed);
         }
-        
-        let share = amount * current_share / current_deposited;
+
+        let share = if current_deposited == 0 {
+            amount * current_share / current_deposited
+        } else {
+            amount
+        };
 
         // mint
         let collateral_token = self.data().assets.get(&asset).unwrap();
-        if PSP22MintableRef::mint(&collateral_token, depositor, share).is_err() {
+        if PSP22CollateralRef::mint(&collateral_token, depositor, share, amount).is_err() {
             return Err(Error::MintFailed);
         }
 
