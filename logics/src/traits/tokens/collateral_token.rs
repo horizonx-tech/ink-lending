@@ -8,5 +8,11 @@ pub type PSP22CollateralRef = dyn PSP22Collateral;
 #[openbrush::trait_definition]
 pub trait PSP22Collateral: PSP22 {
     #[ink(message)]
-    fn mint(&mut self, to: AccountId, share: Balance, supply: Balance) -> Result<(), PSP22Error>;
+    fn total_share(&self) -> Balance;
+
+    #[ink(message)]
+    fn to_share(&self, amount: Balance) -> Balance;
+
+    #[ink(message)]
+    fn mint(&mut self, to: AccountId, supply: Balance) -> Result<(), PSP22Error>;
 }

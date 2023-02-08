@@ -69,13 +69,20 @@ impl<T: Storage<Data>> PSP22 for T {
 }
 
 impl<T: Storage<Data>> PSP22Collateral for T {
+    default fn total_share(&self) -> Balance {
+        self._total_share()
+    }
+
+    default fn to_share(&self, amount: Balance) -> Balance {
+        self._to_share(amount)
+    }
+
     default fn mint(
         &mut self,
         to: AccountId,
-        share: Balance,
         supply: Balance,
     ) -> Result<(), PSP22Error> {
-        self._mint(to, share, supply)
+        self._mint(to, supply)
     }
 }
 
@@ -84,13 +91,15 @@ pub trait Internal {
 
     fn _balance_of(&self, owner: &AccountId) -> Balance;
 
-    fn _mint(&mut self, to: AccountId, share: Balance, supply: Balance) -> Result<(), PSP22Error>;
-
     fn _total_share(&self) -> Balance;
 
     fn _share_of(&self, owner: &AccountId) -> Balance;
 
+    fn _to_share(&self, amount: Balance) -> Balance;
+
     fn _accrued_interest(&self) -> Balance;
+
+    fn _mint(&mut self, to: AccountId, supply: Balance) -> Result<(), PSP22Error>;
 
     /// User must override those methods in their contract.
     fn _emit_transfer_event(
@@ -115,10 +124,18 @@ impl<T: Storage<Data>> Internal for T {
         self._share_of(owner) * self.total_supply() / total_share
     }
 
+    default fn _to_share(&self, amount: Balance) -> Balance {
+        let total_supply = self._total_supply();
+        if total_supply == 0 {
+            amount * self._total_share() / total_supply
+        } else {
+            amount
+        }
+    }
+
     default fn _mint(
         &mut self,
         to: AccountId,
-        share: Balance,
         supply: Balance,
     ) -> Result<(), PSP22Error> {
         // TODO only lending pool
@@ -126,6 +143,7 @@ impl<T: Storage<Data>> Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress);
         }
 
+        let share = self._to_share(supply);
         let mut new_share = self._share_of(&to);
         new_share += share;
         self.data().shares.insert(&to, &new_share);
