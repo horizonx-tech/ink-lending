@@ -77,12 +77,12 @@ impl<T: Storage<Data>> PSP22Collateral for T {
         self._to_share(amount)
     }
 
-    default fn mint(
-        &mut self,
-        to: AccountId,
-        supply: Balance,
-    ) -> Result<(), PSP22Error> {
+    default fn mint(&mut self, to: AccountId, supply: Balance) -> Result<(), PSP22Error> {
         self._mint(to, supply)
+    }
+
+    default fn burn(&mut self, from: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        self._burn(from, amount)
     }
 }
 
@@ -100,6 +100,8 @@ pub trait Internal {
     fn _accrued_interest(&self) -> Balance;
 
     fn _mint(&mut self, to: AccountId, supply: Balance) -> Result<(), PSP22Error>;
+
+    fn _burn(&mut self, from: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 
     /// User must override those methods in their contract.
     fn _emit_transfer_event(
@@ -127,17 +129,13 @@ impl<T: Storage<Data>> Internal for T {
     default fn _to_share(&self, amount: Balance) -> Balance {
         let total_supply = self._total_supply();
         if total_supply == 0 {
-            amount * self._total_share() / total_supply
-        } else {
             amount
+        } else {
+            amount * self._total_share() / total_supply
         }
     }
 
-    default fn _mint(
-        &mut self,
-        to: AccountId,
-        supply: Balance,
-    ) -> Result<(), PSP22Error> {
+    default fn _mint(&mut self, to: AccountId, supply: Balance) -> Result<(), PSP22Error> {
         // TODO only lending pool
         if to == AccountId::default() {
             return Err(PSP22Error::ZeroRecipientAddress);
@@ -150,6 +148,22 @@ impl<T: Storage<Data>> Internal for T {
         self.data().total_supply += supply;
         self.data().total_share += share;
         self._emit_transfer_event(None, Some(to), share);
+
+        Ok(())
+    }
+
+    default fn _burn(&mut self, from: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        // TODO only lending pool
+        if from == AccountId::default() {
+            return Err(PSP22Error::ZeroRecipientAddress);
+        }
+
+        let share = self._to_share(amount);
+        let mut new_share = self._share_of(&from);
+        new_share -= share;
+        self.data().shares.insert(&from, &new_share);
+        self.data().total_supply -= amount;
+        self.data().total_share -= share;
 
         Ok(())
     }

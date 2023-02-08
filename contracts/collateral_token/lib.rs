@@ -53,10 +53,9 @@ pub mod collateral_token {
             let mut token = CollateralToken::new();
             let owner = accounts.alice;
             let supply = 100;
-            let share = 100;
-            let expected = share;
+            let expected = supply;
 
-            assert!(token.mint(owner, share, supply).is_ok());
+            assert!(token.mint(owner, supply).is_ok());
             assert_eq!(token.total_supply(), expected);
             assert_eq!(token.balance_of(owner), expected);
         }
@@ -68,16 +67,17 @@ pub mod collateral_token {
             let mut token = CollateralToken::new();
             let owner = accounts.alice;
             let supply = 100;
-            let share = 100;
             let accrued_interest = 20;
-            let expected_balance = share + accrued_interest;
 
-            assert!(token.mint(owner, share, supply).is_ok());
+            let expected_share = supply;
+            let expected_balance = supply + accrued_interest;
+
+            assert!(token.mint(owner, supply).is_ok());
             assert!(token.accrue_interest(accrued_interest).is_ok());
 
             assert_eq!(token.total_supply(), expected_balance);
-            assert_eq!(token._total_share(), share);
-            assert_eq!(token._share_of(&owner), share);
+            assert_eq!(token._total_share(), expected_share);
+            assert_eq!(token._share_of(&owner), expected_share);
             assert_eq!(token.balance_of(owner), expected_balance);
         }
 
@@ -87,23 +87,48 @@ pub mod collateral_token {
 
             let mut token = CollateralToken::new();
             let supply_alice = 100;
-            let share_alice = 100;
             let accrued_interest = 20;
-            let expected_alice_balance = share_alice + accrued_interest;
             let supply_bob = 12;
-            let share_bob = 10; // 12 * 100 (total_share) / 120 (total_supply)
+
+            let expected_share_alice = supply_alice;
+            let expected_alice_balance = supply_alice + accrued_interest;
+            let expected_share_bob = 10; // 12 * 100 (total_share) / 120 (total_supply)
             let expected_bob_balance = supply_bob;
 
-            assert!(token
-                .mint(accounts.alice, share_alice, supply_alice)
-                .is_ok());
+            assert!(token.mint(accounts.alice, supply_alice).is_ok());
             assert!(token.accrue_interest(accrued_interest).is_ok());
-            assert!(token.mint(accounts.bob, share_bob, supply_bob).is_ok());
+            assert!(token.mint(accounts.bob, supply_bob).is_ok());
 
-            assert_eq!(token._share_of(&accounts.alice), share_alice);
+            assert_eq!(token._share_of(&accounts.alice), expected_share_alice);
             assert_eq!(token.balance_of(accounts.alice), expected_alice_balance);
-            assert_eq!(token._share_of(&accounts.bob), share_bob);
+            assert_eq!(token._share_of(&accounts.bob), expected_share_bob);
             assert_eq!(token.balance_of(accounts.bob), expected_bob_balance);
+        }
+
+        #[ink::test]
+        fn test_share_burned() {
+            let accounts = default_accounts::<DefaultEnvironment>();
+
+            let mut token = CollateralToken::new();
+            let supply_alice = 100;
+            let accrued_interest = 20;
+            let supply_bob = 12;
+            let burn_alice = 66;
+
+            let expected_share_alice = 45; // 100 - 110 * 66 / 132
+            let expected_balance_alice = supply_alice + accrued_interest - burn_alice;
+            let expected_share_bob = 10; // 12 * 100 (total_share) / 120 (total_supply)
+            let expected_balance_bob = supply_bob;
+
+            assert!(token.mint(accounts.alice, supply_alice).is_ok());
+            assert!(token.accrue_interest(accrued_interest).is_ok());
+            assert!(token.mint(accounts.bob, supply_bob).is_ok());
+            assert!(token.burn(accounts.alice, burn_alice).is_ok());
+
+            assert_eq!(token._share_of(&accounts.alice), expected_share_alice);
+            assert_eq!(token.balance_of(accounts.alice), expected_balance_alice);
+            assert_eq!(token._share_of(&accounts.bob), expected_share_bob);
+            assert_eq!(token.balance_of(accounts.bob), expected_balance_bob);
         }
     }
 }

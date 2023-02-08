@@ -10,7 +10,9 @@ pub type PoolRef = dyn Pool;
 pub trait Pool {
     #[ink(message)]
     fn deposit(&self, asset: AccountId, amount: Balance) -> Result<()>;
-    // fn withdraw(&self, asset: AccountId, amount: Balance) -> Result<()>;
+
+    #[ink(message)]
+    fn withdraw(&self, asset: AccountId, amount: Balance) -> Result<()>;
     // fn borrow(&self, asset: AccountId, amount: Balance) -> Result<()>;
     // fn repay(&self, asset: AccountId, amount: Balance) -> Result<()>;
 }

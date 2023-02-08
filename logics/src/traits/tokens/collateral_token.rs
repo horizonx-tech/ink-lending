@@ -15,4 +15,7 @@ pub trait PSP22Collateral: PSP22 {
 
     #[ink(message)]
     fn mint(&mut self, to: AccountId, supply: Balance) -> Result<(), PSP22Error>;
+
+    #[ink(message)]
+    fn burn(&mut self, to: AccountId, amount: Balance) -> Result<(), PSP22Error>;
 }

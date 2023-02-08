@@ -19,13 +19,45 @@ impl<T: Storage<Data>> Pool for T {
         let depositor = Self::env().caller();
         let pool = Self::env().account_id();
 
-        if let Err(err) = PSP22Ref::transfer_from(&asset, depositor, pool, amount, Vec::<u8>::new())
-        {
+        let collateral_token = self.data().assets.get(&asset).unwrap();
+        if let Err(err) = PSP22Ref::transfer_from(
+            &asset,
+            depositor,
+            collateral_token,
+            amount,
+            Vec::<u8>::new(),
+        ) {
             return Err(Error::PSP22(err));
         }
 
-        let collateral_token = self.data().assets.get(&asset).unwrap();
         if let Err(err) = PSP22CollateralRef::mint(&collateral_token, depositor, amount) {
+            return Err(Error::PSP22(err));
+        }
+
+        Ok(())
+    }
+
+    default fn withdraw(&self, asset: AccountId, amount: Balance) -> Result<()> {
+        // TODO only supported asset
+        // TODO reject if withdrawer balance insufficient
+        // TODO reject if withdrawer collateral insufficient
+        // TODO reject if asset balance of collateral token insufficient
+
+        let withdrawer = Self::env().caller();
+        let pool = Self::env().account_id();
+
+        let collateral_token = self.data().assets.get(&asset).unwrap();
+        if let Err(err) = PSP22CollateralRef::burn(&asset, withdrawer, amount) {
+            return Err(Error::PSP22(err));
+        }
+
+        if let Err(err) = PSP22Ref::transfer_from(
+            &asset,
+            collateral_token,
+            withdrawer,
+            amount,
+            Vec::<u8>::new(),
+        ) {
             return Err(Error::PSP22(err));
         }
 
