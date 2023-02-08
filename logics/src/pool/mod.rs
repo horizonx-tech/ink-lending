@@ -1,6 +1,6 @@
-use crate::tokens::collateral_token::PSP22CollateralRef;
+use crate::traits::tokens::collateral_token::PSP22CollateralRef;
 use openbrush::{
-    contracts::traits::psp22::PSP22Ref,
+    contracts::psp22::PSP22Ref,
     storage::Mapping,
     traits::{AccountId, Balance, Storage},
 };

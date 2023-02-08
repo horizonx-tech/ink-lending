@@ -1,24 +1,74 @@
-use openbrush::contracts::psp22::*;
-use openbrush::traits::{AccountId, Balance, Storage};
-
-#[openbrush::wrapper]
-pub type PSP22CollateralRef = dyn PSP22Collateral;
-
-#[openbrush::trait_definition]
-pub trait PSP22Collateral {
-    #[ink(message)]
-    fn mint(&mut self, to: AccountId, share: Balance, supply: Balance) -> Result<(), PSP22Error>;
-}
+pub use crate::traits::tokens::collateral_token::*;
+use openbrush::{
+    contracts::psp22::PSP22Error,
+    storage::Mapping,
+    traits::{AccountId, Balance, Storage},
+};
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[openbrush::upgradeable_storage(STORAGE_KEY)]
 #[derive(Default, Debug)]
+#[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
-    total_share: Balance,
+    pub total_supply: Balance,
+    pub total_share: Balance,
+    pub shares: Mapping<AccountId, Balance>,
 }
 
-impl<T: Storage<Data> + Storage<psp22::Data>> PSP22Collateral for T {
+impl<T: Storage<Data>> PSP22 for T {
+    default fn total_supply(&self) -> Balance {
+        self._total_supply()
+    }
+
+    default fn balance_of(&self, owner: AccountId) -> Balance {
+        self._balance_of(&owner)
+    }
+
+    default fn allowance(&self, owner: AccountId, spender: AccountId) -> Balance {
+        todo!()
+    }
+
+    default fn transfer(
+        &mut self,
+        to: AccountId,
+        value: Balance,
+        data: Vec<u8>,
+    ) -> Result<(), PSP22Error> {
+        todo!()
+    }
+
+    default fn transfer_from(
+        &mut self,
+        from: AccountId,
+        to: AccountId,
+        value: Balance,
+        data: Vec<u8>,
+    ) -> Result<(), PSP22Error> {
+        todo!()
+    }
+
+    default fn approve(&mut self, spender: AccountId, value: Balance) -> Result<(), PSP22Error> {
+        todo!()
+    }
+
+    default fn increase_allowance(
+        &mut self,
+        spender: AccountId,
+        delta_value: Balance,
+    ) -> Result<(), PSP22Error> {
+        todo!()
+    }
+
+    default fn decrease_allowance(
+        &mut self,
+        spender: AccountId,
+        delta_value: Balance,
+    ) -> Result<(), PSP22Error> {
+        todo!()
+    }
+}
+
+impl<T: Storage<Data>> PSP22Collateral for T {
     default fn mint(
         &mut self,
         to: AccountId,
@@ -30,6 +80,10 @@ impl<T: Storage<Data> + Storage<psp22::Data>> PSP22Collateral for T {
 }
 
 pub trait Internal {
+    fn _total_supply(&self) -> Balance;
+
+    fn _balance_of(&self, owner: &AccountId) -> Balance;
+
     fn _mint(&mut self, to: AccountId, share: Balance, supply: Balance) -> Result<(), PSP22Error>;
 
     fn _total_share(&self) -> Balance;
@@ -37,9 +91,30 @@ pub trait Internal {
     fn _share_of(&self, owner: &AccountId) -> Balance;
 
     fn _accrued_interest(&self) -> Balance;
+
+    /// User must override those methods in their contract.
+    fn _emit_transfer_event(
+        &self,
+        _from: Option<AccountId>,
+        _to: Option<AccountId>,
+        _amount: Balance,
+    );
+    // fn _emit_approval_event(&self, _owner: AccountId, _spender: AccountId, _amount: Balance);
 }
 
-impl<T: Storage<Data> + Storage<psp22::Data>> Internal for T {
+impl<T: Storage<Data>> Internal for T {
+    default fn _total_supply(&self) -> Balance {
+        self.data().total_supply.clone()
+    }
+
+    default fn _balance_of(&self, owner: &AccountId) -> Balance {
+        let total_share = self._total_share();
+        if total_share == 0 {
+            return 0;
+        }
+        self._share_of(owner) * self.total_supply() / total_share
+    }
+
     default fn _mint(
         &mut self,
         to: AccountId,
@@ -51,26 +126,34 @@ impl<T: Storage<Data> + Storage<psp22::Data>> Internal for T {
             return Err(PSP22Error::ZeroRecipientAddress);
         }
 
-        let mut balance = self._share_of(&to);
-        balance += share;
-        self.data::<psp22::Data>().balances.insert(&to, &balance);
-        self.data::<psp22::Data>().supply += supply;
-        self.data::<Data>().total_share += share;
+        let mut new_share = self._share_of(&to);
+        new_share += share;
+        self.data().shares.insert(&to, &new_share);
+        self.data().total_supply += supply;
+        self.data().total_share += share;
         self._emit_transfer_event(None, Some(to), share);
 
         Ok(())
     }
 
     default fn _total_share(&self) -> Balance {
-        self.data::<Data>().total_share.clone()
+        self.data().total_share.clone()
     }
 
     default fn _share_of(&self, owner: &AccountId) -> Balance {
-        self.data::<psp22::Data>().balances.get(owner).unwrap_or(0)
+        self.data().shares.get(owner).unwrap_or(0)
     }
 
     default fn _accrued_interest(&self) -> Balance {
         // TODO implement
         0
+    }
+
+    default fn _emit_transfer_event(
+        &self,
+        _from: Option<AccountId>,
+        _to: Option<AccountId>,
+        _amount: Balance,
+    ) {
     }
 }

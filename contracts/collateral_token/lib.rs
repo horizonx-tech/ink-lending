@@ -2,31 +2,17 @@
 
 #[openbrush::contract]
 pub mod collateral_token {
-    use logics::tokens::collateral_token::{self, Internal, *};
-    use openbrush::contracts::psp22::*;
+    use logics::tokens::collateral_token::*;
     use openbrush::traits::Storage;
 
     #[ink(storage)]
     #[derive(Default, Storage)]
     pub struct CollateralToken {
         #[storage_field]
-        psp22: psp22::Data,
-        #[storage_field]
-        data: collateral_token::Data,
+        data: Data,
     }
 
-    impl PSP22 for CollateralToken {}
     impl PSP22Collateral for CollateralToken {}
-
-    impl psp22::Internal for CollateralToken {
-        fn _balance_of(&self, owner: &AccountId) -> Balance {
-            let total_share = self._total_share();
-            if total_share == 0 {
-                return 0;
-            }
-            self._share_of(owner) * self.total_supply() / total_share
-        }
-    }
 
     impl CollateralToken {
         #[ink(constructor)]
@@ -38,7 +24,7 @@ pub mod collateral_token {
         #[ink(message)]
         pub fn accrue_interest(&mut self, interest: Balance) -> Result<(), ()> {
             // TODO only lending pool
-            self.psp22.supply += interest;
+            self.data.total_supply += interest;
 
             Ok(())
         }
