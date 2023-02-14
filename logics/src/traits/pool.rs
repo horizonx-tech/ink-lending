@@ -13,8 +13,12 @@ pub trait Pool {
 
     #[ink(message)]
     fn withdraw(&self, asset: AccountId, amount: Balance) -> Result<()>;
-    // fn borrow(&self, asset: AccountId, amount: Balance) -> Result<()>;
-    // fn repay(&self, asset: AccountId, amount: Balance) -> Result<()>;
+
+    #[ink(message)]
+    fn borrow(&self, asset: AccountId, amount: Balance) -> Result<()>;
+
+    #[ink(message)]
+    fn repay(&self, asset: AccountId, amount: Balance) -> Result<()>;
 }
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
