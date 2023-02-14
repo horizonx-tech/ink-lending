@@ -9,7 +9,12 @@ pub type RateStrategyRef = dyn RateStrategy;
 #[openbrush::trait_definition]
 pub trait RateStrategy {
     #[ink(message)]
-    fn calculate_rate(&self, asset: AccountId, liquidity_added: Balance, liquidity_taken: Balance) -> Result;
+    fn calculate_rate(
+        &self,
+        asset: AccountId,
+        liquidity_added: Balance,
+        liquidity_taken: Balance,
+    ) -> Result;
 }
 
 // supply, variable_debt

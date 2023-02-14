@@ -15,6 +15,4 @@ pub trait AddressProvider {
     fn validator(&self, asset: AccountId) -> Result;
 }
 
-
-
 pub type Result = core::result::Result<AccountId, ()>;
