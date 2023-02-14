@@ -120,14 +120,3 @@ impl<T: Storage<Data>> Pool for T {
         Ok(())
     }
 }
-
-trait Internal {
-    fn _to_share(&self, asset: &AccountId, amount: Balance) -> Result<Balance>;
-}
-
-impl<T: Storage<Data>> Internal for T {
-    default fn _to_share(&self, asset: &AccountId, amount: Balance) -> Result<Balance> {
-        // TODO only supported
-        Ok(PSP22CollateralRef::to_share(asset, amount))
-    }
-}
