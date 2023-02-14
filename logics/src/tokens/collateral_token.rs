@@ -15,7 +15,23 @@ pub struct Data {
     pub shares: Mapping<AccountId, Balance>,
 }
 
-impl<T: Storage<Data>> PSP22 for T {
+impl<T: Storage<Data>> PSP22Collateral for T {
+    default fn total_share(&self) -> Balance {
+        self._total_share()
+    }
+
+    default fn to_share(&self, amount: Balance) -> Balance {
+        self._to_share(amount)
+    }
+
+    default fn mint(&mut self, to: AccountId, supply: Balance) -> Result<(), PSP22Error> {
+        self._mint(to, supply)
+    }
+
+    default fn burn(&mut self, from: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+        self._burn(from, amount)
+    }
+
     default fn total_supply(&self) -> Balance {
         self._total_supply()
     }
@@ -65,24 +81,6 @@ impl<T: Storage<Data>> PSP22 for T {
         delta_value: Balance,
     ) -> Result<(), PSP22Error> {
         todo!()
-    }
-}
-
-impl<T: Storage<Data>> PSP22Collateral for T {
-    default fn total_share(&self) -> Balance {
-        self._total_share()
-    }
-
-    default fn to_share(&self, amount: Balance) -> Balance {
-        self._to_share(amount)
-    }
-
-    default fn mint(&mut self, to: AccountId, supply: Balance) -> Result<(), PSP22Error> {
-        self._mint(to, supply)
-    }
-
-    default fn burn(&mut self, from: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-        self._burn(from, amount)
     }
 }
 
