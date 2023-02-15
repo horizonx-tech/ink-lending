@@ -1,12 +1,9 @@
-use std::default;
-
 use crate::traits::{
     address_provider::AddressProviderRef, asset_pool::*, rate_strategy::RateStrategyRef,
-    tokens::shares_token::SharesRef, validator::ValidatorRef,
+    shares_token::SharesRef, validator::ValidatorRef,
 };
 use openbrush::{
     contracts::traits::psp22::PSP22Ref,
-    storage::Mapping,
     traits::{AccountId, Balance, Storage, Timestamp},
 };
 
@@ -30,7 +27,7 @@ pub struct Data {
 
 trait Internal {
     fn _update_state(&mut self);
-    fn _update_rate(&mut self, liquidit_added: Balance, liqudity_taken: Balance);
+    fn _update_rate(&mut self, asset: AccountId, liquidit_added: Balance, liqudity_taken: Balance);
     fn _validate_withdraw(
         &self,
         account: AccountId,
@@ -40,21 +37,19 @@ trait Internal {
     fn _validate_borrow(&self, account: AccountId, asset: AccountId, amount: Balance)
         -> Result<()>;
     fn _to_share(&self, amount: Balance) -> Balance;
+    fn _calculate_index_with_interest(current_index: u128, rate: u128, elapsed_sec: u128) -> u128;
 }
 
 impl<T: Storage<Data>> AssetPool for T {
-    default fn deposit(&self, account: AccountId, amount: Balance) -> Result<()> {
+    default fn deposit(&mut self, account: AccountId, amount: Balance) -> Result<()> {
         self._update_state();
-        self._update_rate(amount, 0);
+        let asset = self.data().asset;
+        self._update_rate(asset, amount, 0);
 
         let collateral_token = self.data().collateral_token;
-        if let Err(err) = PSP22Ref::transfer_from(
-            &self.data().asset,
-            account,
-            collateral_token,
-            amount,
-            Vec::<u8>::new(),
-        ) {
+        if let Err(err) =
+            PSP22Ref::transfer_from(&asset, account, collateral_token, amount, Vec::<u8>::new())
+        {
             return Err(Error::PSP22(err));
         }
 
@@ -66,11 +61,11 @@ impl<T: Storage<Data>> AssetPool for T {
         Ok(())
     }
 
-    default fn withdraw(&self, account: AccountId, amount: Balance) -> Result<()> {
+    default fn withdraw(&mut self, account: AccountId, amount: Balance) -> Result<()> {
         self._update_state();
-        self._update_rate(0, amount);
-
         let asset = self.data().asset;
+        self._update_rate(asset, 0, amount);
+
         self._validate_withdraw(account, asset, amount)?;
 
         let collateral_token = self.data().collateral_token;
@@ -87,12 +82,12 @@ impl<T: Storage<Data>> AssetPool for T {
         Ok(())
     }
 
-    default fn borrow(&self, account: AccountId, amount: Balance) -> Result<()> {
+    default fn borrow(&mut self, account: AccountId, amount: Balance) -> Result<()> {
         self._update_state();
-        self._update_rate(0, amount);
-
         let asset = self.data().asset;
-        self._validate_borrow(account, asset, amount);
+        self._update_rate(asset, 0, amount);
+
+        self._validate_borrow(account, asset, amount)?;
 
         if let Err(err) = SharesRef::mint(&self.data().variable_debt_token, account, amount) {
             return Err(Error::PSP22(err));
@@ -111,12 +106,13 @@ impl<T: Storage<Data>> AssetPool for T {
         Ok(())
     }
 
-    default fn repay(&self, account: AccountId, amount: Balance) -> Result<()> {
+    default fn repay(&mut self, account: AccountId, amount: Balance) -> Result<()> {
         self._update_state();
-        self._update_rate(amount, 0);
+        let asset = self.data().asset;
+        self._update_rate(asset, amount, 0);
 
         if let Err(err) = SharesRef::transfer_from(
-            &self.data().asset,
+            &asset,
             account,
             self.data().collateral_token,
             amount,
@@ -136,9 +132,18 @@ impl<T: Storage<Data>> AssetPool for T {
 impl<T: Storage<Data>> Internal for T {
     default fn _update_state(&mut self) {
         let timestamp = Self::env().block_timestamp();
-        // TODO update indexes with accrued interest
-        let elapsed = timestamp - self.data().last_update_timestamp;
+        let elapsed = (timestamp - self.data().last_update_timestamp) as u128;
 
+        self.data().liquidity_index = Self::_calculate_index_with_interest(
+            self.data().liquidity_index,
+            self.data().liquidity_rate,
+            elapsed,
+        );
+        self.data().variable_debt_index = Self::_calculate_index_with_interest(
+            self.data().variable_debt_index,
+            self.data().variable_debt_rate,
+            elapsed,
+        );
         self.data().last_update_timestamp = timestamp;
     }
 
@@ -196,5 +201,13 @@ impl<T: Storage<Data>> Internal for T {
         } else {
             amount / liquidity_index
         }
+    }
+
+    default fn _calculate_index_with_interest(
+        current_index: u128,
+        rate: u128,
+        elapsed_sec: u128,
+    ) -> u128 {
+        todo!()
     }
 }

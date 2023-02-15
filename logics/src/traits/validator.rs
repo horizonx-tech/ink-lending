@@ -1,7 +1,4 @@
-use openbrush::{
-    contracts::psp22::PSP22Error,
-    traits::{AccountId, Balance},
-};
+use openbrush::traits::{AccountId, Balance};
 
 #[openbrush::wrapper]
 pub type ValidatorRef = dyn Validator;
