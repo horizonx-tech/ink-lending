@@ -1,10 +1,10 @@
 use openbrush::traits::AccountId;
 
 #[openbrush::wrapper]
-pub type AddressProviderRef = dyn AddressProvider;
+pub type RegistryRef = dyn Registry;
 
 #[openbrush::trait_definition]
-pub trait AddressProvider {
+pub trait Registry {
     #[ink(message)]
     fn rate_strategy(&self, asset: AccountId) -> AccountId;
 

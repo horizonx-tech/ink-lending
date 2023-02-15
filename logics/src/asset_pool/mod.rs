@@ -1,6 +1,6 @@
 use crate::traits::{
-    address_provider::AddressProviderRef, asset_pool::*, rate_strategy::RateStrategyRef,
-    shares_token::SharesRef, validator::ValidatorRef,
+    asset_pool::*, rate_strategy::RateStrategyRef, registry::RegistryRef, shares_token::SharesRef,
+    validator::ValidatorRef,
 };
 use openbrush::{
     contracts::traits::psp22::PSP22Ref,
@@ -153,7 +153,7 @@ impl<T: Storage<Data>> Internal for T {
         liquitidy_added: Balance,
         liquidity_taken: Balance,
     ) {
-        let strategy = AddressProviderRef::rate_strategy(&self.data().address_provider, asset);
+        let strategy = RegistryRef::rate_strategy(&self.data().address_provider, asset);
         let (liquidity_rate, variable_debt_rate) =
             RateStrategyRef::calculate_rate(&strategy, asset, liquitidy_added, liquidity_taken);
 
@@ -170,7 +170,7 @@ impl<T: Storage<Data>> Internal for T {
         // TODO reject if withdrawer balance insufficient
         // TODO reject if withdrawer collateral insufficient
         // TODO reject if asset balance of collateral token insufficient
-        let validator = AddressProviderRef::validator(&self.data().address_provider, asset);
+        let validator = RegistryRef::validator(&self.data().address_provider, asset);
         if let Err(err) = ValidatorRef::validate_borrow(&validator, account, asset, amount) {
             return Err(Error::Validator(err));
         }
@@ -186,7 +186,7 @@ impl<T: Storage<Data>> Internal for T {
     ) -> Result<()> {
         // TODO reject if borrower collateral insufficient
         // TODO reject if asset balance of collateral token insufficient
-        let validator = AddressProviderRef::validator(&self.data().address_provider, asset);
+        let validator = RegistryRef::validator(&self.data().address_provider, asset);
         if let Err(err) = ValidatorRef::validate_withdraw(&validator, account, asset, amount) {
             return Err(Error::Validator(err));
         }
