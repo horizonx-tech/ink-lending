@@ -27,7 +27,7 @@ pub struct Data {
 
 trait Internal {
     fn _update_state(&mut self);
-    fn _update_rate(&mut self, asset: AccountId, liquidit_added: Balance, liqudity_taken: Balance);
+    fn _update_rate(&mut self, asset: AccountId, liquidity_added: Balance, liqudity_taken: Balance);
     fn _validate_withdraw(
         &self,
         account: AccountId,
@@ -150,12 +150,12 @@ impl<T: Storage<Data>> Internal for T {
     default fn _update_rate(
         &mut self,
         asset: AccountId,
-        liquitidy_added: Balance,
+        liquidity_added: Balance,
         liquidity_taken: Balance,
     ) {
         let strategy = RegistryRef::rate_strategy(&self.data().address_provider, asset);
         let (liquidity_rate, variable_debt_rate) =
-            RateStrategyRef::calculate_rate(&strategy, asset, liquitidy_added, liquidity_taken);
+            RateStrategyRef::calculate_rate(&strategy, asset, liquidity_added, liquidity_taken);
 
         self.data().liquidity_rate = liquidity_rate;
         self.data().variable_debt_rate = variable_debt_rate;
