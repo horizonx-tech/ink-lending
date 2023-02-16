@@ -36,7 +36,8 @@ trait Internal {
     ) -> Result<()>;
     fn _validate_borrow(&self, account: AccountId, asset: AccountId, amount: Balance)
         -> Result<()>;
-    fn _to_share(&self, amount: Balance) -> Balance;
+    fn _to_liquidity_share(&self, amount: Balance) -> Balance;
+    fn _to_variable_debt_share(&self, amount: Balance) -> Balance;
     fn _calculate_index_with_interest(current_index: u128, rate: u128, elapsed_sec: u128) -> u128;
 }
 
@@ -52,10 +53,9 @@ impl<T: Storage<Data>> AssetPool for T {
         self._update_rate(asset, amount, 0);
 
         let collateral_token = self.data().collateral_token;
-
         PSP22Ref::transfer_from(&asset, from, collateral_token, amount, Vec::<u8>::new())
             .map_err(to_psp22_error)?;
-        let share = self._to_share(amount);
+        let share = self._to_liquidity_share(amount);
         SharesRef::mint(&collateral_token, account, share).map_err(to_psp22_error)?;
 
         Ok(())
@@ -74,7 +74,8 @@ impl<T: Storage<Data>> AssetPool for T {
         self._validate_withdraw(account, asset, amount)?;
 
         let collateral_token = self.data().collateral_token;
-        SharesRef::burn(&collateral_token, account, amount).map_err(to_psp22_error)?;
+        let share = self._to_liquidity_share(amount);
+        SharesRef::burn(&collateral_token, account, share).map_err(to_psp22_error)?;
         PSP22Ref::transfer_from(&asset, collateral_token, to, amount, Vec::<u8>::new())
             .map_err(to_psp22_error)?;
 
@@ -88,7 +89,8 @@ impl<T: Storage<Data>> AssetPool for T {
 
         self._validate_borrow(account, asset, amount)?;
 
-        SharesRef::mint(&self.data().variable_debt_token, account, amount)
+        let share = self._to_variable_debt_share(amount);
+        SharesRef::mint(&self.data().variable_debt_token, account, share)
             .map_err(to_psp22_error)?;
         PSP22Ref::transfer_from(
             &asset,
@@ -120,7 +122,8 @@ impl<T: Storage<Data>> AssetPool for T {
             Vec::<u8>::new(),
         )
         .map_err(to_psp22_error)?;
-        SharesRef::burn(&self.data().variable_debt_token, account, amount)
+        let share = self._to_variable_debt_share(amount);
+        SharesRef::burn(&self.data().variable_debt_token, account, share)
             .map_err(to_psp22_error)?;
 
         Ok(())
@@ -203,12 +206,21 @@ impl<T: Storage<Data>> Internal for T {
         RiskStrategyRef::validate_withdraw(&strategy, account, asset, amount).map_err(to_risk_error)
     }
 
-    default fn _to_share(&self, amount: Balance) -> Balance {
+    default fn _to_liquidity_share(&self, amount: Balance) -> Balance {
         let liquidity_index = self.data().liquidity_index;
         if liquidity_index == 0 {
             amount
         } else {
             amount / liquidity_index
+        }
+    }
+
+    default fn _to_variable_debt_share(&self, amount: Balance) -> Balance {
+        let variable_debt_index = self.data().variable_debt_index;
+        if variable_debt_index == 0 {
+            amount
+        } else {
+            amount / variable_debt_index
         }
     }
 
