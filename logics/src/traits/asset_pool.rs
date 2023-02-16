@@ -25,7 +25,7 @@ pub trait AssetPool {
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
     PSP22(PSP22Error),
-    Validator(u8),
+    Risk(u8),
 }
 
 pub type Result<T> = core::result::Result<T, Error>;

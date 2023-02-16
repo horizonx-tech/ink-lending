@@ -9,5 +9,5 @@ pub trait Registry {
     fn rate_strategy(&self, asset: AccountId) -> AccountId;
 
     #[ink(message)]
-    fn validator(&self, asset: AccountId) -> AccountId;
+    fn risk_strategy(&self, asset: AccountId) -> AccountId;
 }

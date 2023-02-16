@@ -1,6 +1,6 @@
 use crate::traits::{
-    asset_pool::*, rate_strategy::RateStrategyRef, registry::RegistryRef, shares_token::SharesRef,
-    validator::ValidatorRef,
+    asset_pool::*, rate_strategy::RateStrategyRef, registry::RegistryRef,
+    risk_strategy::RiskStrategyRef, shares_token::SharesRef,
 };
 use openbrush::{
     contracts::traits::psp22::PSP22Ref,
@@ -13,7 +13,7 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     // config
-    address_provider: AccountId,
+    registry: AccountId,
     asset: AccountId,
     collateral_token: AccountId,
     variable_debt_token: AccountId,
@@ -153,7 +153,7 @@ impl<T: Storage<Data>> Internal for T {
         liquidity_added: Balance,
         liquidity_taken: Balance,
     ) {
-        let strategy = RegistryRef::rate_strategy(&self.data().address_provider, asset);
+        let strategy = RegistryRef::rate_strategy(&self.data().registry, asset);
         let (liquidity_rate, variable_debt_rate) =
             RateStrategyRef::calculate_rate(&strategy, asset, liquidity_added, liquidity_taken);
 
@@ -170,9 +170,9 @@ impl<T: Storage<Data>> Internal for T {
         // TODO reject if withdrawer balance insufficient
         // TODO reject if withdrawer collateral insufficient
         // TODO reject if asset balance of collateral token insufficient
-        let validator = RegistryRef::validator(&self.data().address_provider, asset);
-        if let Err(err) = ValidatorRef::validate_borrow(&validator, account, asset, amount) {
-            return Err(Error::Validator(err));
+        let strategy = RegistryRef::risk_strategy(&self.data().registry, asset);
+        if let Err(err) = RiskStrategyRef::validate_borrow(&strategy, account, asset, amount) {
+            return Err(Error::Risk(err));
         }
 
         Ok(())
@@ -186,9 +186,9 @@ impl<T: Storage<Data>> Internal for T {
     ) -> Result<()> {
         // TODO reject if borrower collateral insufficient
         // TODO reject if asset balance of collateral token insufficient
-        let validator = RegistryRef::validator(&self.data().address_provider, asset);
-        if let Err(err) = ValidatorRef::validate_withdraw(&validator, account, asset, amount) {
-            return Err(Error::Validator(err));
+        let strategy = RegistryRef::risk_strategy(&self.data().registry, asset);
+        if let Err(err) = RiskStrategyRef::validate_withdraw(&strategy, account, asset, amount) {
+            return Err(Error::Risk(err));
         }
 
         Ok(())

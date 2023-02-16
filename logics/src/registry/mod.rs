@@ -10,14 +10,14 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     rate_strategies: Mapping<AccountId, AccountId>,
-    validators: Mapping<AccountId, AccountId>,
+    risk_strategies: Mapping<AccountId, AccountId>,
     default_rate_strategy: AccountId,
-    default_validator: AccountId,
+    default_risk_strategy: AccountId,
 }
 
 trait Internal {
     fn _rate_strategy(&self, asset: &AccountId) -> AccountId;
-    fn _validator(&self, asset: &AccountId) -> AccountId;
+    fn _risk_strategy(&self, asset: &AccountId) -> AccountId;
 }
 
 impl<T: Storage<Data>> Registry for T {
@@ -25,8 +25,8 @@ impl<T: Storage<Data>> Registry for T {
         self._rate_strategy(&asset)
     }
 
-    fn validator(&self, asset: AccountId) -> AccountId {
-        self._validator(&asset)
+    fn risk_strategy(&self, asset: AccountId) -> AccountId {
+        self._risk_strategy(&asset)
     }
 }
 
@@ -37,10 +37,10 @@ impl<T: Storage<Data>> Internal for T {
             .get(asset)
             .unwrap_or(self.data().default_rate_strategy)
     }
-    default fn _validator(&self, asset: &AccountId) -> AccountId {
+    default fn _risk_strategy(&self, asset: &AccountId) -> AccountId {
         self.data()
-            .validators
+            .risk_strategies
             .get(asset)
-            .unwrap_or(self.data().default_validator)
+            .unwrap_or(self.data().default_risk_strategy)
     }
 }

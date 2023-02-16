@@ -1,10 +1,10 @@
 use openbrush::traits::{AccountId, Balance};
 
 #[openbrush::wrapper]
-pub type ValidatorRef = dyn Validator;
+pub type RiskStrategyRef = dyn RiskStrategy;
 
 #[openbrush::trait_definition]
-pub trait Validator {
+pub trait RiskStrategy {
     #[ink(message)]
     fn validate_borrow(&self, account: AccountId, asset: AccountId, amount: Balance) -> Result;
 
