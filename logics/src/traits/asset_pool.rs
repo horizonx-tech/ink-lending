@@ -19,6 +19,14 @@ pub trait AssetPool {
 
     #[ink(message)]
     fn repay(&mut self, account: AccountId, from: AccountId, amount: Balance) -> Result<()>;
+
+    #[ink(message)]
+    fn transfer_collateral_on_liquidation(
+        &mut self,
+        liquidatee: AccountId,
+        receiver: AccountId,
+        amount: Balance,
+    ) -> Result<()>;
 }
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]

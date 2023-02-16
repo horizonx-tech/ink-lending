@@ -18,6 +18,15 @@ pub trait Service {
 
     #[ink(message)]
     fn repay(&mut self, asset: AccountId, amount: Balance) -> Result<()>;
+
+    #[ink(message)]
+    fn liquidation_call(
+        &mut self,
+        liquidatee: AccountId,
+        collateral_asset: AccountId,
+        debt_asset: AccountId,
+        debt_amount: Balance,
+    ) -> Result<()>;
 }
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]

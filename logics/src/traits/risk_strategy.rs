@@ -6,10 +6,25 @@ pub type RiskStrategyRef = dyn RiskStrategy;
 #[openbrush::trait_definition]
 pub trait RiskStrategy {
     #[ink(message)]
-    fn validate_borrow(&self, account: AccountId, asset: AccountId, amount: Balance) -> Result;
+    fn validate_borrow(&self, account: AccountId, asset: AccountId, amount: Balance) -> Result<()>;
 
     #[ink(message)]
-    fn validate_withdraw(&self, account: AccountId, asset: AccountId, amount: Balance) -> Result;
+    fn validate_withdraw(
+        &self,
+        account: AccountId,
+        asset: AccountId,
+        amount: Balance,
+    ) -> Result<()>;
+
+    // receivable_amount
+    #[ink(message)]
+    fn validate_liquidation(
+        &self,
+        liquidatee: AccountId,
+        collateral_asset: AccountId,
+        debt_asset: AccountId,
+        debt_amount: Balance,
+    ) -> Result<Balance>;
 }
 
-pub type Result = core::result::Result<(), u8>;
+pub type Result<T> = core::result::Result<T, u8>;

@@ -142,6 +142,31 @@ impl<T: Storage<Data>> AssetPool for T {
 
         Ok(())
     }
+
+    default fn transfer_collateral_on_liquidation(
+        &mut self,
+        liquidatee: AccountId,
+        receiver: AccountId,
+        amount: Balance,
+    ) -> Result<()> {
+        self._update_state();
+        let asset = self.data().asset;
+        self._update_rate(asset, 0, amount);
+
+        let collateral_token = self.data().collateral_token;
+        if let Err(err) = SharesRef::burn(&collateral_token, liquidatee, amount) {
+            return Err(Error::PSP22(err));
+        }
+
+        // TODO collect fees
+        if let Err(err) =
+            PSP22Ref::transfer_from(&asset, collateral_token, receiver, amount, Vec::<u8>::new())
+        {
+            return Err(Error::PSP22(err));
+        }
+
+        Ok(())
+    }
 }
 
 impl<T: Storage<Data>> Internal for T {

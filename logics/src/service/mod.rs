@@ -16,6 +16,13 @@ pub trait Internal {
     fn _withdraw(&mut self, asset: AccountId, amount: Balance) -> Result<()>;
     fn _borrow(&mut self, asset: AccountId, amount: Balance) -> Result<()>;
     fn _repay(&mut self, asset: AccountId, amount: Balance) -> Result<()>;
+    fn _liquidation_call(
+        &mut self,
+        liquidatee: AccountId,
+        collateral_asset: AccountId,
+        debt_asset: AccountId,
+        debt_amount: Balance,
+    ) -> Result<()>;
     fn _pool(&self, asset: AccountId) -> Result<AccountId>;
 }
 
@@ -34,6 +41,16 @@ impl<T: Storage<Data>> Service for T {
 
     fn repay(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
         self._repay(asset, amount)
+    }
+
+    fn liquidation_call(
+        &mut self,
+        liquidatee: AccountId,
+        collateral_asset: AccountId,
+        debt_asset: AccountId,
+        debt_amount: Balance,
+    ) -> Result<()> {
+        self._liquidation_call(liquidatee, collateral_asset, debt_asset, debt_amount)
     }
 }
 
@@ -72,6 +89,46 @@ impl<T: Storage<Data>> Internal for T {
             Ok(..) => Ok(()),
             Err(e) => Err(Error::Pool(e)),
         }
+    }
+
+    fn _liquidation_call(
+        &mut self,
+        liquidatee: AccountId,
+        collateral_asset: AccountId,
+        debt_asset: AccountId,
+        debt_amount: Balance,
+    ) -> Result<()> {
+        let collateral_pool = self._pool(collateral_asset)?;
+        let debt_pool = self._pool(debt_asset)?;
+
+        let strategy = RegistryRef::risk_strategy(&self.data().registry, debt_asset);
+        let collateral_amount = match RiskStrategyRef::validate_liquidation(
+            &strategy,
+            liquidatee,
+            collateral_asset,
+            debt_asset,
+            debt_amount,
+        ) {
+            Ok(amount) => amount,
+            Err(e) => return Err(Error::Risk(e)),
+        };
+
+        if let Err(e) =
+            AssetPoolRef::repay(&debt_pool, liquidatee, Self::env().caller(), debt_amount)
+        {
+            return Err(Error::Pool(e));
+        }
+
+        if let Err(e) = AssetPoolRef::transfer_collateral_on_liquidation(
+            &collateral_pool,
+            liquidatee,
+            Self::env().caller(),
+            collateral_amount,
+        ) {
+            return Err(Error::Pool(e));
+        }
+
+        Ok(())
     }
 
     fn _pool(&self, asset: AccountId) -> Result<AccountId> {
