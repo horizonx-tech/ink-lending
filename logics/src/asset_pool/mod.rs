@@ -3,7 +3,7 @@ use crate::traits::{
     risk_strategy::RiskStrategyRef, shares_token::SharesRef,
 };
 use openbrush::{
-    contracts::traits::psp22::PSP22Ref,
+    contracts::{psp22::PSP22Error, traits::psp22::PSP22Ref},
     traits::{AccountId, Balance, Storage, Timestamp},
 };
 
@@ -52,16 +52,11 @@ impl<T: Storage<Data>> AssetPool for T {
         self._update_rate(asset, amount, 0);
 
         let collateral_token = self.data().collateral_token;
-        if let Err(err) =
-            PSP22Ref::transfer_from(&asset, from, collateral_token, amount, Vec::<u8>::new())
-        {
-            return Err(Error::PSP22(err));
-        }
 
+        PSP22Ref::transfer_from(&asset, from, collateral_token, amount, Vec::<u8>::new())
+            .map_err(to_psp22_error)?;
         let share = self._to_share(amount);
-        if let Err(err) = SharesRef::mint(&collateral_token, account, share) {
-            return Err(Error::PSP22(err));
-        }
+        SharesRef::mint(&collateral_token, account, share).map_err(to_psp22_error)?;
 
         Ok(())
     }
@@ -79,15 +74,9 @@ impl<T: Storage<Data>> AssetPool for T {
         self._validate_withdraw(account, asset, amount)?;
 
         let collateral_token = self.data().collateral_token;
-        if let Err(err) = SharesRef::burn(&collateral_token, account, amount) {
-            return Err(Error::PSP22(err));
-        }
-
-        if let Err(err) =
-            PSP22Ref::transfer_from(&asset, collateral_token, to, amount, Vec::<u8>::new())
-        {
-            return Err(Error::PSP22(err));
-        }
+        SharesRef::burn(&collateral_token, account, amount).map_err(to_psp22_error)?;
+        PSP22Ref::transfer_from(&asset, collateral_token, to, amount, Vec::<u8>::new())
+            .map_err(to_psp22_error)?;
 
         Ok(())
     }
@@ -99,19 +88,16 @@ impl<T: Storage<Data>> AssetPool for T {
 
         self._validate_borrow(account, asset, amount)?;
 
-        if let Err(err) = SharesRef::mint(&self.data().variable_debt_token, account, amount) {
-            return Err(Error::PSP22(err));
-        }
-
-        if let Err(err) = PSP22Ref::transfer_from(
+        SharesRef::mint(&self.data().variable_debt_token, account, amount)
+            .map_err(to_psp22_error)?;
+        PSP22Ref::transfer_from(
             &asset,
             self.data().collateral_token,
             to,
             amount,
             Vec::<u8>::new(),
-        ) {
-            return Err(Error::PSP22(err));
-        }
+        )
+        .map_err(to_psp22_error)?;
 
         Ok(())
     }
@@ -126,19 +112,16 @@ impl<T: Storage<Data>> AssetPool for T {
         let asset = self.data().asset;
         self._update_rate(asset, amount, 0);
 
-        if let Err(err) = SharesRef::transfer_from(
+        PSP22Ref::transfer_from(
             &asset,
             from,
             self.data().collateral_token,
             amount,
             Vec::<u8>::new(),
-        ) {
-            return Err(Error::PSP22(err));
-        }
-
-        if let Err(err) = SharesRef::burn(&self.data().variable_debt_token, account, amount) {
-            return Err(Error::PSP22(err));
-        }
+        )
+        .map_err(to_psp22_error)?;
+        SharesRef::burn(&self.data().variable_debt_token, account, amount)
+            .map_err(to_psp22_error)?;
 
         Ok(())
     }
@@ -154,16 +137,10 @@ impl<T: Storage<Data>> AssetPool for T {
         self._update_rate(asset, 0, amount);
 
         let collateral_token = self.data().collateral_token;
-        if let Err(err) = SharesRef::burn(&collateral_token, liquidatee, amount) {
-            return Err(Error::PSP22(err));
-        }
-
+        SharesRef::burn(&collateral_token, liquidatee, amount).map_err(to_psp22_error)?;
         // TODO collect fees
-        if let Err(err) =
-            PSP22Ref::transfer_from(&asset, collateral_token, receiver, amount, Vec::<u8>::new())
-        {
-            return Err(Error::PSP22(err));
-        }
+        PSP22Ref::transfer_from(&asset, collateral_token, receiver, amount, Vec::<u8>::new())
+            .map_err(to_psp22_error)?;
 
         Ok(())
     }
@@ -211,11 +188,7 @@ impl<T: Storage<Data>> Internal for T {
         // TODO reject if withdrawer collateral insufficient
         // TODO reject if asset balance of collateral token insufficient
         let strategy = RegistryRef::risk_strategy(&self.data().registry, asset);
-        if let Err(err) = RiskStrategyRef::validate_borrow(&strategy, account, asset, amount) {
-            return Err(Error::Risk(err));
-        }
-
-        Ok(())
+        RiskStrategyRef::validate_borrow(&strategy, account, asset, amount).map_err(to_risk_error)
     }
 
     default fn _validate_borrow(
@@ -227,11 +200,7 @@ impl<T: Storage<Data>> Internal for T {
         // TODO reject if borrower collateral insufficient
         // TODO reject if asset balance of collateral token insufficient
         let strategy = RegistryRef::risk_strategy(&self.data().registry, asset);
-        if let Err(err) = RiskStrategyRef::validate_withdraw(&strategy, account, asset, amount) {
-            return Err(Error::Risk(err));
-        }
-
-        Ok(())
+        RiskStrategyRef::validate_withdraw(&strategy, account, asset, amount).map_err(to_risk_error)
     }
 
     default fn _to_share(&self, amount: Balance) -> Balance {
@@ -250,4 +219,12 @@ impl<T: Storage<Data>> Internal for T {
     ) -> u128 {
         todo!()
     }
+}
+
+pub fn to_psp22_error(e: PSP22Error) -> Error {
+    Error::PSP22(e)
+}
+
+pub fn to_risk_error(e: u8) -> Error {
+    Error::Risk(e)
 }

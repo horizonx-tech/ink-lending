@@ -1,5 +1,8 @@
 use crate::traits::{
-    asset_pool::AssetPoolRef, registry::RegistryRef, risk_strategy::RiskStrategyRef, service::*,
+    asset_pool::{self, AssetPoolRef},
+    registry::{self, RegistryRef},
+    risk_strategy::RiskStrategyRef,
+    service::*,
 };
 use openbrush::traits::{AccountId, Balance, Storage};
 
@@ -58,37 +61,25 @@ impl<T: Storage<Data>> Internal for T {
     fn _deposit(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
         let pool = self._pool(asset)?;
         let caller = Self::env().caller();
-        match AssetPoolRef::deposit(&pool, caller, caller, amount) {
-            Ok(..) => Ok(()),
-            Err(e) => Err(Error::Pool(e)),
-        }
+        AssetPoolRef::deposit(&pool, caller, caller, amount).map_err(to_asset_pool_error)
     }
 
     fn _withdraw(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
         let pool = self._pool(asset)?;
         let caller = Self::env().caller();
-        match AssetPoolRef::withdraw(&pool, caller, caller, amount) {
-            Ok(..) => Ok(()),
-            Err(e) => Err(Error::Pool(e)),
-        }
+        AssetPoolRef::withdraw(&pool, caller, caller, amount).map_err(to_asset_pool_error)
     }
 
     fn _borrow(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
         let pool = self._pool(asset)?;
         let caller = Self::env().caller();
-        match AssetPoolRef::borrow(&pool, caller, caller, amount) {
-            Ok(..) => Ok(()),
-            Err(e) => Err(Error::Pool(e)),
-        }
+        AssetPoolRef::borrow(&pool, caller, caller, amount).map_err(to_asset_pool_error)
     }
 
     fn _repay(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
         let pool = self._pool(asset)?;
         let caller = Self::env().caller();
-        match AssetPoolRef::repay(&pool, caller, caller, amount) {
-            Ok(..) => Ok(()),
-            Err(e) => Err(Error::Pool(e)),
-        }
+        AssetPoolRef::repay(&pool, caller, caller, amount).map_err(to_asset_pool_error)
     }
 
     fn _liquidation_call(
@@ -110,31 +101,35 @@ impl<T: Storage<Data>> Internal for T {
             debt_amount,
         ) {
             Ok(amount) => amount,
-            Err(e) => return Err(Error::Risk(e)),
+            Err(e) => return Err(to_risk_error(e)),
         };
 
-        if let Err(e) =
-            AssetPoolRef::repay(&debt_pool, liquidatee, Self::env().caller(), debt_amount)
-        {
-            return Err(Error::Pool(e));
-        }
-
-        if let Err(e) = AssetPoolRef::transfer_collateral_on_liquidation(
+        AssetPoolRef::repay(&debt_pool, liquidatee, Self::env().caller(), debt_amount)
+            .map_err(to_asset_pool_error)?;
+        AssetPoolRef::transfer_collateral_on_liquidation(
             &collateral_pool,
             liquidatee,
             Self::env().caller(),
             collateral_amount,
-        ) {
-            return Err(Error::Pool(e));
-        }
+        )
+        .map_err(to_asset_pool_error)?;
 
         Ok(())
     }
 
     fn _pool(&self, asset: AccountId) -> Result<AccountId> {
-        match RegistryRef::pool(&self.data().registry, asset) {
-            Ok(pool) => Ok(pool),
-            Err(e) => Err(Error::Registry(e)),
-        }
+        RegistryRef::pool(&self.data().registry, asset).map_err(to_regstry_error)
     }
+}
+
+pub fn to_asset_pool_error(e: asset_pool::Error) -> Error {
+    Error::AssetPool(e)
+}
+
+pub fn to_regstry_error(e: registry::Error) -> Error {
+    Error::Registry(e)
+}
+
+pub fn to_risk_error(e: u8) -> Error {
+    Error::Risk(e)
 }

@@ -32,7 +32,7 @@ pub trait Service {
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
-    Pool(asset_pool::Error),
+    AssetPool(asset_pool::Error),
     Registry(registry::Error),
     Risk(u8),
 }
