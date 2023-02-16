@@ -23,15 +23,15 @@ trait Internal {
 }
 
 impl<T: Storage<Data>> Registry for T {
-    fn pool(&self, asset: AccountId) -> Result<AccountId> {
+    default fn pool(&self, asset: AccountId) -> Result<AccountId> {
         self._pool(&asset)
     }
 
-    fn rate_strategy(&self, asset: AccountId) -> AccountId {
+    default fn rate_strategy(&self, asset: AccountId) -> AccountId {
         self._rate_strategy(&asset)
     }
 
-    fn risk_strategy(&self, asset: AccountId) -> AccountId {
+    default fn risk_strategy(&self, asset: AccountId) -> AccountId {
         self._risk_strategy(&asset)
     }
 }

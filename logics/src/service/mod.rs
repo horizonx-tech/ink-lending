@@ -30,23 +30,23 @@ pub trait Internal {
 }
 
 impl<T: Storage<Data>> Service for T {
-    fn deposit(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
+    default fn deposit(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
         self._deposit(asset, amount)
     }
 
-    fn withdraw(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
+    default fn withdraw(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
         self._withdraw(asset, amount)
     }
 
-    fn borrow(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
+    default fn borrow(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
         self._borrow(asset, amount)
     }
 
-    fn repay(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
+    default fn repay(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
         self._repay(asset, amount)
     }
 
-    fn liquidation_call(
+    default fn liquidation_call(
         &mut self,
         liquidatee: AccountId,
         collateral_asset: AccountId,
@@ -58,31 +58,31 @@ impl<T: Storage<Data>> Service for T {
 }
 
 impl<T: Storage<Data>> Internal for T {
-    fn _deposit(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
+    default fn _deposit(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
         let pool = self._pool(asset)?;
         let caller = Self::env().caller();
         AssetPoolRef::deposit(&pool, caller, caller, amount).map_err(to_asset_pool_error)
     }
 
-    fn _withdraw(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
+    default fn _withdraw(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
         let pool = self._pool(asset)?;
         let caller = Self::env().caller();
         AssetPoolRef::withdraw(&pool, caller, caller, amount).map_err(to_asset_pool_error)
     }
 
-    fn _borrow(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
+    default fn _borrow(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
         let pool = self._pool(asset)?;
         let caller = Self::env().caller();
         AssetPoolRef::borrow(&pool, caller, caller, amount).map_err(to_asset_pool_error)
     }
 
-    fn _repay(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
+    default fn _repay(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
         let pool = self._pool(asset)?;
         let caller = Self::env().caller();
         AssetPoolRef::repay(&pool, caller, caller, amount).map_err(to_asset_pool_error)
     }
 
-    fn _liquidation_call(
+    default fn _liquidation_call(
         &mut self,
         liquidatee: AccountId,
         collateral_asset: AccountId,
@@ -117,7 +117,7 @@ impl<T: Storage<Data>> Internal for T {
         Ok(())
     }
 
-    fn _pool(&self, asset: AccountId) -> Result<AccountId> {
+    default fn _pool(&self, asset: AccountId) -> Result<AccountId> {
         RegistryRef::pool(&self.data().registry, asset).map_err(to_regstry_error)
     }
 }
