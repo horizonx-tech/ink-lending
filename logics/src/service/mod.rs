@@ -1,6 +1,6 @@
 use crate::traits::{
     asset_pool::{self, AssetPoolRef},
-    registry::{self, RegistryRef},
+    registry::RegistryRef,
     risk_strategy::RiskStrategyRef,
     service::*,
 };
@@ -118,16 +118,12 @@ impl<T: Storage<Data>> Internal for T {
     }
 
     default fn _pool(&self, asset: AccountId) -> Result<AccountId> {
-        RegistryRef::pool(&self.data().registry, asset).map_err(to_regstry_error)
+        RegistryRef::pool(&self.data().registry, asset).ok_or(Error::PoolNotFound)
     }
 }
 
 pub fn to_asset_pool_error(e: asset_pool::Error) -> Error {
     Error::AssetPool(e)
-}
-
-pub fn to_regstry_error(e: registry::Error) -> Error {
-    Error::Registry(e)
 }
 
 pub fn to_risk_error(e: u8) -> Error {

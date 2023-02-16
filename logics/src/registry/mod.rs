@@ -17,13 +17,13 @@ pub struct Data {
 }
 
 trait Internal {
-    fn _pool(&self, asset: &AccountId) -> Result<AccountId>;
+    fn _pool(&self, asset: &AccountId) -> Option<AccountId>;
     fn _rate_strategy(&self, asset: &AccountId) -> AccountId;
     fn _risk_strategy(&self, asset: &AccountId) -> AccountId;
 }
 
 impl<T: Storage<Data>> Registry for T {
-    default fn pool(&self, asset: AccountId) -> Result<AccountId> {
+    default fn pool(&self, asset: AccountId) -> Option<AccountId> {
         self._pool(&asset)
     }
 
@@ -37,11 +37,8 @@ impl<T: Storage<Data>> Registry for T {
 }
 
 impl<T: Storage<Data>> Internal for T {
-    default fn _pool(&self, asset: &AccountId) -> Result<AccountId> {
-        match self.data().pools.get(asset) {
-            None => Err(Error::PoolNotFound),
-            Some(pool) => Ok(pool),
-        }
+    default fn _pool(&self, asset: &AccountId) -> Option<AccountId> {
+        self.data().pools.get(asset)
     }
 
     default fn _rate_strategy(&self, asset: &AccountId) -> AccountId {

@@ -1,6 +1,6 @@
 use openbrush::traits::{AccountId, Balance};
 
-use super::{asset_pool, registry};
+use super::asset_pool;
 
 #[openbrush::wrapper]
 pub type ServiceRef = dyn Service;
@@ -32,8 +32,8 @@ pub trait Service {
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
+    PoolNotFound,
     AssetPool(asset_pool::Error),
-    Registry(registry::Error),
     Risk(u8),
 }
 
