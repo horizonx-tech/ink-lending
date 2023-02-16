@@ -20,6 +20,7 @@ trait Internal {
     fn _pool(&self, asset: &AccountId) -> Option<AccountId>;
     fn _rate_strategy(&self, asset: &AccountId) -> AccountId;
     fn _risk_strategy(&self, asset: &AccountId) -> AccountId;
+    fn _register_pool(&mut self, asset: &AccountId, pool: &AccountId) -> Result<()>;
 }
 
 impl<T: Storage<Data>> Registry for T {
@@ -33,6 +34,10 @@ impl<T: Storage<Data>> Registry for T {
 
     default fn risk_strategy(&self, asset: AccountId) -> AccountId {
         self._risk_strategy(&asset)
+    }
+
+    default fn register_pool(&mut self, asset: AccountId, pool: AccountId) -> Result<()> {
+        self._register_pool(&asset, &pool)
     }
 }
 
@@ -53,5 +58,14 @@ impl<T: Storage<Data>> Internal for T {
             .risk_strategies
             .get(asset)
             .unwrap_or(self.data().default_risk_strategy)
+    }
+
+    default fn _register_pool(&mut self, asset: &AccountId, pool: &AccountId) -> Result<()> {
+        if self._pool(asset).is_some() {
+            return Err(Error::PoolAlreadyExists);
+        }
+        self.data().pools.insert(asset, pool);
+
+        Ok(())
     }
 }
