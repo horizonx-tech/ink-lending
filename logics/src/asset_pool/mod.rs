@@ -41,14 +41,19 @@ trait Internal {
 }
 
 impl<T: Storage<Data>> AssetPool for T {
-    default fn deposit(&mut self, account: AccountId, amount: Balance) -> Result<()> {
+    default fn deposit(
+        &mut self,
+        account: AccountId,
+        from: AccountId,
+        amount: Balance,
+    ) -> Result<()> {
         self._update_state();
         let asset = self.data().asset;
         self._update_rate(asset, amount, 0);
 
         let collateral_token = self.data().collateral_token;
         if let Err(err) =
-            PSP22Ref::transfer_from(&asset, account, collateral_token, amount, Vec::<u8>::new())
+            PSP22Ref::transfer_from(&asset, from, collateral_token, amount, Vec::<u8>::new())
         {
             return Err(Error::PSP22(err));
         }
@@ -61,7 +66,12 @@ impl<T: Storage<Data>> AssetPool for T {
         Ok(())
     }
 
-    default fn withdraw(&mut self, account: AccountId, amount: Balance) -> Result<()> {
+    default fn withdraw(
+        &mut self,
+        account: AccountId,
+        to: AccountId,
+        amount: Balance,
+    ) -> Result<()> {
         self._update_state();
         let asset = self.data().asset;
         self._update_rate(asset, 0, amount);
@@ -74,7 +84,7 @@ impl<T: Storage<Data>> AssetPool for T {
         }
 
         if let Err(err) =
-            PSP22Ref::transfer_from(&asset, collateral_token, account, amount, Vec::<u8>::new())
+            PSP22Ref::transfer_from(&asset, collateral_token, to, amount, Vec::<u8>::new())
         {
             return Err(Error::PSP22(err));
         }
@@ -82,7 +92,7 @@ impl<T: Storage<Data>> AssetPool for T {
         Ok(())
     }
 
-    default fn borrow(&mut self, account: AccountId, amount: Balance) -> Result<()> {
+    default fn borrow(&mut self, account: AccountId, to: AccountId, amount: Balance) -> Result<()> {
         self._update_state();
         let asset = self.data().asset;
         self._update_rate(asset, 0, amount);
@@ -96,7 +106,7 @@ impl<T: Storage<Data>> AssetPool for T {
         if let Err(err) = PSP22Ref::transfer_from(
             &asset,
             self.data().collateral_token,
-            account,
+            to,
             amount,
             Vec::<u8>::new(),
         ) {
@@ -106,14 +116,19 @@ impl<T: Storage<Data>> AssetPool for T {
         Ok(())
     }
 
-    default fn repay(&mut self, account: AccountId, amount: Balance) -> Result<()> {
+    default fn repay(
+        &mut self,
+        account: AccountId,
+        from: AccountId,
+        amount: Balance,
+    ) -> Result<()> {
         self._update_state();
         let asset = self.data().asset;
         self._update_rate(asset, amount, 0);
 
         if let Err(err) = SharesRef::transfer_from(
             &asset,
-            account,
+            from,
             self.data().collateral_token,
             amount,
             Vec::<u8>::new(),

@@ -9,16 +9,16 @@ pub type AssetPoolRef = dyn AssetPool;
 #[openbrush::trait_definition]
 pub trait AssetPool {
     #[ink(message)]
-    fn deposit(&mut self, account: AccountId, amount: Balance) -> Result<()>;
+    fn deposit(&mut self, account: AccountId, from: AccountId, amount: Balance) -> Result<()>;
 
     #[ink(message)]
-    fn withdraw(&mut self, account: AccountId, amount: Balance) -> Result<()>;
+    fn withdraw(&mut self, account: AccountId, to: AccountId, amount: Balance) -> Result<()>;
 
     #[ink(message)]
-    fn borrow(&mut self, account: AccountId, amount: Balance) -> Result<()>;
+    fn borrow(&mut self, account: AccountId, to: AccountId, amount: Balance) -> Result<()>;
 
     #[ink(message)]
-    fn repay(&mut self, account: AccountId, amount: Balance) -> Result<()>;
+    fn repay(&mut self, account: AccountId, from: AccountId, amount: Balance) -> Result<()>;
 }
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
