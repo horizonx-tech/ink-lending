@@ -1,0 +1,3277 @@
+#![feature(prelude_import)]
+#![feature(min_specialization)]
+#[prelude_import]
+use std::prelude::rust_2021::*;
+#[macro_use]
+extern crate std;
+pub mod shares_token {
+    impl ::ink::reflect::ContractEnv for SharesToken {
+        type Env = ::ink::env::DefaultEnvironment;
+    }
+    type Environment = <SharesToken as ::ink::reflect::ContractEnv>::Env;
+    type AccountId = <<SharesToken as ::ink::reflect::ContractEnv>::Env as ::ink::env::Environment>::AccountId;
+    type Balance = <<SharesToken as ::ink::reflect::ContractEnv>::Env as ::ink::env::Environment>::Balance;
+    type Hash = <<SharesToken as ::ink::reflect::ContractEnv>::Env as ::ink::env::Environment>::Hash;
+    type Timestamp = <<SharesToken as ::ink::reflect::ContractEnv>::Env as ::ink::env::Environment>::Timestamp;
+    type BlockNumber = <<SharesToken as ::ink::reflect::ContractEnv>::Env as ::ink::env::Environment>::BlockNumber;
+    const _: () = {
+        struct Check {
+            salt: (),
+            field_0: psp22::Data,
+            field_1: ownable::Data,
+            field_2: metadata::Data,
+            field_3: AccountId,
+        }
+    };
+    #[cfg(not(feature = "__ink_dylint_Storage"))]
+    pub struct SharesToken {
+        #[storage_field]
+        psp22: <psp22::Data as ::ink::storage::traits::AutoStorableHint<
+            ::ink::storage::traits::ManualKey<3299687552u32, ()>,
+        >>::Type,
+        #[storage_field]
+        ownable: <ownable::Data as ::ink::storage::traits::AutoStorableHint<
+            ::ink::storage::traits::ManualKey<1235151324u32, ()>,
+        >>::Type,
+        #[storage_field]
+        metadata: <metadata::Data as ::ink::storage::traits::AutoStorableHint<
+            ::ink::storage::traits::ManualKey<498111775u32, ()>,
+        >>::Type,
+        asset: <AccountId as ::ink::storage::traits::AutoStorableHint<
+            ::ink::storage::traits::ManualKey<2528962715u32, ()>,
+        >>::Type,
+    }
+    const _: () = {
+        impl<
+            __ink_generic_salt: ::ink::storage::traits::StorageKey,
+        > ::ink::storage::traits::StorableHint<__ink_generic_salt> for SharesToken {
+            type Type = SharesToken;
+            type PreferredKey = ::ink::storage::traits::AutoKey;
+        }
+    };
+    const _: () = {
+        impl ::ink::storage::traits::StorageKey for SharesToken {
+            const KEY: ::ink::primitives::Key = <() as ::ink::storage::traits::StorageKey>::KEY;
+        }
+    };
+    const _: () = {
+        impl ::ink::storage::traits::Storable for SharesToken {
+            #[inline(always)]
+            #[allow(non_camel_case_types)]
+            fn decode<__ink_I: ::scale::Input>(
+                __input: &mut __ink_I,
+            ) -> ::core::result::Result<Self, ::scale::Error> {
+                ::core::result::Result::Ok(SharesToken {
+                    psp22: <<psp22::Data as ::ink::storage::traits::AutoStorableHint<
+                        ::ink::storage::traits::ManualKey<3299687552u32, ()>,
+                    >>::Type as ::ink::storage::traits::Storable>::decode(__input)?,
+                    ownable: <<ownable::Data as ::ink::storage::traits::AutoStorableHint<
+                        ::ink::storage::traits::ManualKey<1235151324u32, ()>,
+                    >>::Type as ::ink::storage::traits::Storable>::decode(__input)?,
+                    metadata: <<metadata::Data as ::ink::storage::traits::AutoStorableHint<
+                        ::ink::storage::traits::ManualKey<498111775u32, ()>,
+                    >>::Type as ::ink::storage::traits::Storable>::decode(__input)?,
+                    asset: <<AccountId as ::ink::storage::traits::AutoStorableHint<
+                        ::ink::storage::traits::ManualKey<2528962715u32, ()>,
+                    >>::Type as ::ink::storage::traits::Storable>::decode(__input)?,
+                })
+            }
+            #[inline(always)]
+            #[allow(non_camel_case_types)]
+            fn encode<__ink_O: ::scale::Output + ?::core::marker::Sized>(
+                &self,
+                __dest: &mut __ink_O,
+            ) {
+                match self {
+                    SharesToken {
+                        psp22: __binding_0,
+                        ownable: __binding_1,
+                        metadata: __binding_2,
+                        asset: __binding_3,
+                    } => {
+                        {
+                            ::ink::storage::traits::Storable::encode(
+                                __binding_0,
+                                __dest,
+                            );
+                        }
+                        {
+                            ::ink::storage::traits::Storable::encode(
+                                __binding_1,
+                                __dest,
+                            );
+                        }
+                        {
+                            ::ink::storage::traits::Storable::encode(
+                                __binding_2,
+                                __dest,
+                            );
+                        }
+                        {
+                            ::ink::storage::traits::Storable::encode(
+                                __binding_3,
+                                __dest,
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    };
+    #[allow(non_upper_case_globals, unused_attributes, unused_qualifications)]
+    const _: () = {
+        impl ::scale_info::TypeInfo for SharesToken {
+            type Identity = Self;
+            fn type_info() -> ::scale_info::Type {
+                ::scale_info::Type::builder()
+                    .path(
+                        ::scale_info::Path::new(
+                            "SharesToken",
+                            "shares_token::shares_token",
+                        ),
+                    )
+                    .type_params(::alloc::vec::Vec::new())
+                    .composite(
+                        ::scale_info::build::Fields::named()
+                            .field(|f| {
+                                f
+                                    .ty::<
+                                        <psp22::Data as ::ink::storage::traits::AutoStorableHint<
+                                            ::ink::storage::traits::ManualKey<3299687552u32, ()>,
+                                        >>::Type,
+                                    >()
+                                    .name("psp22")
+                                    .type_name(
+                                        "<psp22::Data as::ink::storage::traits::AutoStorableHint<::ink::\nstorage::traits::ManualKey<3299687552u32, ()>,>>::Type",
+                                    )
+                            })
+                            .field(|f| {
+                                f
+                                    .ty::<
+                                        <ownable::Data as ::ink::storage::traits::AutoStorableHint<
+                                            ::ink::storage::traits::ManualKey<1235151324u32, ()>,
+                                        >>::Type,
+                                    >()
+                                    .name("ownable")
+                                    .type_name(
+                                        "<ownable::Data as::ink::storage::traits::AutoStorableHint<::ink\n::storage::traits::ManualKey<1235151324u32, ()>,>>::Type",
+                                    )
+                            })
+                            .field(|f| {
+                                f
+                                    .ty::<
+                                        <metadata::Data as ::ink::storage::traits::AutoStorableHint<
+                                            ::ink::storage::traits::ManualKey<498111775u32, ()>,
+                                        >>::Type,
+                                    >()
+                                    .name("metadata")
+                                    .type_name(
+                                        "<metadata::Data as::ink::storage::traits::AutoStorableHint<::ink\n::storage::traits::ManualKey<498111775u32, ()>,>>::Type",
+                                    )
+                            })
+                            .field(|f| {
+                                f
+                                    .ty::<
+                                        <AccountId as ::ink::storage::traits::AutoStorableHint<
+                                            ::ink::storage::traits::ManualKey<2528962715u32, ()>,
+                                        >>::Type,
+                                    >()
+                                    .name("asset")
+                                    .type_name(
+                                        "<AccountId as::ink::storage::traits::AutoStorableHint<::ink::\nstorage::traits::ManualKey<2528962715u32, ()>,>>::Type",
+                                    )
+                            }),
+                    )
+            }
+        }
+    };
+    const _: () = {
+        impl ::ink::storage::traits::StorageLayout for SharesToken {
+            fn layout(
+                __key: &::ink::primitives::Key,
+            ) -> ::ink::metadata::layout::Layout {
+                ::ink::metadata::layout::Layout::Struct(
+                    ::ink::metadata::layout::StructLayout::new(
+                        "SharesToken",
+                        [
+                            ::ink::metadata::layout::FieldLayout::new(
+                                "psp22",
+                                <<psp22::Data as ::ink::storage::traits::AutoStorableHint<
+                                    ::ink::storage::traits::ManualKey<3299687552u32, ()>,
+                                >>::Type as ::ink::storage::traits::StorageLayout>::layout(
+                                    __key,
+                                ),
+                            ),
+                            ::ink::metadata::layout::FieldLayout::new(
+                                "ownable",
+                                <<ownable::Data as ::ink::storage::traits::AutoStorableHint<
+                                    ::ink::storage::traits::ManualKey<1235151324u32, ()>,
+                                >>::Type as ::ink::storage::traits::StorageLayout>::layout(
+                                    __key,
+                                ),
+                            ),
+                            ::ink::metadata::layout::FieldLayout::new(
+                                "metadata",
+                                <<metadata::Data as ::ink::storage::traits::AutoStorableHint<
+                                    ::ink::storage::traits::ManualKey<498111775u32, ()>,
+                                >>::Type as ::ink::storage::traits::StorageLayout>::layout(
+                                    __key,
+                                ),
+                            ),
+                            ::ink::metadata::layout::FieldLayout::new(
+                                "asset",
+                                <<AccountId as ::ink::storage::traits::AutoStorableHint<
+                                    ::ink::storage::traits::ManualKey<2528962715u32, ()>,
+                                >>::Type as ::ink::storage::traits::StorageLayout>::layout(
+                                    __key,
+                                ),
+                            ),
+                        ],
+                    ),
+                )
+            }
+        }
+    };
+    #[automatically_derived]
+    impl ::core::default::Default for SharesToken {
+        #[inline]
+        fn default() -> SharesToken {
+            SharesToken {
+                psp22: ::core::default::Default::default(),
+                ownable: ::core::default::Default::default(),
+                metadata: ::core::default::Default::default(),
+                asset: ::core::default::Default::default(),
+            }
+        }
+    }
+    impl ::openbrush::traits::Storage<psp22::Data> for SharesToken {
+        fn get(&self) -> &psp22::Data {
+            &self.psp22
+        }
+        fn get_mut(&mut self) -> &mut psp22::Data {
+            &mut self.psp22
+        }
+    }
+    impl ::openbrush::traits::OccupiedStorage<
+        { <psp22::Data as ::openbrush::traits::OccupyStorage>::KEY },
+    > for SharesToken {
+        type WithData = psp22::Data;
+    }
+    impl ::openbrush::traits::Storage<ownable::Data> for SharesToken {
+        fn get(&self) -> &ownable::Data {
+            &self.ownable
+        }
+        fn get_mut(&mut self) -> &mut ownable::Data {
+            &mut self.ownable
+        }
+    }
+    impl ::openbrush::traits::OccupiedStorage<
+        { <ownable::Data as ::openbrush::traits::OccupyStorage>::KEY },
+    > for SharesToken {
+        type WithData = ownable::Data;
+    }
+    impl ::openbrush::traits::Storage<metadata::Data> for SharesToken {
+        fn get(&self) -> &metadata::Data {
+            &self.metadata
+        }
+        fn get_mut(&mut self) -> &mut metadata::Data {
+            &mut self.metadata
+        }
+    }
+    impl ::openbrush::traits::OccupiedStorage<
+        { <metadata::Data as ::openbrush::traits::OccupyStorage>::KEY },
+    > for SharesToken {
+        type WithData = metadata::Data;
+    }
+    const _: () = {
+        impl ::ink::reflect::ContractName for SharesToken {
+            const NAME: &'static str = "SharesToken";
+        }
+    };
+    const _: () = {
+        impl<'a> ::ink::codegen::Env for &'a SharesToken {
+            type EnvAccess = ::ink::EnvAccess<
+                'a,
+                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+            >;
+            fn env(self) -> Self::EnvAccess {
+                <<Self as ::ink::codegen::Env>::EnvAccess as ::core::default::Default>::default()
+            }
+        }
+        impl<'a> ::ink::codegen::StaticEnv for SharesToken {
+            type EnvAccess = ::ink::EnvAccess<
+                'static,
+                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+            >;
+            fn env() -> Self::EnvAccess {
+                <<Self as ::ink::codegen::StaticEnv>::EnvAccess as ::core::default::Default>::default()
+            }
+        }
+    };
+    const _: () = {
+        #[allow(unused_imports)]
+        use ::ink::codegen::{Env as _, StaticEnv as _};
+    };
+    impl ::ink::reflect::ContractAmountDispatchables for SharesToken {
+        const MESSAGES: ::core::primitive::usize = 5usize;
+        const CONSTRUCTORS: ::core::primitive::usize = 1usize;
+    }
+    impl ::ink::reflect::ContractDispatchableMessages<
+        { <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES },
+    > for SharesToken {
+        const IDS: [::core::primitive::u32; <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES] = [
+            {
+                ::core::primitive::u32::from_be_bytes(
+                    <<::ink::reflect::TraitDefinitionRegistry<
+                        <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                    > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                        0x8C90065B_u32,
+                    >>::SELECTOR,
+                )
+            },
+            {
+                ::core::primitive::u32::from_be_bytes(
+                    <<::ink::reflect::TraitDefinitionRegistry<
+                        <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                    > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                        0xFEAEA4FA_u32,
+                    >>::SELECTOR,
+                )
+            },
+            {
+                ::core::primitive::u32::from_be_bytes(
+                    <<::ink::reflect::TraitDefinitionRegistry<
+                        <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                    > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                        0x107E33EA_u32,
+                    >>::SELECTOR,
+                )
+            },
+            {
+                ::core::primitive::u32::from_be_bytes(
+                    <<::ink::reflect::TraitDefinitionRegistry<
+                        <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                    > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                        0xB1EFC17B_u32,
+                    >>::SELECTOR,
+                )
+            },
+            {
+                ::core::primitive::u32::from_be_bytes(
+                    <<::ink::reflect::TraitDefinitionRegistry<
+                        <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                    > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                        0xCFDD9AA2_u32,
+                    >>::SELECTOR,
+                )
+            },
+        ];
+    }
+    impl ::ink::reflect::ContractDispatchableConstructors<
+        { <SharesToken as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS },
+    > for SharesToken {
+        const IDS: [::core::primitive::u32; <SharesToken as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS] = [
+            0x9BAE9D5E_u32,
+        ];
+    }
+    impl ::ink::reflect::DispatchableConstructorInfo<0x9BAE9D5E_u32> for SharesToken {
+        type Input = (AccountId, Option<String>, Option<String>, u8);
+        type Output = Self;
+        type Storage = SharesToken;
+        type Error = <::ink::reflect::ConstructorOutputValue<
+            Self,
+        > as ::ink::reflect::ConstructorOutput<SharesToken>>::Error;
+        const IS_RESULT: ::core::primitive::bool = <::ink::reflect::ConstructorOutputValue<
+            Self,
+        > as ::ink::reflect::ConstructorOutput<SharesToken>>::IS_RESULT;
+        const CALLABLE: fn(Self::Input) -> Self::Output = |
+            (__ink_binding_0, __ink_binding_1, __ink_binding_2, __ink_binding_3)|
+        {
+            SharesToken::new(
+                __ink_binding_0,
+                __ink_binding_1,
+                __ink_binding_2,
+                __ink_binding_3,
+            )
+        };
+        const PAYABLE: ::core::primitive::bool = false;
+        const SELECTOR: [::core::primitive::u8; 4usize] = [
+            0x9B_u8,
+            0xAE_u8,
+            0x9D_u8,
+            0x5E_u8,
+        ];
+        const LABEL: &'static ::core::primitive::str = "new";
+    }
+    impl ::ink::reflect::DispatchableMessageInfo<
+        {
+            ::core::primitive::u32::from_be_bytes({
+                <<::ink::reflect::TraitDefinitionRegistry<
+                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                    0x8C90065B_u32,
+                >>::SELECTOR
+            })
+        },
+    > for SharesToken {
+        type Input = ();
+        type Output = ownable_external::RenounceOwnershipOutput;
+        type Storage = SharesToken;
+        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output = |
+            storage,
+            _|
+        { <SharesToken as ownable_external::Ownable>::renounce_ownership(storage) };
+        const SELECTOR: [::core::primitive::u8; 4usize] = {
+            <<::ink::reflect::TraitDefinitionRegistry<
+                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+            > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                0x8C90065B_u32,
+            >>::SELECTOR
+        };
+        const PAYABLE: ::core::primitive::bool = {
+            <<::ink::reflect::TraitDefinitionRegistry<
+                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+            > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                0x8C90065B_u32,
+            >>::PAYABLE
+        };
+        const MUTATES: ::core::primitive::bool = true;
+        const LABEL: &'static ::core::primitive::str = "Ownable::renounce_ownership";
+    }
+    impl ::ink::reflect::DispatchableMessageInfo<
+        {
+            ::core::primitive::u32::from_be_bytes({
+                <<::ink::reflect::TraitDefinitionRegistry<
+                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                    0xFEAEA4FA_u32,
+                >>::SELECTOR
+            })
+        },
+    > for SharesToken {
+        type Input = ();
+        type Output = ownable_external::OwnerOutput;
+        type Storage = SharesToken;
+        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output = |
+            storage,
+            _|
+        { <SharesToken as ownable_external::Ownable>::owner(storage) };
+        const SELECTOR: [::core::primitive::u8; 4usize] = {
+            <<::ink::reflect::TraitDefinitionRegistry<
+                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+            > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                0xFEAEA4FA_u32,
+            >>::SELECTOR
+        };
+        const PAYABLE: ::core::primitive::bool = {
+            <<::ink::reflect::TraitDefinitionRegistry<
+                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+            > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                0xFEAEA4FA_u32,
+            >>::PAYABLE
+        };
+        const MUTATES: ::core::primitive::bool = false;
+        const LABEL: &'static ::core::primitive::str = "Ownable::owner";
+    }
+    impl ::ink::reflect::DispatchableMessageInfo<
+        {
+            ::core::primitive::u32::from_be_bytes({
+                <<::ink::reflect::TraitDefinitionRegistry<
+                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                    0x107E33EA_u32,
+                >>::SELECTOR
+            })
+        },
+    > for SharesToken {
+        type Input = ownable_external::TransferOwnershipInput1;
+        type Output = ownable_external::TransferOwnershipOutput;
+        type Storage = SharesToken;
+        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output = |
+            storage,
+            __ink_binding_0|
+        {
+            <SharesToken as ownable_external::Ownable>::transfer_ownership(
+                storage,
+                __ink_binding_0,
+            )
+        };
+        const SELECTOR: [::core::primitive::u8; 4usize] = {
+            <<::ink::reflect::TraitDefinitionRegistry<
+                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+            > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                0x107E33EA_u32,
+            >>::SELECTOR
+        };
+        const PAYABLE: ::core::primitive::bool = {
+            <<::ink::reflect::TraitDefinitionRegistry<
+                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+            > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                0x107E33EA_u32,
+            >>::PAYABLE
+        };
+        const MUTATES: ::core::primitive::bool = true;
+        const LABEL: &'static ::core::primitive::str = "Ownable::transfer_ownership";
+    }
+    impl ::ink::reflect::DispatchableMessageInfo<
+        {
+            ::core::primitive::u32::from_be_bytes({
+                <<::ink::reflect::TraitDefinitionRegistry<
+                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                    0xB1EFC17B_u32,
+                >>::SELECTOR
+            })
+        },
+    > for SharesToken {
+        type Input = (
+            psp22burnable_external::BurnInput1,
+            psp22burnable_external::BurnInput2,
+        );
+        type Output = psp22burnable_external::BurnOutput;
+        type Storage = SharesToken;
+        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output = |
+            storage,
+            (__ink_binding_0, __ink_binding_1)|
+        {
+            <SharesToken as psp22burnable_external::PSP22Burnable>::burn(
+                storage,
+                __ink_binding_0,
+                __ink_binding_1,
+            )
+        };
+        const SELECTOR: [::core::primitive::u8; 4usize] = {
+            <<::ink::reflect::TraitDefinitionRegistry<
+                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+            > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                0xB1EFC17B_u32,
+            >>::SELECTOR
+        };
+        const PAYABLE: ::core::primitive::bool = {
+            <<::ink::reflect::TraitDefinitionRegistry<
+                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+            > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                0xB1EFC17B_u32,
+            >>::PAYABLE
+        };
+        const MUTATES: ::core::primitive::bool = true;
+        const LABEL: &'static ::core::primitive::str = "PSP22Burnable::burn";
+    }
+    impl ::ink::reflect::DispatchableMessageInfo<
+        {
+            ::core::primitive::u32::from_be_bytes({
+                <<::ink::reflect::TraitDefinitionRegistry<
+                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                    0xCFDD9AA2_u32,
+                >>::SELECTOR
+            })
+        },
+    > for SharesToken {
+        type Input = (
+            psp22mintable_external::MintInput1,
+            psp22mintable_external::MintInput2,
+        );
+        type Output = psp22mintable_external::MintOutput;
+        type Storage = SharesToken;
+        const CALLABLE: fn(&mut Self::Storage, Self::Input) -> Self::Output = |
+            storage,
+            (__ink_binding_0, __ink_binding_1)|
+        {
+            <SharesToken as psp22mintable_external::PSP22Mintable>::mint(
+                storage,
+                __ink_binding_0,
+                __ink_binding_1,
+            )
+        };
+        const SELECTOR: [::core::primitive::u8; 4usize] = {
+            <<::ink::reflect::TraitDefinitionRegistry<
+                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+            > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                0xCFDD9AA2_u32,
+            >>::SELECTOR
+        };
+        const PAYABLE: ::core::primitive::bool = {
+            <<::ink::reflect::TraitDefinitionRegistry<
+                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+            > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                0xCFDD9AA2_u32,
+            >>::PAYABLE
+        };
+        const MUTATES: ::core::primitive::bool = true;
+        const LABEL: &'static ::core::primitive::str = "PSP22Mintable::mint";
+    }
+    const _: () = {
+        #[allow(non_camel_case_types)]
+        pub enum __ink_ConstructorDecoder {
+            Constructor0(
+                <SharesToken as ::ink::reflect::DispatchableConstructorInfo<
+                    {
+                        <SharesToken as ::ink::reflect::ContractDispatchableConstructors<
+                            {
+                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                            },
+                        >>::IDS[0usize]
+                    },
+                >>::Input,
+            ),
+        }
+        impl ::ink::reflect::DecodeDispatch for __ink_ConstructorDecoder {
+            fn decode_dispatch<I>(
+                input: &mut I,
+            ) -> ::core::result::Result<Self, ::ink::reflect::DispatchError>
+            where
+                I: ::scale::Input,
+            {
+                const CONSTRUCTOR_0: [::core::primitive::u8; 4usize] = <SharesToken as ::ink::reflect::DispatchableConstructorInfo<
+                    {
+                        <SharesToken as ::ink::reflect::ContractDispatchableConstructors<
+                            {
+                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                            },
+                        >>::IDS[0usize]
+                    },
+                >>::SELECTOR;
+                match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
+                    .map_err(|_| ::ink::reflect::DispatchError::InvalidSelector)?
+                {
+                    CONSTRUCTOR_0 => {
+                        ::core::result::Result::Ok(
+                            Self::Constructor0(
+                                <<SharesToken as ::ink::reflect::DispatchableConstructorInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableConstructors<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                                            },
+                                        >>::IDS[0usize]
+                                    },
+                                >>::Input as ::scale::Decode>::decode(input)
+                                    .map_err(|_| {
+                                        ::ink::reflect::DispatchError::InvalidParameters
+                                    })?,
+                            ),
+                        )
+                    }
+                    _invalid => {
+                        ::core::result::Result::Err(
+                            ::ink::reflect::DispatchError::UnknownSelector,
+                        )
+                    }
+                }
+            }
+        }
+        impl ::scale::Decode for __ink_ConstructorDecoder {
+            fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error>
+            where
+                I: ::scale::Input,
+            {
+                <Self as ::ink::reflect::DecodeDispatch>::decode_dispatch(input)
+                    .map_err(::core::convert::Into::into)
+            }
+        }
+        impl ::ink::reflect::ExecuteDispatchable for __ink_ConstructorDecoder {
+            #[allow(clippy::nonminimal_bool)]
+            fn execute_dispatchable(
+                self,
+            ) -> ::core::result::Result<(), ::ink::reflect::DispatchError> {
+                match self {
+                    Self::Constructor0(input) => {
+                        if {
+                            false
+                                || <SharesToken as ::ink::reflect::DispatchableConstructorInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableConstructors<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                                            },
+                                        >>::IDS[0usize]
+                                    },
+                                >>::PAYABLE
+                        }
+                            && !<SharesToken as ::ink::reflect::DispatchableConstructorInfo<
+                                {
+                                    <SharesToken as ::ink::reflect::ContractDispatchableConstructors<
+                                        {
+                                            <SharesToken as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                                        },
+                                    >>::IDS[0usize]
+                                },
+                            >>::PAYABLE
+                        {
+                            ::ink::codegen::deny_payment::<
+                                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                            >()?;
+                        }
+                        let result: <SharesToken as ::ink::reflect::DispatchableConstructorInfo<
+                            {
+                                <SharesToken as ::ink::reflect::ContractDispatchableConstructors<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                                    },
+                                >>::IDS[0usize]
+                            },
+                        >>::Output = <SharesToken as ::ink::reflect::DispatchableConstructorInfo<
+                            {
+                                <SharesToken as ::ink::reflect::ContractDispatchableConstructors<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                                    },
+                                >>::IDS[0usize]
+                            },
+                        >>::CALLABLE(input);
+                        let output_value = ::ink::reflect::ConstructorOutputValue::new(
+                            result,
+                        );
+                        let output_result = <::ink::reflect::ConstructorOutputValue<
+                            <SharesToken as ::ink::reflect::DispatchableConstructorInfo<
+                                {
+                                    <SharesToken as ::ink::reflect::ContractDispatchableConstructors<
+                                        {
+                                            <SharesToken as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                                        },
+                                    >>::IDS[0usize]
+                                },
+                            >>::Output,
+                        > as ::ink::reflect::ConstructorOutput<
+                            SharesToken,
+                        >>::as_result(&output_value);
+                        if let ::core::result::Result::Ok(contract)
+                            = output_result.as_ref()
+                        {
+                            ::ink::env::set_contract_storage::<
+                                ::ink::primitives::Key,
+                                SharesToken,
+                            >(
+                                &<SharesToken as ::ink::storage::traits::StorageKey>::KEY,
+                                contract,
+                            );
+                        }
+                        ::ink::env::return_value::<
+                            ::ink::ConstructorResult<
+                                ::core::result::Result<
+                                    (),
+                                    &<::ink::reflect::ConstructorOutputValue<
+                                        <SharesToken as ::ink::reflect::DispatchableConstructorInfo<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractDispatchableConstructors<
+                                                    {
+                                                        <SharesToken as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                                                    },
+                                                >>::IDS[0usize]
+                                            },
+                                        >>::Output,
+                                    > as ::ink::reflect::ConstructorOutput<SharesToken>>::Error,
+                                >,
+                            >,
+                        >(
+                            ::ink::env::ReturnFlags::new_with_reverted(
+                                output_result.is_err(),
+                            ),
+                            &::ink::ConstructorResult::Ok(output_result.map(|_| ())),
+                        );
+                    }
+                }
+            }
+        }
+        impl ::ink::reflect::ContractConstructorDecoder for SharesToken {
+            type Type = __ink_ConstructorDecoder;
+        }
+    };
+    const _: () = {
+        #[allow(non_camel_case_types)]
+        pub enum __ink_MessageDecoder {
+            Message0(
+                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                    {
+                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                            {
+                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                            },
+                        >>::IDS[0usize]
+                    },
+                >>::Input,
+            ),
+            Message1(
+                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                    {
+                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                            {
+                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                            },
+                        >>::IDS[1usize]
+                    },
+                >>::Input,
+            ),
+            Message2(
+                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                    {
+                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                            {
+                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                            },
+                        >>::IDS[2usize]
+                    },
+                >>::Input,
+            ),
+            Message3(
+                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                    {
+                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                            {
+                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                            },
+                        >>::IDS[3usize]
+                    },
+                >>::Input,
+            ),
+            Message4(
+                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                    {
+                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                            {
+                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                            },
+                        >>::IDS[4usize]
+                    },
+                >>::Input,
+            ),
+        }
+        impl ::ink::reflect::DecodeDispatch for __ink_MessageDecoder {
+            fn decode_dispatch<I>(
+                input: &mut I,
+            ) -> ::core::result::Result<Self, ::ink::reflect::DispatchError>
+            where
+                I: ::scale::Input,
+            {
+                const MESSAGE_0: [::core::primitive::u8; 4usize] = <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                    {
+                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                            {
+                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                            },
+                        >>::IDS[0usize]
+                    },
+                >>::SELECTOR;
+                const MESSAGE_1: [::core::primitive::u8; 4usize] = <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                    {
+                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                            {
+                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                            },
+                        >>::IDS[1usize]
+                    },
+                >>::SELECTOR;
+                const MESSAGE_2: [::core::primitive::u8; 4usize] = <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                    {
+                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                            {
+                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                            },
+                        >>::IDS[2usize]
+                    },
+                >>::SELECTOR;
+                const MESSAGE_3: [::core::primitive::u8; 4usize] = <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                    {
+                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                            {
+                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                            },
+                        >>::IDS[3usize]
+                    },
+                >>::SELECTOR;
+                const MESSAGE_4: [::core::primitive::u8; 4usize] = <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                    {
+                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                            {
+                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                            },
+                        >>::IDS[4usize]
+                    },
+                >>::SELECTOR;
+                match <[::core::primitive::u8; 4usize] as ::scale::Decode>::decode(input)
+                    .map_err(|_| ::ink::reflect::DispatchError::InvalidSelector)?
+                {
+                    MESSAGE_0 => {
+                        ::core::result::Result::Ok(
+                            Self::Message0(
+                                <<SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[0usize]
+                                    },
+                                >>::Input as ::scale::Decode>::decode(input)
+                                    .map_err(|_| {
+                                        ::ink::reflect::DispatchError::InvalidParameters
+                                    })?,
+                            ),
+                        )
+                    }
+                    MESSAGE_1 => {
+                        ::core::result::Result::Ok(
+                            Self::Message1(
+                                <<SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[1usize]
+                                    },
+                                >>::Input as ::scale::Decode>::decode(input)
+                                    .map_err(|_| {
+                                        ::ink::reflect::DispatchError::InvalidParameters
+                                    })?,
+                            ),
+                        )
+                    }
+                    MESSAGE_2 => {
+                        ::core::result::Result::Ok(
+                            Self::Message2(
+                                <<SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[2usize]
+                                    },
+                                >>::Input as ::scale::Decode>::decode(input)
+                                    .map_err(|_| {
+                                        ::ink::reflect::DispatchError::InvalidParameters
+                                    })?,
+                            ),
+                        )
+                    }
+                    MESSAGE_3 => {
+                        ::core::result::Result::Ok(
+                            Self::Message3(
+                                <<SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[3usize]
+                                    },
+                                >>::Input as ::scale::Decode>::decode(input)
+                                    .map_err(|_| {
+                                        ::ink::reflect::DispatchError::InvalidParameters
+                                    })?,
+                            ),
+                        )
+                    }
+                    MESSAGE_4 => {
+                        ::core::result::Result::Ok(
+                            Self::Message4(
+                                <<SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[4usize]
+                                    },
+                                >>::Input as ::scale::Decode>::decode(input)
+                                    .map_err(|_| {
+                                        ::ink::reflect::DispatchError::InvalidParameters
+                                    })?,
+                            ),
+                        )
+                    }
+                    _invalid => {
+                        ::core::result::Result::Err(
+                            ::ink::reflect::DispatchError::UnknownSelector,
+                        )
+                    }
+                }
+            }
+        }
+        impl ::scale::Decode for __ink_MessageDecoder {
+            fn decode<I>(input: &mut I) -> ::core::result::Result<Self, ::scale::Error>
+            where
+                I: ::scale::Input,
+            {
+                <Self as ::ink::reflect::DecodeDispatch>::decode_dispatch(input)
+                    .map_err(::core::convert::Into::into)
+            }
+        }
+        fn push_contract(
+            contract: ::core::mem::ManuallyDrop<SharesToken>,
+            mutates: bool,
+        ) {
+            if mutates {
+                ::ink::env::set_contract_storage::<
+                    ::ink::primitives::Key,
+                    SharesToken,
+                >(&<SharesToken as ::ink::storage::traits::StorageKey>::KEY, &contract);
+            }
+        }
+        impl ::ink::reflect::ExecuteDispatchable for __ink_MessageDecoder {
+            #[allow(clippy::nonminimal_bool, clippy::let_unit_value)]
+            fn execute_dispatchable(
+                self,
+            ) -> ::core::result::Result<(), ::ink::reflect::DispatchError> {
+                let key = <SharesToken as ::ink::storage::traits::StorageKey>::KEY;
+                let mut contract: ::core::mem::ManuallyDrop<SharesToken> = ::core::mem::ManuallyDrop::new(
+                    match ::ink::env::get_contract_storage(&key) {
+                        ::core::result::Result::Ok(
+                            ::core::option::Option::Some(value),
+                        ) => value,
+                        ::core::result::Result::Ok(::core::option::Option::None) => {
+                            ::core::panicking::panic_fmt(
+                                format_args!("storage entry was empty"),
+                            )
+                        }
+                        ::core::result::Result::Err(_) => {
+                            ::core::panicking::panic_fmt(
+                                format_args!("could not properly decode storage entry"),
+                            )
+                        }
+                    },
+                );
+                match self {
+                    Self::Message0(input) => {
+                        if {
+                            false
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[0usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[1usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[2usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[3usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[4usize]
+                                    },
+                                >>::PAYABLE
+                        }
+                            && !<SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                {
+                                    <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                        {
+                                            <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                        },
+                                    >>::IDS[0usize]
+                                },
+                            >>::PAYABLE
+                        {
+                            ::ink::codegen::deny_payment::<
+                                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                            >()?;
+                        }
+                        let result: <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                            {
+                                <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                    },
+                                >>::IDS[0usize]
+                            },
+                        >>::Output = <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                            {
+                                <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                    },
+                                >>::IDS[0usize]
+                            },
+                        >>::CALLABLE(&mut contract, input);
+                        let is_reverted = {
+                            #[allow(unused_imports)]
+                            use ::ink::result_info::IsResultTypeFallback as _;
+                            ::ink::result_info::IsResultType::<
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[0usize]
+                                    },
+                                >>::Output,
+                            >::VALUE
+                        }
+                            && {
+                                #[allow(unused_imports)]
+                                use ::ink::result_info::IsResultErrFallback as _;
+                                ::ink::result_info::IsResultErr(&result).value()
+                            };
+                        if !is_reverted {
+                            push_contract(
+                                contract,
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[0usize]
+                                    },
+                                >>::MUTATES,
+                            );
+                        }
+                        ::ink::env::return_value::<
+                            ::ink::MessageResult<
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[0usize]
+                                    },
+                                >>::Output,
+                            >,
+                        >(
+                            ::ink::env::ReturnFlags::new_with_reverted(is_reverted),
+                            &::ink::MessageResult::Ok(result),
+                        )
+                    }
+                    Self::Message1(input) => {
+                        if {
+                            false
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[0usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[1usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[2usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[3usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[4usize]
+                                    },
+                                >>::PAYABLE
+                        }
+                            && !<SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                {
+                                    <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                        {
+                                            <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                        },
+                                    >>::IDS[1usize]
+                                },
+                            >>::PAYABLE
+                        {
+                            ::ink::codegen::deny_payment::<
+                                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                            >()?;
+                        }
+                        let result: <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                            {
+                                <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                    },
+                                >>::IDS[1usize]
+                            },
+                        >>::Output = <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                            {
+                                <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                    },
+                                >>::IDS[1usize]
+                            },
+                        >>::CALLABLE(&mut contract, input);
+                        let is_reverted = {
+                            #[allow(unused_imports)]
+                            use ::ink::result_info::IsResultTypeFallback as _;
+                            ::ink::result_info::IsResultType::<
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[1usize]
+                                    },
+                                >>::Output,
+                            >::VALUE
+                        }
+                            && {
+                                #[allow(unused_imports)]
+                                use ::ink::result_info::IsResultErrFallback as _;
+                                ::ink::result_info::IsResultErr(&result).value()
+                            };
+                        if !is_reverted {
+                            push_contract(
+                                contract,
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[1usize]
+                                    },
+                                >>::MUTATES,
+                            );
+                        }
+                        ::ink::env::return_value::<
+                            ::ink::MessageResult<
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[1usize]
+                                    },
+                                >>::Output,
+                            >,
+                        >(
+                            ::ink::env::ReturnFlags::new_with_reverted(is_reverted),
+                            &::ink::MessageResult::Ok(result),
+                        )
+                    }
+                    Self::Message2(input) => {
+                        if {
+                            false
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[0usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[1usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[2usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[3usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[4usize]
+                                    },
+                                >>::PAYABLE
+                        }
+                            && !<SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                {
+                                    <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                        {
+                                            <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                        },
+                                    >>::IDS[2usize]
+                                },
+                            >>::PAYABLE
+                        {
+                            ::ink::codegen::deny_payment::<
+                                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                            >()?;
+                        }
+                        let result: <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                            {
+                                <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                    },
+                                >>::IDS[2usize]
+                            },
+                        >>::Output = <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                            {
+                                <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                    },
+                                >>::IDS[2usize]
+                            },
+                        >>::CALLABLE(&mut contract, input);
+                        let is_reverted = {
+                            #[allow(unused_imports)]
+                            use ::ink::result_info::IsResultTypeFallback as _;
+                            ::ink::result_info::IsResultType::<
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[2usize]
+                                    },
+                                >>::Output,
+                            >::VALUE
+                        }
+                            && {
+                                #[allow(unused_imports)]
+                                use ::ink::result_info::IsResultErrFallback as _;
+                                ::ink::result_info::IsResultErr(&result).value()
+                            };
+                        if !is_reverted {
+                            push_contract(
+                                contract,
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[2usize]
+                                    },
+                                >>::MUTATES,
+                            );
+                        }
+                        ::ink::env::return_value::<
+                            ::ink::MessageResult<
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[2usize]
+                                    },
+                                >>::Output,
+                            >,
+                        >(
+                            ::ink::env::ReturnFlags::new_with_reverted(is_reverted),
+                            &::ink::MessageResult::Ok(result),
+                        )
+                    }
+                    Self::Message3(input) => {
+                        if {
+                            false
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[0usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[1usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[2usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[3usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[4usize]
+                                    },
+                                >>::PAYABLE
+                        }
+                            && !<SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                {
+                                    <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                        {
+                                            <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                        },
+                                    >>::IDS[3usize]
+                                },
+                            >>::PAYABLE
+                        {
+                            ::ink::codegen::deny_payment::<
+                                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                            >()?;
+                        }
+                        let result: <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                            {
+                                <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                    },
+                                >>::IDS[3usize]
+                            },
+                        >>::Output = <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                            {
+                                <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                    },
+                                >>::IDS[3usize]
+                            },
+                        >>::CALLABLE(&mut contract, input);
+                        let is_reverted = {
+                            #[allow(unused_imports)]
+                            use ::ink::result_info::IsResultTypeFallback as _;
+                            ::ink::result_info::IsResultType::<
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[3usize]
+                                    },
+                                >>::Output,
+                            >::VALUE
+                        }
+                            && {
+                                #[allow(unused_imports)]
+                                use ::ink::result_info::IsResultErrFallback as _;
+                                ::ink::result_info::IsResultErr(&result).value()
+                            };
+                        if !is_reverted {
+                            push_contract(
+                                contract,
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[3usize]
+                                    },
+                                >>::MUTATES,
+                            );
+                        }
+                        ::ink::env::return_value::<
+                            ::ink::MessageResult<
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[3usize]
+                                    },
+                                >>::Output,
+                            >,
+                        >(
+                            ::ink::env::ReturnFlags::new_with_reverted(is_reverted),
+                            &::ink::MessageResult::Ok(result),
+                        )
+                    }
+                    Self::Message4(input) => {
+                        if {
+                            false
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[0usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[1usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[2usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[3usize]
+                                    },
+                                >>::PAYABLE
+                                || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[4usize]
+                                    },
+                                >>::PAYABLE
+                        }
+                            && !<SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                {
+                                    <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                        {
+                                            <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                        },
+                                    >>::IDS[4usize]
+                                },
+                            >>::PAYABLE
+                        {
+                            ::ink::codegen::deny_payment::<
+                                <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                            >()?;
+                        }
+                        let result: <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                            {
+                                <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                    },
+                                >>::IDS[4usize]
+                            },
+                        >>::Output = <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                            {
+                                <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                    },
+                                >>::IDS[4usize]
+                            },
+                        >>::CALLABLE(&mut contract, input);
+                        let is_reverted = {
+                            #[allow(unused_imports)]
+                            use ::ink::result_info::IsResultTypeFallback as _;
+                            ::ink::result_info::IsResultType::<
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[4usize]
+                                    },
+                                >>::Output,
+                            >::VALUE
+                        }
+                            && {
+                                #[allow(unused_imports)]
+                                use ::ink::result_info::IsResultErrFallback as _;
+                                ::ink::result_info::IsResultErr(&result).value()
+                            };
+                        if !is_reverted {
+                            push_contract(
+                                contract,
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[4usize]
+                                    },
+                                >>::MUTATES,
+                            );
+                        }
+                        ::ink::env::return_value::<
+                            ::ink::MessageResult<
+                                <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                                    {
+                                        <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                            {
+                                                <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                            },
+                                        >>::IDS[4usize]
+                                    },
+                                >>::Output,
+                            >,
+                        >(
+                            ::ink::env::ReturnFlags::new_with_reverted(is_reverted),
+                            &::ink::MessageResult::Ok(result),
+                        )
+                    }
+                };
+            }
+        }
+        impl ::ink::reflect::ContractMessageDecoder for SharesToken {
+            type Type = __ink_MessageDecoder;
+        }
+    };
+    #[cfg(not(test))]
+    #[cfg(not(feature = "ink-as-dependency"))]
+    const _: () = {
+        #[cfg(not(test))]
+        #[no_mangle]
+        #[allow(clippy::nonminimal_bool)]
+        fn deploy() {
+            if !{
+                false
+                    || <SharesToken as ::ink::reflect::DispatchableConstructorInfo<
+                        {
+                            <SharesToken as ::ink::reflect::ContractDispatchableConstructors<
+                                {
+                                    <SharesToken as ::ink::reflect::ContractAmountDispatchables>::CONSTRUCTORS
+                                },
+                            >>::IDS[0usize]
+                        },
+                    >>::PAYABLE
+            } {
+                ::ink::codegen::deny_payment::<
+                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                >()
+                    .unwrap_or_else(|error| ::core::panicking::panic_display(&error))
+            }
+            let dispatchable = match ::ink::env::decode_input::<
+                <SharesToken as ::ink::reflect::ContractConstructorDecoder>::Type,
+            >() {
+                ::core::result::Result::Ok(decoded_dispatchable) => decoded_dispatchable,
+                ::core::result::Result::Err(_decoding_error) => {
+                    let error = ::ink::ConstructorResult::Err(
+                        ::ink::LangError::CouldNotReadInput,
+                    );
+                    ::ink::env::return_value::<
+                        ::ink::ConstructorResult<()>,
+                    >(::ink::env::ReturnFlags::new_with_reverted(true), &error);
+                }
+            };
+            <<SharesToken as ::ink::reflect::ContractConstructorDecoder>::Type as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(
+                    dispatchable,
+                )
+                .unwrap_or_else(|error| {
+                    ::core::panicking::panic_fmt(
+                        format_args!("dispatching ink! message failed: {0}", error),
+                    )
+                })
+        }
+        #[cfg(not(test))]
+        #[no_mangle]
+        #[allow(clippy::nonminimal_bool)]
+        fn call() {
+            if !{
+                false
+                    || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                        {
+                            <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                {
+                                    <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                },
+                            >>::IDS[0usize]
+                        },
+                    >>::PAYABLE
+                    || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                        {
+                            <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                {
+                                    <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                },
+                            >>::IDS[1usize]
+                        },
+                    >>::PAYABLE
+                    || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                        {
+                            <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                {
+                                    <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                },
+                            >>::IDS[2usize]
+                        },
+                    >>::PAYABLE
+                    || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                        {
+                            <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                {
+                                    <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                },
+                            >>::IDS[3usize]
+                        },
+                    >>::PAYABLE
+                    || <SharesToken as ::ink::reflect::DispatchableMessageInfo<
+                        {
+                            <SharesToken as ::ink::reflect::ContractDispatchableMessages<
+                                {
+                                    <SharesToken as ::ink::reflect::ContractAmountDispatchables>::MESSAGES
+                                },
+                            >>::IDS[4usize]
+                        },
+                    >>::PAYABLE
+            } {
+                ::ink::codegen::deny_payment::<
+                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                >()
+                    .unwrap_or_else(|error| ::core::panicking::panic_display(&error))
+            }
+            let dispatchable = match ::ink::env::decode_input::<
+                <SharesToken as ::ink::reflect::ContractMessageDecoder>::Type,
+            >() {
+                ::core::result::Result::Ok(decoded_dispatchable) => decoded_dispatchable,
+                ::core::result::Result::Err(_decoding_error) => {
+                    let error = ::ink::MessageResult::Err(
+                        ::ink::LangError::CouldNotReadInput,
+                    );
+                    ::ink::env::return_value::<
+                        ::ink::MessageResult<()>,
+                    >(::ink::env::ReturnFlags::new_with_reverted(true), &error);
+                }
+            };
+            <<SharesToken as ::ink::reflect::ContractMessageDecoder>::Type as ::ink::reflect::ExecuteDispatchable>::execute_dispatchable(
+                    dispatchable,
+                )
+                .unwrap_or_else(|error| {
+                    ::core::panicking::panic_fmt(
+                        format_args!("dispatching ink! message failed: {0}", error),
+                    )
+                })
+        }
+    };
+    const _: () = {
+        use ::ink::codegen::{Env as _, StaticEnv as _};
+        const _: ::ink::codegen::utils::IsSameType<SharesToken> = ::ink::codegen::utils::IsSameType::<
+            SharesToken,
+        >::new();
+        impl ownable_external::Ownable for SharesToken {
+            type __ink_TraitInfo = <::ink::reflect::TraitDefinitionRegistry<
+                Environment,
+            > as ownable_external::Ownable>::__ink_TraitInfo;
+            type renounceOwnershipOutput = ownable_external::RenounceOwnershipOutput;
+            /// Leaves the contract without owner. It will not be possible to call
+            /// owner's functions anymore. Can only be called by the current owner.
+            ///
+            /// NOTE: Renouncing ownership will leave the contract without an owner,
+            /// thereby removing any functionality that is only available to the owner.
+            ///
+            /// On success a `OwnershipTransferred` event is emitted.
+            ///
+            /// # Errors
+            ///
+            /// Panics with `CallerIsNotOwner` error if caller is not owner
+            fn renounce_ownership(&mut self) -> Self::renounceOwnershipOutput {
+                Ownable::renounce_ownership(self)
+            }
+            type ownerOutput = ownable_external::OwnerOutput;
+            /// Returns the address of the current owner.
+            fn owner(&self) -> Self::ownerOutput {
+                Ownable::owner(self)
+            }
+            type transferOwnershipOutput = ownable_external::TransferOwnershipOutput;
+            /// Transfers ownership of the contract to a `new_owner`.
+            /// Can only be called by the current owner.
+            ///
+            /// On success a `OwnershipTransferred` event is emitted.
+            ///
+            /// # Errors
+            ///
+            /// Panics with `CallerIsNotOwner` error if caller is not owner.
+            ///
+            /// Panics with `NewOwnerIsZero` error if new owner's address is zero.
+            fn transfer_ownership(
+                &mut self,
+                new_owner: ownable_external::TransferOwnershipInput1,
+            ) -> Self::transferOwnershipOutput {
+                Ownable::transfer_ownership(self, new_owner)
+            }
+        }
+        const _: ::ink::codegen::utils::IsSameType<SharesToken> = ::ink::codegen::utils::IsSameType::<
+            SharesToken,
+        >::new();
+        impl psp22burnable_external::PSP22Burnable for SharesToken {
+            type __ink_TraitInfo = <::ink::reflect::TraitDefinitionRegistry<
+                Environment,
+            > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo;
+            type burnOutput = psp22burnable_external::BurnOutput;
+            fn burn(
+                &mut self,
+                account: psp22burnable_external::BurnInput1,
+                amount: psp22burnable_external::BurnInput2,
+            ) -> Self::burnOutput {
+                PSP22Burnable::burn(self, account, amount)
+            }
+        }
+        const _: ::ink::codegen::utils::IsSameType<SharesToken> = ::ink::codegen::utils::IsSameType::<
+            SharesToken,
+        >::new();
+        impl psp22mintable_external::PSP22Mintable for SharesToken {
+            type __ink_TraitInfo = <::ink::reflect::TraitDefinitionRegistry<
+                Environment,
+            > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo;
+            type mintOutput = psp22mintable_external::MintOutput;
+            fn mint(
+                &mut self,
+                account: psp22mintable_external::MintInput1,
+                amount: psp22mintable_external::MintInput2,
+            ) -> Self::mintOutput {
+                PSP22Mintable::mint(self, account, amount)
+            }
+        }
+        const _: ::ink::codegen::utils::IsSameType<SharesToken> = ::ink::codegen::utils::IsSameType::<
+            SharesToken,
+        >::new();
+        impl SharesToken {
+            #[cfg(not(feature = "__ink_dylint_Constructor"))]
+            pub fn new(
+                asset: AccountId,
+                name: Option<String>,
+                symbol: Option<String>,
+                decimal: u8,
+            ) -> Self {
+                let mut _instance = Self::default();
+                _instance.asset = asset;
+                _instance._init_with_owner(_instance.env().caller());
+                _instance.metadata.name = name;
+                _instance.metadata.symbol = symbol;
+                _instance.metadata.decimals = decimal;
+                _instance
+            }
+        }
+        const _: () = {
+            ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::DispatchInput<AccountId>,
+            >();
+            ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::DispatchInput<Option<String>>,
+            >();
+            ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::DispatchInput<Option<String>>,
+            >();
+            ::ink::codegen::utils::consume_type::<::ink::codegen::DispatchInput<u8>>();
+            ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::DispatchOutput<ownable_external::RenounceOwnershipOutput>,
+            >();
+            ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::DispatchOutput<ownable_external::OwnerOutput>,
+            >();
+            ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::DispatchInput<ownable_external::TransferOwnershipInput1>,
+            >();
+            ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::DispatchOutput<ownable_external::TransferOwnershipOutput>,
+            >();
+            ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::DispatchInput<psp22burnable_external::BurnInput1>,
+            >();
+            ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::DispatchInput<psp22burnable_external::BurnInput2>,
+            >();
+            ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::DispatchOutput<psp22burnable_external::BurnOutput>,
+            >();
+            ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::DispatchInput<psp22mintable_external::MintInput1>,
+            >();
+            ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::DispatchInput<psp22mintable_external::MintInput2>,
+            >();
+            ::ink::codegen::utils::consume_type::<
+                ::ink::codegen::DispatchOutput<psp22mintable_external::MintOutput>,
+            >();
+        };
+        const _: ::ink::codegen::TraitMessageSelector<
+            {
+                ::core::primitive::u32::from_be_bytes(
+                    <<::ink::reflect::TraitDefinitionRegistry<
+                        <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                    > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                        0x8C90065B_u32,
+                    >>::SELECTOR,
+                )
+            },
+        > = ::ink::codegen::TraitMessageSelector::<0x5E228753_u32>;
+        const _: ::ink::codegen::TraitMessageSelector<
+            {
+                ::core::primitive::u32::from_be_bytes(
+                    <<::ink::reflect::TraitDefinitionRegistry<
+                        <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                    > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                        0xFEAEA4FA_u32,
+                    >>::SELECTOR,
+                )
+            },
+        > = ::ink::codegen::TraitMessageSelector::<0x4FA43C8C_u32>;
+        const _: ::ink::codegen::TraitMessageSelector<
+            {
+                ::core::primitive::u32::from_be_bytes(
+                    <<::ink::reflect::TraitDefinitionRegistry<
+                        <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                    > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                        0x107E33EA_u32,
+                    >>::SELECTOR,
+                )
+            },
+        > = ::ink::codegen::TraitMessageSelector::<0x11F43EFD_u32>;
+    };
+    const _: () = {
+        /// The ink! smart contract's call builder.
+        ///
+        /// Implements the underlying on-chain calling of the ink! smart contract
+        /// messages and trait implementations in a type safe way.
+        #[repr(transparent)]
+        pub struct CallBuilder {
+            account_id: AccountId,
+        }
+        #[automatically_derived]
+        impl ::core::fmt::Debug for CallBuilder {
+            fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+                ::core::fmt::Formatter::debug_struct_field1_finish(
+                    f,
+                    "CallBuilder",
+                    "account_id",
+                    &&self.account_id,
+                )
+            }
+        }
+        #[allow(deprecated)]
+        const _: () = {
+            #[automatically_derived]
+            impl ::scale::Encode for CallBuilder {
+                fn encode_to<
+                    __CodecOutputEdqy: ::scale::Output + ?::core::marker::Sized,
+                >(&self, __codec_dest_edqy: &mut __CodecOutputEdqy) {
+                    ::scale::Encode::encode_to(&&self.account_id, __codec_dest_edqy)
+                }
+                fn encode(&self) -> ::scale::alloc::vec::Vec<::core::primitive::u8> {
+                    ::scale::Encode::encode(&&self.account_id)
+                }
+                fn using_encoded<
+                    R,
+                    F: ::core::ops::FnOnce(&[::core::primitive::u8]) -> R,
+                >(&self, f: F) -> R {
+                    ::scale::Encode::using_encoded(&&self.account_id, f)
+                }
+            }
+            #[automatically_derived]
+            impl ::scale::EncodeLike for CallBuilder {}
+        };
+        #[allow(deprecated)]
+        const _: () = {
+            #[automatically_derived]
+            impl ::scale::Decode for CallBuilder {
+                fn decode<__CodecInputEdqy: ::scale::Input>(
+                    __codec_input_edqy: &mut __CodecInputEdqy,
+                ) -> ::core::result::Result<Self, ::scale::Error> {
+                    ::core::result::Result::Ok(CallBuilder {
+                        account_id: {
+                            let __codec_res_edqy = <AccountId as ::scale::Decode>::decode(
+                                __codec_input_edqy,
+                            );
+                            match __codec_res_edqy {
+                                ::core::result::Result::Err(e) => {
+                                    return ::core::result::Result::Err(
+                                        e.chain("Could not decode `CallBuilder::account_id`"),
+                                    );
+                                }
+                                ::core::result::Result::Ok(__codec_res_edqy) => {
+                                    __codec_res_edqy
+                                }
+                            }
+                        },
+                    })
+                }
+            }
+        };
+        #[automatically_derived]
+        impl ::core::hash::Hash for CallBuilder {
+            fn hash<__H: ::core::hash::Hasher>(&self, state: &mut __H) -> () {
+                ::core::hash::Hash::hash(&self.account_id, state)
+            }
+        }
+        #[automatically_derived]
+        impl ::core::marker::StructuralPartialEq for CallBuilder {}
+        #[automatically_derived]
+        impl ::core::cmp::PartialEq for CallBuilder {
+            #[inline]
+            fn eq(&self, other: &CallBuilder) -> bool {
+                self.account_id == other.account_id
+            }
+        }
+        #[automatically_derived]
+        impl ::core::marker::StructuralEq for CallBuilder {}
+        #[automatically_derived]
+        impl ::core::cmp::Eq for CallBuilder {
+            #[inline]
+            #[doc(hidden)]
+            #[no_coverage]
+            fn assert_receiver_is_total_eq(&self) -> () {
+                let _: ::core::cmp::AssertParamIsEq<AccountId>;
+            }
+        }
+        #[automatically_derived]
+        impl ::core::clone::Clone for CallBuilder {
+            #[inline]
+            fn clone(&self) -> CallBuilder {
+                CallBuilder {
+                    account_id: ::core::clone::Clone::clone(&self.account_id),
+                }
+            }
+        }
+        #[allow(non_upper_case_globals, unused_attributes, unused_qualifications)]
+        const _: () = {
+            impl ::scale_info::TypeInfo for CallBuilder {
+                type Identity = Self;
+                fn type_info() -> ::scale_info::Type {
+                    ::scale_info::Type::builder()
+                        .path(
+                            ::scale_info::Path::new(
+                                "CallBuilder",
+                                "shares_token::shares_token",
+                            ),
+                        )
+                        .type_params(::alloc::vec::Vec::new())
+                        .docs(
+                            &[
+                                "The ink! smart contract's call builder.",
+                                "",
+                                "Implements the underlying on-chain calling of the ink! smart contract",
+                                "messages and trait implementations in a type safe way.",
+                            ],
+                        )
+                        .composite(
+                            ::scale_info::build::Fields::named()
+                                .field(|f| {
+                                    f
+                                        .ty::<AccountId>()
+                                        .name("account_id")
+                                        .type_name("AccountId")
+                                }),
+                        )
+                }
+            }
+        };
+        const _: () = {
+            impl ::ink::storage::traits::StorageLayout for CallBuilder {
+                fn layout(
+                    __key: &::ink::primitives::Key,
+                ) -> ::ink::metadata::layout::Layout {
+                    ::ink::metadata::layout::Layout::Struct(
+                        ::ink::metadata::layout::StructLayout::new(
+                            "CallBuilder",
+                            [
+                                ::ink::metadata::layout::FieldLayout::new(
+                                    "account_id",
+                                    <AccountId as ::ink::storage::traits::StorageLayout>::layout(
+                                        __key,
+                                    ),
+                                ),
+                            ],
+                        ),
+                    )
+                }
+            }
+        };
+        const _: () = {
+            impl ::ink::codegen::ContractCallBuilder for SharesToken {
+                type Type = CallBuilder;
+            }
+            impl ::ink::reflect::ContractEnv for CallBuilder {
+                type Env = <SharesToken as ::ink::reflect::ContractEnv>::Env;
+            }
+        };
+        impl ::ink::env::call::FromAccountId<Environment> for CallBuilder {
+            #[inline]
+            fn from_account_id(account_id: AccountId) -> Self {
+                Self { account_id }
+            }
+        }
+        impl ::ink::ToAccountId<Environment> for CallBuilder {
+            #[inline]
+            fn to_account_id(&self) -> AccountId {
+                <AccountId as ::core::clone::Clone>::clone(&self.account_id)
+            }
+        }
+        #[doc(hidden)]
+        impl ::ink::codegen::TraitCallForwarderFor<
+            {
+                <<::ink::reflect::TraitDefinitionRegistry<
+                    Environment,
+                > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+            },
+        > for CallBuilder {
+            type Forwarder = <<Self as ownable_external::Ownable>::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder;
+            #[inline]
+            fn forward(&self) -> &Self::Forwarder {
+                unsafe {
+                    &*(&self.account_id as *const AccountId as *const Self::Forwarder)
+                }
+            }
+            #[inline]
+            fn forward_mut(&mut self) -> &mut Self::Forwarder {
+                unsafe {
+                    &mut *(&mut self.account_id as *mut AccountId
+                        as *mut Self::Forwarder)
+                }
+            }
+            #[inline]
+            fn build(
+                &self,
+            ) -> &<Self::Forwarder as ::ink::codegen::TraitCallBuilder>::Builder {
+                <_ as ::ink::codegen::TraitCallBuilder>::call(
+                    <Self as ::ink::codegen::TraitCallForwarderFor<
+                        {
+                            <<::ink::reflect::TraitDefinitionRegistry<
+                                Environment,
+                            > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                        },
+                    >>::forward(self),
+                )
+            }
+            #[inline]
+            fn build_mut(
+                &mut self,
+            ) -> &mut <Self::Forwarder as ::ink::codegen::TraitCallBuilder>::Builder {
+                <_ as ::ink::codegen::TraitCallBuilder>::call_mut(
+                    <Self as ::ink::codegen::TraitCallForwarderFor<
+                        {
+                            <<::ink::reflect::TraitDefinitionRegistry<
+                                Environment,
+                            > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                        },
+                    >>::forward_mut(self),
+                )
+            }
+        }
+        impl ownable_external::Ownable for CallBuilder {
+            type __ink_TraitInfo = <::ink::reflect::TraitDefinitionRegistry<
+                Environment,
+            > as ownable_external::Ownable>::__ink_TraitInfo;
+            type renounceOwnershipOutput = <<<Self as ::ink::codegen::TraitCallForwarderFor<
+                {
+                    <<::ink::reflect::TraitDefinitionRegistry<
+                        Environment,
+                    > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                },
+            >>::Forwarder as ::ink::codegen::TraitCallBuilder>::Builder as ownable_external::Ownable>::renounceOwnershipOutput;
+            #[inline]
+            /// Leaves the contract without owner. It will not be possible to call
+            /// owner's functions anymore. Can only be called by the current owner.
+            ///
+            /// NOTE: Renouncing ownership will leave the contract without an owner,
+            /// thereby removing any functionality that is only available to the owner.
+            ///
+            /// On success a `OwnershipTransferred` event is emitted.
+            ///
+            /// # Errors
+            ///
+            /// Panics with `CallerIsNotOwner` error if caller is not owner
+            fn renounce_ownership(&mut self) -> Self::renounceOwnershipOutput {
+                <_ as ownable_external::Ownable>::renounce_ownership(
+                    <Self as ::ink::codegen::TraitCallForwarderFor<
+                        {
+                            <<::ink::reflect::TraitDefinitionRegistry<
+                                Environment,
+                            > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                        },
+                    >>::build_mut(self),
+                )
+            }
+            type ownerOutput = <<<Self as ::ink::codegen::TraitCallForwarderFor<
+                {
+                    <<::ink::reflect::TraitDefinitionRegistry<
+                        Environment,
+                    > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                },
+            >>::Forwarder as ::ink::codegen::TraitCallBuilder>::Builder as ownable_external::Ownable>::ownerOutput;
+            #[inline]
+            /// Returns the address of the current owner.
+            fn owner(&self) -> Self::ownerOutput {
+                <_ as ownable_external::Ownable>::owner(
+                    <Self as ::ink::codegen::TraitCallForwarderFor<
+                        {
+                            <<::ink::reflect::TraitDefinitionRegistry<
+                                Environment,
+                            > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                        },
+                    >>::build(self),
+                )
+            }
+            type transferOwnershipOutput = <<<Self as ::ink::codegen::TraitCallForwarderFor<
+                {
+                    <<::ink::reflect::TraitDefinitionRegistry<
+                        Environment,
+                    > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                },
+            >>::Forwarder as ::ink::codegen::TraitCallBuilder>::Builder as ownable_external::Ownable>::transferOwnershipOutput;
+            #[inline]
+            /// Transfers ownership of the contract to a `new_owner`.
+            /// Can only be called by the current owner.
+            ///
+            /// On success a `OwnershipTransferred` event is emitted.
+            ///
+            /// # Errors
+            ///
+            /// Panics with `CallerIsNotOwner` error if caller is not owner.
+            ///
+            /// Panics with `NewOwnerIsZero` error if new owner's address is zero.
+            fn transfer_ownership(
+                &mut self,
+                new_owner: ownable_external::TransferOwnershipInput1,
+            ) -> Self::transferOwnershipOutput {
+                <_ as ownable_external::Ownable>::transfer_ownership(
+                    <Self as ::ink::codegen::TraitCallForwarderFor<
+                        {
+                            <<::ink::reflect::TraitDefinitionRegistry<
+                                Environment,
+                            > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                        },
+                    >>::build_mut(self),
+                    new_owner,
+                )
+            }
+        }
+        #[doc(hidden)]
+        impl ::ink::codegen::TraitCallForwarderFor<
+            {
+                <<::ink::reflect::TraitDefinitionRegistry<
+                    Environment,
+                > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+            },
+        > for CallBuilder {
+            type Forwarder = <<Self as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder;
+            #[inline]
+            fn forward(&self) -> &Self::Forwarder {
+                unsafe {
+                    &*(&self.account_id as *const AccountId as *const Self::Forwarder)
+                }
+            }
+            #[inline]
+            fn forward_mut(&mut self) -> &mut Self::Forwarder {
+                unsafe {
+                    &mut *(&mut self.account_id as *mut AccountId
+                        as *mut Self::Forwarder)
+                }
+            }
+            #[inline]
+            fn build(
+                &self,
+            ) -> &<Self::Forwarder as ::ink::codegen::TraitCallBuilder>::Builder {
+                <_ as ::ink::codegen::TraitCallBuilder>::call(
+                    <Self as ::ink::codegen::TraitCallForwarderFor<
+                        {
+                            <<::ink::reflect::TraitDefinitionRegistry<
+                                Environment,
+                            > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                        },
+                    >>::forward(self),
+                )
+            }
+            #[inline]
+            fn build_mut(
+                &mut self,
+            ) -> &mut <Self::Forwarder as ::ink::codegen::TraitCallBuilder>::Builder {
+                <_ as ::ink::codegen::TraitCallBuilder>::call_mut(
+                    <Self as ::ink::codegen::TraitCallForwarderFor<
+                        {
+                            <<::ink::reflect::TraitDefinitionRegistry<
+                                Environment,
+                            > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                        },
+                    >>::forward_mut(self),
+                )
+            }
+        }
+        impl psp22burnable_external::PSP22Burnable for CallBuilder {
+            type __ink_TraitInfo = <::ink::reflect::TraitDefinitionRegistry<
+                Environment,
+            > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo;
+            type burnOutput = <<<Self as ::ink::codegen::TraitCallForwarderFor<
+                {
+                    <<::ink::reflect::TraitDefinitionRegistry<
+                        Environment,
+                    > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                },
+            >>::Forwarder as ::ink::codegen::TraitCallBuilder>::Builder as psp22burnable_external::PSP22Burnable>::burnOutput;
+            #[inline]
+            fn burn(
+                &mut self,
+                account: psp22burnable_external::BurnInput1,
+                amount: psp22burnable_external::BurnInput2,
+            ) -> Self::burnOutput {
+                <_ as psp22burnable_external::PSP22Burnable>::burn(
+                    <Self as ::ink::codegen::TraitCallForwarderFor<
+                        {
+                            <<::ink::reflect::TraitDefinitionRegistry<
+                                Environment,
+                            > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                        },
+                    >>::build_mut(self),
+                    account,
+                    amount,
+                )
+            }
+        }
+        #[doc(hidden)]
+        impl ::ink::codegen::TraitCallForwarderFor<
+            {
+                <<::ink::reflect::TraitDefinitionRegistry<
+                    Environment,
+                > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+            },
+        > for CallBuilder {
+            type Forwarder = <<Self as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder;
+            #[inline]
+            fn forward(&self) -> &Self::Forwarder {
+                unsafe {
+                    &*(&self.account_id as *const AccountId as *const Self::Forwarder)
+                }
+            }
+            #[inline]
+            fn forward_mut(&mut self) -> &mut Self::Forwarder {
+                unsafe {
+                    &mut *(&mut self.account_id as *mut AccountId
+                        as *mut Self::Forwarder)
+                }
+            }
+            #[inline]
+            fn build(
+                &self,
+            ) -> &<Self::Forwarder as ::ink::codegen::TraitCallBuilder>::Builder {
+                <_ as ::ink::codegen::TraitCallBuilder>::call(
+                    <Self as ::ink::codegen::TraitCallForwarderFor<
+                        {
+                            <<::ink::reflect::TraitDefinitionRegistry<
+                                Environment,
+                            > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                        },
+                    >>::forward(self),
+                )
+            }
+            #[inline]
+            fn build_mut(
+                &mut self,
+            ) -> &mut <Self::Forwarder as ::ink::codegen::TraitCallBuilder>::Builder {
+                <_ as ::ink::codegen::TraitCallBuilder>::call_mut(
+                    <Self as ::ink::codegen::TraitCallForwarderFor<
+                        {
+                            <<::ink::reflect::TraitDefinitionRegistry<
+                                Environment,
+                            > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                        },
+                    >>::forward_mut(self),
+                )
+            }
+        }
+        impl psp22mintable_external::PSP22Mintable for CallBuilder {
+            type __ink_TraitInfo = <::ink::reflect::TraitDefinitionRegistry<
+                Environment,
+            > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo;
+            type mintOutput = <<<Self as ::ink::codegen::TraitCallForwarderFor<
+                {
+                    <<::ink::reflect::TraitDefinitionRegistry<
+                        Environment,
+                    > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                },
+            >>::Forwarder as ::ink::codegen::TraitCallBuilder>::Builder as psp22mintable_external::PSP22Mintable>::mintOutput;
+            #[inline]
+            fn mint(
+                &mut self,
+                account: psp22mintable_external::MintInput1,
+                amount: psp22mintable_external::MintInput2,
+            ) -> Self::mintOutput {
+                <_ as psp22mintable_external::PSP22Mintable>::mint(
+                    <Self as ::ink::codegen::TraitCallForwarderFor<
+                        {
+                            <<::ink::reflect::TraitDefinitionRegistry<
+                                Environment,
+                            > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                        },
+                    >>::build_mut(self),
+                    account,
+                    amount,
+                )
+            }
+        }
+        impl CallBuilder {}
+    };
+    pub struct SharesTokenRef {
+        inner: <SharesToken as ::ink::codegen::ContractCallBuilder>::Type,
+    }
+    #[automatically_derived]
+    impl ::core::fmt::Debug for SharesTokenRef {
+        fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+            ::core::fmt::Formatter::debug_struct_field1_finish(
+                f,
+                "SharesTokenRef",
+                "inner",
+                &&self.inner,
+            )
+        }
+    }
+    #[allow(deprecated)]
+    const _: () = {
+        #[automatically_derived]
+        impl ::scale::Encode for SharesTokenRef {
+            fn encode_to<__CodecOutputEdqy: ::scale::Output + ?::core::marker::Sized>(
+                &self,
+                __codec_dest_edqy: &mut __CodecOutputEdqy,
+            ) {
+                ::scale::Encode::encode_to(&&self.inner, __codec_dest_edqy)
+            }
+            fn encode(&self) -> ::scale::alloc::vec::Vec<::core::primitive::u8> {
+                ::scale::Encode::encode(&&self.inner)
+            }
+            fn using_encoded<R, F: ::core::ops::FnOnce(&[::core::primitive::u8]) -> R>(
+                &self,
+                f: F,
+            ) -> R {
+                ::scale::Encode::using_encoded(&&self.inner, f)
+            }
+        }
+        #[automatically_derived]
+        impl ::scale::EncodeLike for SharesTokenRef {}
+    };
+    #[allow(deprecated)]
+    const _: () = {
+        #[automatically_derived]
+        impl ::scale::Decode for SharesTokenRef {
+            fn decode<__CodecInputEdqy: ::scale::Input>(
+                __codec_input_edqy: &mut __CodecInputEdqy,
+            ) -> ::core::result::Result<Self, ::scale::Error> {
+                ::core::result::Result::Ok(SharesTokenRef {
+                    inner: {
+                        let __codec_res_edqy = <<SharesToken as ::ink::codegen::ContractCallBuilder>::Type as ::scale::Decode>::decode(
+                            __codec_input_edqy,
+                        );
+                        match __codec_res_edqy {
+                            ::core::result::Result::Err(e) => {
+                                return ::core::result::Result::Err(
+                                    e.chain("Could not decode `SharesTokenRef::inner`"),
+                                );
+                            }
+                            ::core::result::Result::Ok(__codec_res_edqy) => {
+                                __codec_res_edqy
+                            }
+                        }
+                    },
+                })
+            }
+        }
+    };
+    #[automatically_derived]
+    impl ::core::hash::Hash for SharesTokenRef {
+        fn hash<__H: ::core::hash::Hasher>(&self, state: &mut __H) -> () {
+            ::core::hash::Hash::hash(&self.inner, state)
+        }
+    }
+    #[automatically_derived]
+    impl ::core::marker::StructuralPartialEq for SharesTokenRef {}
+    #[automatically_derived]
+    impl ::core::cmp::PartialEq for SharesTokenRef {
+        #[inline]
+        fn eq(&self, other: &SharesTokenRef) -> bool {
+            self.inner == other.inner
+        }
+    }
+    #[automatically_derived]
+    impl ::core::marker::StructuralEq for SharesTokenRef {}
+    #[automatically_derived]
+    impl ::core::cmp::Eq for SharesTokenRef {
+        #[inline]
+        #[doc(hidden)]
+        #[no_coverage]
+        fn assert_receiver_is_total_eq(&self) -> () {
+            let _: ::core::cmp::AssertParamIsEq<
+                <SharesToken as ::ink::codegen::ContractCallBuilder>::Type,
+            >;
+        }
+    }
+    #[automatically_derived]
+    impl ::core::clone::Clone for SharesTokenRef {
+        #[inline]
+        fn clone(&self) -> SharesTokenRef {
+            SharesTokenRef {
+                inner: ::core::clone::Clone::clone(&self.inner),
+            }
+        }
+    }
+    #[allow(non_upper_case_globals, unused_attributes, unused_qualifications)]
+    const _: () = {
+        impl ::scale_info::TypeInfo for SharesTokenRef {
+            type Identity = Self;
+            fn type_info() -> ::scale_info::Type {
+                ::scale_info::Type::builder()
+                    .path(
+                        ::scale_info::Path::new(
+                            "SharesTokenRef",
+                            "shares_token::shares_token",
+                        ),
+                    )
+                    .type_params(::alloc::vec::Vec::new())
+                    .composite(
+                        ::scale_info::build::Fields::named()
+                            .field(|f| {
+                                f
+                                    .ty::<
+                                        <SharesToken as ::ink::codegen::ContractCallBuilder>::Type,
+                                    >()
+                                    .name("inner")
+                                    .type_name(
+                                        "<SharesToken as::ink::codegen::ContractCallBuilder>::Type",
+                                    )
+                            }),
+                    )
+            }
+        }
+    };
+    const _: () = {
+        impl ::ink::storage::traits::StorageLayout for SharesTokenRef {
+            fn layout(
+                __key: &::ink::primitives::Key,
+            ) -> ::ink::metadata::layout::Layout {
+                ::ink::metadata::layout::Layout::Struct(
+                    ::ink::metadata::layout::StructLayout::new(
+                        "SharesTokenRef",
+                        [
+                            ::ink::metadata::layout::FieldLayout::new(
+                                "inner",
+                                <<SharesToken as ::ink::codegen::ContractCallBuilder>::Type as ::ink::storage::traits::StorageLayout>::layout(
+                                    __key,
+                                ),
+                            ),
+                        ],
+                    ),
+                )
+            }
+        }
+    };
+    const _: () = {
+        impl ::ink::reflect::ContractReference for SharesToken {
+            type Type = SharesTokenRef;
+        }
+        impl ::ink::reflect::ContractEnv for SharesTokenRef {
+            type Env = <SharesToken as ::ink::reflect::ContractEnv>::Env;
+        }
+    };
+    impl ownable_external::Ownable for SharesTokenRef {
+        type __ink_TraitInfo = <::ink::reflect::TraitDefinitionRegistry<
+            Environment,
+        > as ownable_external::Ownable>::__ink_TraitInfo;
+        type renounceOwnershipOutput = <<Self::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder as ownable_external::Ownable>::renounceOwnershipOutput;
+        #[inline]
+        fn renounce_ownership(&mut self) -> Self::renounceOwnershipOutput {
+            <_ as ownable_external::Ownable>::renounce_ownership(
+                <_ as ::ink::codegen::TraitCallForwarderFor<
+                    {
+                        <<::ink::reflect::TraitDefinitionRegistry<
+                            Environment,
+                        > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                    },
+                >>::forward_mut(
+                    <Self as ::ink::codegen::TraitCallBuilder>::call_mut(self),
+                ),
+            )
+        }
+        type ownerOutput = <<Self::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder as ownable_external::Ownable>::ownerOutput;
+        #[inline]
+        fn owner(&self) -> Self::ownerOutput {
+            <_ as ownable_external::Ownable>::owner(
+                <_ as ::ink::codegen::TraitCallForwarderFor<
+                    {
+                        <<::ink::reflect::TraitDefinitionRegistry<
+                            Environment,
+                        > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                    },
+                >>::forward(<Self as ::ink::codegen::TraitCallBuilder>::call(self)),
+            )
+        }
+        type transferOwnershipOutput = <<Self::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder as ownable_external::Ownable>::transferOwnershipOutput;
+        #[inline]
+        fn transfer_ownership(
+            &mut self,
+            new_owner: ownable_external::TransferOwnershipInput1,
+        ) -> Self::transferOwnershipOutput {
+            <_ as ownable_external::Ownable>::transfer_ownership(
+                <_ as ::ink::codegen::TraitCallForwarderFor<
+                    {
+                        <<::ink::reflect::TraitDefinitionRegistry<
+                            Environment,
+                        > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                    },
+                >>::forward_mut(
+                    <Self as ::ink::codegen::TraitCallBuilder>::call_mut(self),
+                ),
+                new_owner,
+            )
+        }
+    }
+    impl psp22burnable_external::PSP22Burnable for SharesTokenRef {
+        type __ink_TraitInfo = <::ink::reflect::TraitDefinitionRegistry<
+            Environment,
+        > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo;
+        type burnOutput = <<Self::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder as psp22burnable_external::PSP22Burnable>::burnOutput;
+        #[inline]
+        fn burn(
+            &mut self,
+            account: psp22burnable_external::BurnInput1,
+            amount: psp22burnable_external::BurnInput2,
+        ) -> Self::burnOutput {
+            <_ as psp22burnable_external::PSP22Burnable>::burn(
+                <_ as ::ink::codegen::TraitCallForwarderFor<
+                    {
+                        <<::ink::reflect::TraitDefinitionRegistry<
+                            Environment,
+                        > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                    },
+                >>::forward_mut(
+                    <Self as ::ink::codegen::TraitCallBuilder>::call_mut(self),
+                ),
+                account,
+                amount,
+            )
+        }
+    }
+    impl psp22mintable_external::PSP22Mintable for SharesTokenRef {
+        type __ink_TraitInfo = <::ink::reflect::TraitDefinitionRegistry<
+            Environment,
+        > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo;
+        type mintOutput = <<Self::__ink_TraitInfo as ::ink::codegen::TraitCallForwarder>::Forwarder as psp22mintable_external::PSP22Mintable>::mintOutput;
+        #[inline]
+        fn mint(
+            &mut self,
+            account: psp22mintable_external::MintInput1,
+            amount: psp22mintable_external::MintInput2,
+        ) -> Self::mintOutput {
+            <_ as psp22mintable_external::PSP22Mintable>::mint(
+                <_ as ::ink::codegen::TraitCallForwarderFor<
+                    {
+                        <<::ink::reflect::TraitDefinitionRegistry<
+                            Environment,
+                        > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo as ::ink::reflect::TraitInfo>::ID
+                    },
+                >>::forward_mut(
+                    <Self as ::ink::codegen::TraitCallBuilder>::call_mut(self),
+                ),
+                account,
+                amount,
+            )
+        }
+    }
+    impl SharesTokenRef {
+        #[inline]
+        #[allow(clippy::type_complexity)]
+        pub fn new(
+            __ink_binding_0: AccountId,
+            __ink_binding_1: Option<String>,
+            __ink_binding_2: Option<String>,
+            __ink_binding_3: u8,
+        ) -> ::ink::env::call::CreateBuilder<
+            Environment,
+            ::ink::env::call::utils::Unset<Hash>,
+            ::ink::env::call::utils::Unset<u64>,
+            ::ink::env::call::utils::Unset<Balance>,
+            ::ink::env::call::utils::Set<
+                ::ink::env::call::ExecutionInput<
+                    ::ink::env::call::utils::ArgumentList<
+                        ::ink::env::call::utils::Argument<u8>,
+                        ::ink::env::call::utils::ArgumentList<
+                            ::ink::env::call::utils::Argument<Option<String>>,
+                            ::ink::env::call::utils::ArgumentList<
+                                ::ink::env::call::utils::Argument<Option<String>>,
+                                ::ink::env::call::utils::ArgumentList<
+                                    ::ink::env::call::utils::Argument<AccountId>,
+                                    ::ink::env::call::utils::EmptyArgumentList,
+                                >,
+                            >,
+                        >,
+                    >,
+                >,
+            >,
+            ::ink::env::call::utils::Unset<::ink::env::call::state::Salt>,
+            Self,
+        > {
+            ::ink::env::call::build_create::<Environment, Self>()
+                .exec_input(
+                    ::ink::env::call::ExecutionInput::new(
+                            ::ink::env::call::Selector::new([
+                                0x9B_u8,
+                                0xAE_u8,
+                                0x9D_u8,
+                                0x5E_u8,
+                            ]),
+                        )
+                        .push_arg(__ink_binding_0)
+                        .push_arg(__ink_binding_1)
+                        .push_arg(__ink_binding_2)
+                        .push_arg(__ink_binding_3),
+                )
+        }
+    }
+    const _: () = {
+        impl ::ink::codegen::TraitCallBuilder for SharesTokenRef {
+            type Builder = <SharesToken as ::ink::codegen::ContractCallBuilder>::Type;
+            #[inline]
+            fn call(&self) -> &Self::Builder {
+                &self.inner
+            }
+            #[inline]
+            fn call_mut(&mut self) -> &mut Self::Builder {
+                &mut self.inner
+            }
+        }
+    };
+    impl ::ink::env::call::FromAccountId<Environment> for SharesTokenRef {
+        #[inline]
+        fn from_account_id(account_id: AccountId) -> Self {
+            Self {
+                inner: <<SharesToken as ::ink::codegen::ContractCallBuilder>::Type as ::ink::env::call::FromAccountId<
+                    Environment,
+                >>::from_account_id(account_id),
+            }
+        }
+    }
+    impl ::ink::ToAccountId<Environment> for SharesTokenRef {
+        #[inline]
+        fn to_account_id(&self) -> AccountId {
+            <<SharesToken as ::ink::codegen::ContractCallBuilder>::Type as ::ink::ToAccountId<
+                Environment,
+            >>::to_account_id(&self.inner)
+        }
+    }
+    #[cfg(feature = "std")]
+    #[cfg(not(feature = "ink-as-dependency"))]
+    const _: () = {
+        #[no_mangle]
+        pub fn __ink_generate_metadata() -> ::ink::metadata::InkProject {
+            let layout = ::ink::metadata::layout::Layout::Root(
+                ::ink::metadata::layout::RootLayout::new(
+                    <::ink::metadata::layout::LayoutKey as ::core::convert::From<
+                        ::ink::primitives::Key,
+                    >>::from(<SharesToken as ::ink::storage::traits::StorageKey>::KEY),
+                    <SharesToken as ::ink::storage::traits::StorageLayout>::layout(
+                        &<SharesToken as ::ink::storage::traits::StorageKey>::KEY,
+                    ),
+                ),
+            );
+            ::ink::metadata::layout::ValidateLayout::validate(&layout)
+                .unwrap_or_else(|error| {
+                    ::core::panicking::panic_fmt(
+                        format_args!("metadata ink! generation failed: {0}", error),
+                    )
+                });
+            ::ink::metadata::InkProject::new(
+                layout,
+                ::ink::metadata::ContractSpec::new()
+                    .constructors([
+                        ::ink::metadata::ConstructorSpec::from_label("new")
+                            .selector([0x9B_u8, 0xAE_u8, 0x9D_u8, 0x5E_u8])
+                            .args([
+                                ::ink::metadata::MessageParamSpec::new("asset")
+                                    .of_type(
+                                        ::ink::metadata::TypeSpec::with_name_segs::<
+                                            AccountId,
+                                            _,
+                                        >(
+                                            ::core::iter::Iterator::map(
+                                                ::core::iter::IntoIterator::into_iter(["AccountId"]),
+                                                ::core::convert::AsRef::as_ref,
+                                            ),
+                                        ),
+                                    )
+                                    .done(),
+                                ::ink::metadata::MessageParamSpec::new("name")
+                                    .of_type(
+                                        ::ink::metadata::TypeSpec::with_name_segs::<
+                                            Option<String>,
+                                            _,
+                                        >(
+                                            ::core::iter::Iterator::map(
+                                                ::core::iter::IntoIterator::into_iter(["Option"]),
+                                                ::core::convert::AsRef::as_ref,
+                                            ),
+                                        ),
+                                    )
+                                    .done(),
+                                ::ink::metadata::MessageParamSpec::new("symbol")
+                                    .of_type(
+                                        ::ink::metadata::TypeSpec::with_name_segs::<
+                                            Option<String>,
+                                            _,
+                                        >(
+                                            ::core::iter::Iterator::map(
+                                                ::core::iter::IntoIterator::into_iter(["Option"]),
+                                                ::core::convert::AsRef::as_ref,
+                                            ),
+                                        ),
+                                    )
+                                    .done(),
+                                ::ink::metadata::MessageParamSpec::new("decimal")
+                                    .of_type(
+                                        ::ink::metadata::TypeSpec::with_name_segs::<
+                                            u8,
+                                            _,
+                                        >(
+                                            ::core::iter::Iterator::map(
+                                                ::core::iter::IntoIterator::into_iter(["u8"]),
+                                                ::core::convert::AsRef::as_ref,
+                                            ),
+                                        ),
+                                    )
+                                    .done(),
+                            ])
+                            .payable(false)
+                            .returns(
+                                ::ink::metadata::ReturnTypeSpec::new(
+                                    if <SharesToken as ::ink::reflect::DispatchableConstructorInfo<
+                                        2611912030u32,
+                                    >>::IS_RESULT {
+                                        ::core::option::Option::Some(
+                                            ::ink::metadata::TypeSpec::with_name_str::<
+                                                ::ink::ConstructorResult<
+                                                    ::core::result::Result<
+                                                        (),
+                                                        <SharesToken as ::ink::reflect::DispatchableConstructorInfo<
+                                                            2611912030u32,
+                                                        >>::Error,
+                                                    >,
+                                                >,
+                                            >("ink_primitives::ConstructorResult"),
+                                        )
+                                    } else {
+                                        ::core::option::Option::Some(
+                                            ::ink::metadata::TypeSpec::with_name_str::<
+                                                ::ink::ConstructorResult<()>,
+                                            >("ink_primitives::ConstructorResult"),
+                                        )
+                                    },
+                                ),
+                            )
+                            .docs([])
+                            .done(),
+                    ])
+                    .messages([
+                        ::ink::metadata::MessageSpec::from_label(
+                                "Ownable::renounce_ownership",
+                            )
+                            .selector({
+                                <<::ink::reflect::TraitDefinitionRegistry<
+                                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                                > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                                    0x8C90065B_u32,
+                                >>::SELECTOR
+                            })
+                            .args([])
+                            .returns(
+                                ::ink::metadata::ReturnTypeSpec::new(
+                                    ::ink::metadata::TypeSpec::with_name_segs::<
+                                        ::ink::MessageResult<
+                                            ownable_external::RenounceOwnershipOutput,
+                                        >,
+                                        _,
+                                    >(
+                                        ::core::iter::Iterator::map(
+                                            ::core::iter::IntoIterator::into_iter([
+                                                "ink",
+                                                "MessageResult",
+                                            ]),
+                                            ::core::convert::AsRef::as_ref,
+                                        ),
+                                    ),
+                                ),
+                            )
+                            .mutates(true)
+                            .payable({
+                                <<::ink::reflect::TraitDefinitionRegistry<
+                                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                                > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                                    0x8C90065B_u32,
+                                >>::PAYABLE
+                            })
+                            .docs([
+                                " Leaves the contract without owner. It will not be possible to call",
+                                " owner's functions anymore. Can only be called by the current owner.",
+                                "",
+                                " NOTE: Renouncing ownership will leave the contract without an owner,",
+                                " thereby removing any functionality that is only available to the owner.",
+                                "",
+                                " On success a `OwnershipTransferred` event is emitted.",
+                                "",
+                                " # Errors",
+                                "",
+                                " Panics with `CallerIsNotOwner` error if caller is not owner",
+                            ])
+                            .done(),
+                        ::ink::metadata::MessageSpec::from_label("Ownable::owner")
+                            .selector({
+                                <<::ink::reflect::TraitDefinitionRegistry<
+                                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                                > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                                    0xFEAEA4FA_u32,
+                                >>::SELECTOR
+                            })
+                            .args([])
+                            .returns(
+                                ::ink::metadata::ReturnTypeSpec::new(
+                                    ::ink::metadata::TypeSpec::with_name_segs::<
+                                        ::ink::MessageResult<ownable_external::OwnerOutput>,
+                                        _,
+                                    >(
+                                        ::core::iter::Iterator::map(
+                                            ::core::iter::IntoIterator::into_iter([
+                                                "ink",
+                                                "MessageResult",
+                                            ]),
+                                            ::core::convert::AsRef::as_ref,
+                                        ),
+                                    ),
+                                ),
+                            )
+                            .mutates(false)
+                            .payable({
+                                <<::ink::reflect::TraitDefinitionRegistry<
+                                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                                > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                                    0xFEAEA4FA_u32,
+                                >>::PAYABLE
+                            })
+                            .docs([" Returns the address of the current owner."])
+                            .done(),
+                        ::ink::metadata::MessageSpec::from_label(
+                                "Ownable::transfer_ownership",
+                            )
+                            .selector({
+                                <<::ink::reflect::TraitDefinitionRegistry<
+                                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                                > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                                    0x107E33EA_u32,
+                                >>::SELECTOR
+                            })
+                            .args([
+                                ::ink::metadata::MessageParamSpec::new("new_owner")
+                                    .of_type(
+                                        ::ink::metadata::TypeSpec::with_name_segs::<
+                                            ownable_external::TransferOwnershipInput1,
+                                            _,
+                                        >(
+                                            ::core::iter::Iterator::map(
+                                                ::core::iter::IntoIterator::into_iter([
+                                                    "ownable_external",
+                                                    "TransferOwnershipInput1",
+                                                ]),
+                                                ::core::convert::AsRef::as_ref,
+                                            ),
+                                        ),
+                                    )
+                                    .done(),
+                            ])
+                            .returns(
+                                ::ink::metadata::ReturnTypeSpec::new(
+                                    ::ink::metadata::TypeSpec::with_name_segs::<
+                                        ::ink::MessageResult<
+                                            ownable_external::TransferOwnershipOutput,
+                                        >,
+                                        _,
+                                    >(
+                                        ::core::iter::Iterator::map(
+                                            ::core::iter::IntoIterator::into_iter([
+                                                "ink",
+                                                "MessageResult",
+                                            ]),
+                                            ::core::convert::AsRef::as_ref,
+                                        ),
+                                    ),
+                                ),
+                            )
+                            .mutates(true)
+                            .payable({
+                                <<::ink::reflect::TraitDefinitionRegistry<
+                                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                                > as ownable_external::Ownable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                                    0x107E33EA_u32,
+                                >>::PAYABLE
+                            })
+                            .docs([
+                                " Transfers ownership of the contract to a `new_owner`.",
+                                " Can only be called by the current owner.",
+                                "",
+                                " On success a `OwnershipTransferred` event is emitted.",
+                                "",
+                                " # Errors",
+                                "",
+                                " Panics with `CallerIsNotOwner` error if caller is not owner.",
+                                "",
+                                " Panics with `NewOwnerIsZero` error if new owner's address is zero.",
+                            ])
+                            .done(),
+                        ::ink::metadata::MessageSpec::from_label("PSP22Burnable::burn")
+                            .selector({
+                                <<::ink::reflect::TraitDefinitionRegistry<
+                                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                                > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                                    0xB1EFC17B_u32,
+                                >>::SELECTOR
+                            })
+                            .args([
+                                ::ink::metadata::MessageParamSpec::new("account")
+                                    .of_type(
+                                        ::ink::metadata::TypeSpec::with_name_segs::<
+                                            psp22burnable_external::BurnInput1,
+                                            _,
+                                        >(
+                                            ::core::iter::Iterator::map(
+                                                ::core::iter::IntoIterator::into_iter([
+                                                    "psp22burnable_external",
+                                                    "BurnInput1",
+                                                ]),
+                                                ::core::convert::AsRef::as_ref,
+                                            ),
+                                        ),
+                                    )
+                                    .done(),
+                                ::ink::metadata::MessageParamSpec::new("amount")
+                                    .of_type(
+                                        ::ink::metadata::TypeSpec::with_name_segs::<
+                                            psp22burnable_external::BurnInput2,
+                                            _,
+                                        >(
+                                            ::core::iter::Iterator::map(
+                                                ::core::iter::IntoIterator::into_iter([
+                                                    "psp22burnable_external",
+                                                    "BurnInput2",
+                                                ]),
+                                                ::core::convert::AsRef::as_ref,
+                                            ),
+                                        ),
+                                    )
+                                    .done(),
+                            ])
+                            .returns(
+                                ::ink::metadata::ReturnTypeSpec::new(
+                                    ::ink::metadata::TypeSpec::with_name_segs::<
+                                        ::ink::MessageResult<psp22burnable_external::BurnOutput>,
+                                        _,
+                                    >(
+                                        ::core::iter::Iterator::map(
+                                            ::core::iter::IntoIterator::into_iter([
+                                                "ink",
+                                                "MessageResult",
+                                            ]),
+                                            ::core::convert::AsRef::as_ref,
+                                        ),
+                                    ),
+                                ),
+                            )
+                            .mutates(true)
+                            .payable({
+                                <<::ink::reflect::TraitDefinitionRegistry<
+                                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                                > as psp22burnable_external::PSP22Burnable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                                    0xB1EFC17B_u32,
+                                >>::PAYABLE
+                            })
+                            .docs([])
+                            .done(),
+                        ::ink::metadata::MessageSpec::from_label("PSP22Mintable::mint")
+                            .selector({
+                                <<::ink::reflect::TraitDefinitionRegistry<
+                                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                                > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                                    0xCFDD9AA2_u32,
+                                >>::SELECTOR
+                            })
+                            .args([
+                                ::ink::metadata::MessageParamSpec::new("account")
+                                    .of_type(
+                                        ::ink::metadata::TypeSpec::with_name_segs::<
+                                            psp22mintable_external::MintInput1,
+                                            _,
+                                        >(
+                                            ::core::iter::Iterator::map(
+                                                ::core::iter::IntoIterator::into_iter([
+                                                    "psp22mintable_external",
+                                                    "MintInput1",
+                                                ]),
+                                                ::core::convert::AsRef::as_ref,
+                                            ),
+                                        ),
+                                    )
+                                    .done(),
+                                ::ink::metadata::MessageParamSpec::new("amount")
+                                    .of_type(
+                                        ::ink::metadata::TypeSpec::with_name_segs::<
+                                            psp22mintable_external::MintInput2,
+                                            _,
+                                        >(
+                                            ::core::iter::Iterator::map(
+                                                ::core::iter::IntoIterator::into_iter([
+                                                    "psp22mintable_external",
+                                                    "MintInput2",
+                                                ]),
+                                                ::core::convert::AsRef::as_ref,
+                                            ),
+                                        ),
+                                    )
+                                    .done(),
+                            ])
+                            .returns(
+                                ::ink::metadata::ReturnTypeSpec::new(
+                                    ::ink::metadata::TypeSpec::with_name_segs::<
+                                        ::ink::MessageResult<psp22mintable_external::MintOutput>,
+                                        _,
+                                    >(
+                                        ::core::iter::Iterator::map(
+                                            ::core::iter::IntoIterator::into_iter([
+                                                "ink",
+                                                "MessageResult",
+                                            ]),
+                                            ::core::convert::AsRef::as_ref,
+                                        ),
+                                    ),
+                                ),
+                            )
+                            .mutates(true)
+                            .payable({
+                                <<::ink::reflect::TraitDefinitionRegistry<
+                                    <SharesToken as ::ink::reflect::ContractEnv>::Env,
+                                > as psp22mintable_external::PSP22Mintable>::__ink_TraitInfo as ::ink::reflect::TraitMessageInfo<
+                                    0xCFDD9AA2_u32,
+                                >>::PAYABLE
+                            })
+                            .docs([])
+                            .done(),
+                    ])
+                    .events([])
+                    .docs([])
+                    .lang_error(
+                        ::ink::metadata::TypeSpec::with_name_segs::<
+                            ::ink::LangError,
+                            _,
+                        >(
+                            ::core::iter::Iterator::map(
+                                ::core::iter::IntoIterator::into_iter(["ink", "LangError"]),
+                                ::core::convert::AsRef::as_ref,
+                            ),
+                        ),
+                    )
+                    .done(),
+            )
+        }
+    };
+    pub use logics::traits::shares_token::*;
+    use openbrush::{
+        contracts::{
+            ownable::*, psp22::extensions::{burnable::*, metadata::*, mintable::*},
+        },
+        modifiers, traits::{Storage, String},
+    };
+    impl Shares for SharesToken {}
+    impl Ownable for SharesToken {}
+    impl PSP22Burnable for SharesToken {
+        fn burn(
+            &mut self,
+            account: AccountId,
+            amount: Balance,
+        ) -> Result<(), PSP22Error> {
+            let mut __openbrush_body_0 = |__openbrush_instance_modifier: &mut Self| {
+                __openbrush_instance_modifier._burn_from(account, amount)
+            };
+            only_owner(self, __openbrush_body_0)
+        }
+    }
+    impl PSP22Mintable for SharesToken {
+        fn mint(
+            &mut self,
+            account: AccountId,
+            amount: Balance,
+        ) -> Result<(), PSP22Error> {
+            let mut __openbrush_body_0 = |__openbrush_instance_modifier: &mut Self| {
+                __openbrush_instance_modifier._mint_to(account, amount)
+            };
+            only_owner(self, __openbrush_body_0)
+        }
+    }
+}
