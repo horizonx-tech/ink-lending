@@ -2,6 +2,17 @@
 
 ## Setup
 
+https://docs.astar.network/docs/build/environment/ink_environment
+
+
+## Test
+
+https://use.ink/basics/contract-testing
 ```
-cargo install cargo-contract --force --version 2.0.0-rc.1
+# unittest
+cargo +nightly test
+
+# e2e
+substrate-contracts-node
+cargo +ngihtly test --features e2e-tests
 ```

@@ -1,3 +1,4 @@
+#![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
 #[openbrush::contract]
@@ -9,7 +10,7 @@ pub mod factory {
     use shares_token::shares_token::SharesTokenRef;
 
     #[ink(storage)]
-    #[derive(Default, Storage)]
+    #[derive(Storage)]
     pub struct FactoryContract {
         #[storage_field]
         data: Data,

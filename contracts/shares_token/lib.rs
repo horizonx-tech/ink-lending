@@ -1,3 +1,4 @@
+#![cfg_attr(not(feature = "std"), no_std)]
 #![feature(min_specialization)]
 
 #[openbrush::contract]
@@ -13,7 +14,7 @@ pub mod shares_token {
     };
 
     #[ink(storage)]
-    #[derive(Default, Storage)]
+    #[derive(Storage)]
     pub struct SharesToken {
         #[storage_field]
         psp22: psp22::Data,

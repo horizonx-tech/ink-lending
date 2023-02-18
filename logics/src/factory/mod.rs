@@ -1,11 +1,11 @@
-pub use crate::traits::factory::*;
+use crate::traits::factory::*;
 use crate::traits::registry::{self, RegistryRef};
 use ink::env::hash::Blake2x256;
 use openbrush::traits::{AccountId, Hash, Storage};
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     pub registry: AccountId,
