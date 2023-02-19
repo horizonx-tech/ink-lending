@@ -2,6 +2,7 @@ use crate::traits::{
     asset_pool::*, rate_strategy::RateStrategyRef, registry::RegistryRef,
     risk_strategy::RiskStrategyRef, shares_token::SharesRef,
 };
+use ink::prelude::vec::Vec;
 use openbrush::{
     contracts::{psp22::PSP22Error, traits::psp22::PSP22Ref},
     traits::{AccountId, Balance, Storage, Timestamp},

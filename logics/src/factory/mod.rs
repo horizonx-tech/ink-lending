@@ -1,6 +1,6 @@
 use crate::traits::factory::*;
 use crate::traits::registry::{self, RegistryRef};
-use ink::env::hash::Blake2x256;
+use ink::{env::hash::Blake2x256, prelude::vec::Vec};
 use openbrush::traits::{AccountId, Hash, Storage};
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
@@ -37,7 +37,12 @@ impl<T: Storage<Data>> Internal for T {
     }
 
     // must be overriden
-    default fn _instantiate(&self, asset: AccountId, salt: &[u8], data: &Vec<u8>) -> Result<AccountId> {
+    default fn _instantiate(
+        &self,
+        asset: AccountId,
+        salt: &[u8],
+        data: &Vec<u8>,
+    ) -> Result<AccountId> {
         Err(Error::PoolImplementationMissing)
     }
 

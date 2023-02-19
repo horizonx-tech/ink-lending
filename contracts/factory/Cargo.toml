@@ -1,6 +1,7 @@
 [package]
 name = "factory"
 version = "0.1.0"
+authors = ["HorizonX"]
 edition = "2021"
 
 [dependencies]
@@ -10,17 +11,16 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
 openbrush = { tag = "3.0.0", git = "https://github.com/727-Ventures/openbrush-contracts", default-features = false, features = ["psp22"] }
-logics = { version = "0.1.0", path = "../../logics" }
-shares_token = { version = "0.1.0", path = "../shares_token" }
+logics = { version = "0.1.0", path = "../../logics", default-features = false }
 
 [dev-dependencies]
-ink_e2e = { version = "~4.0.0", default-features = false }
+ink_e2e = { version = "~4.0.0" }
 
 [lib]
 path = "lib.rs"
 
 [features]
 default = ["std"]
-std = ["ink/std", "scale/std", "scale-info/std", "openbrush/std", "logics/std", "shares_token/std"]
+std = ["ink/std", "scale/std", "scale-info/std", "openbrush/std", "logics/std"]
 ink-as-dependency = []
 e2e-tests = []
