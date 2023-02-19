@@ -1,6 +1,7 @@
 [package]
 name = "shares_token"
 version = "0.1.0"
+authors = ["HorizonX"]
 edition = "2021"
 
 [dependencies]
@@ -11,6 +12,9 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 
 openbrush = { tag = "3.0.0", git = "https://github.com/727-Ventures/openbrush-contracts", default-features = false, features = ["psp22", "ownable"] }
 logics = { version = "0.1.0", path = "../../logics" }
+
+[dev-dependencies]
+ink_e2e = { version = "~4.0.0" }
 
 [lib]
 path = "lib.rs"
@@ -23,3 +27,4 @@ crate-type = [
 default = ["std"]
 std = ["ink/std", "scale/std", "scale-info/std", "openbrush/std", "logics/std"]
 ink-as-dependency = []
+e2e-tests=[]

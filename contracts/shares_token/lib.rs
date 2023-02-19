@@ -25,8 +25,8 @@ pub mod shares_token {
         asset: AccountId,
     }
 
-    impl Shares for SharesToken {}
     impl Ownable for SharesToken {}
+    impl PSP22 for SharesToken {}
     impl PSP22Burnable for SharesToken {
         #[ink(message)]
         #[modifiers(only_owner)]
@@ -41,21 +41,57 @@ pub mod shares_token {
             self._mint_to(account, amount)
         }
     }
+    impl Shares for SharesToken {}
+
     impl SharesToken {
         #[ink(constructor)]
         pub fn new(
             asset: AccountId,
             name: Option<String>,
             symbol: Option<String>,
-            decimal: u8,
+            decimals: u8,
         ) -> Self {
-            let mut _instance = Self::default();
-            _instance.asset = asset;
-            _instance._init_with_owner(_instance.env().caller());
-            _instance.metadata.name = name;
-            _instance.metadata.symbol = symbol;
-            _instance.metadata.decimals = decimal;
-            _instance
+            let owner = Self::env().caller();
+            let mut instance = Self {
+                psp22: psp22::Data::default(),
+                ownable: ownable::Data::default(),
+                metadata: metadata::Data {
+                    name,
+                    symbol,
+                    decimals,
+                    _reserved: None,
+                },
+                asset,
+            };
+            instance._init_with_owner(owner);
+
+            instance
         }
     }
+
+    // FIXME
+    // #[cfg(all(test, feature = "e2e-tests"))]
+    // mod e2e_tests {
+    //     use super::*;
+
+    //     type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+    //     #[ink_e2e::test]
+    //     async fn test_default(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
+    //         let constructor = SharesTokenRef::new(
+    //             ink_e2e::account_id(ink_e2e::AccountKeyring::Bob),
+    //             None,
+    //             None,
+    //             18,
+    //         );
+
+    //         let acc_id = client
+    //             .instantiate("shares", &ink_e2e::alice(), constructor, 0, None)
+    //             .await
+    //             .expect("instantiate failed")
+    //             .account_id;
+
+    //         Ok(())
+    //     }
+    // }
 }
