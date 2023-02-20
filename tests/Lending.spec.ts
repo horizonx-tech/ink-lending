@@ -5,10 +5,14 @@ import Registry_factory from '../types/constructors/registry';
 import AssetPool_factory from '../types/constructors/asset_pool';
 import Factory_factory from '../types/constructors/factory';
 import SharesToken_factory from '../types/constructors/shares_token';
+import RateStrategy_factory from '../types/constructors/rate_strategies';
+import RiskStrategy_factory from '../types/constructors/risk_strategies';
 import Token_factory from '../types/constructors/psp22_token';
 import Registry from '../types/contracts/registry';
 import AssetPool from '../types/contracts/asset_pool';
 import Factory from '../types/contracts/factory';
+import RateStrategy from '../types/contracts/rate_strategies';
+import RiskStrategy from '../types/contracts/risk_strategies';
 import Token from '../types/contracts/psp22_token';
 import SharesToken from '../types/contracts/shares_token';
 import { AccountId, Hash } from 'types-arguments/factory';
@@ -30,12 +34,16 @@ describe('Lending spec', () => {
   let registryFactory: Registry_factory;
   let assetPoolFactory: AssetPool_factory;
   let factoryFactory: Factory_factory;
+  let rateStrategyFactory: RateStrategy_factory;
+  let riskStrategyFactory: RiskStrategy_factory;
   let sharesFactory: SharesToken_factory;
   let tokenFactory: Token_factory;
 
   let registry: Registry;
   let assetPool: AssetPool;
   let factory: Factory;
+  let rateStrategy: RateStrategy;
+  let riskStrategy: RiskStrategy;
   let shares: SharesToken;
   let token: Token;
 
@@ -90,16 +98,51 @@ describe('Lending spec', () => {
       deployer,
       api,
     );
+
+    rateStrategyFactory = new RateStrategy_factory(api, deployer);
+    rateStrategy = new RateStrategy(
+      (await rateStrategyFactory.new()).address,
+      deployer,
+      api,
+    );
+    riskStrategyFactory = new RiskStrategy_factory(api, deployer);
+    riskStrategy = new RiskStrategy(
+      (await riskStrategyFactory.new()).address,
+      deployer,
+      api,
+    );
+    await registry.tx.setRateStrategy(rateStrategy.address, null);
+    await registry.tx.setRiskStrategy(riskStrategy.address, null);
+    await registry.tx.setFactory(factory.address, null);
   }
 
-  it('create pool', async () => {
+  it('initialized', async () => {
     await setup();
 
+    // registry
+    const {
+      value: { ok: factoryAddress },
+    } = await registry.query.factory();
+    expect(factoryAddress).toBe(factory.address);
+
+    const {
+      value: { ok: rateStrategyAddress },
+    } = await registry.query.rateStrategy(token.address);
+    expect(rateStrategyAddress).toBe(rateStrategy.address);
+
+    const {
+      value: { ok: riskStrategyAddress },
+    } = await registry.query.riskStrategy(token.address);
+    expect(riskStrategyAddress).toBe(riskStrategy.address);
+
+    // factory
     const {
       value: { ok: registryAddress },
     } = await factory.query.registry();
     expect(registryAddress).toBe(registry.address);
+  });
 
+  it('create pool', async () => {
     const {
       gasRequired,
       value: {

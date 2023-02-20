@@ -6,6 +6,9 @@ pub type RegistryRef = dyn Registry;
 #[openbrush::trait_definition]
 pub trait Registry {
     #[ink(message)]
+    fn factory(&self) -> AccountId;
+
+    #[ink(message)]
     fn pool(&self, asset: AccountId) -> Option<AccountId>;
 
     #[ink(message)]
@@ -16,6 +19,15 @@ pub trait Registry {
 
     #[ink(message)]
     fn register_pool(&mut self, asset: AccountId, pool: AccountId) -> Result<()>;
+
+    #[ink(message)]
+    fn set_factory(&mut self, address: AccountId) -> Result<()>;
+
+    #[ink(message)]
+    fn set_rate_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
+
+    #[ink(message)]
+    fn set_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
 }
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]

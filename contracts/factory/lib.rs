@@ -13,7 +13,6 @@ pub mod factory {
         traits::factory::*,
     };
     use openbrush::{
-        contracts::psp22::PSP22Ref,
         traits::Storage,
     };
     use shares_token::token::SharesTokenRef;
