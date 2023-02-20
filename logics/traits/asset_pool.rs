@@ -1,6 +1,9 @@
 use openbrush::{
     contracts::psp22::PSP22Error,
-    traits::{AccountId, Balance},
+    traits::{
+        AccountId,
+        Balance,
+    },
 };
 
 #[openbrush::wrapper]

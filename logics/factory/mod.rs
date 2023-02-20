@@ -1,7 +1,19 @@
-use crate::traits::factory::*;
-use crate::traits::registry::{self, RegistryRef};
-use ink::{env::hash::Blake2x256, prelude::vec::Vec};
-use openbrush::traits::{AccountId, Hash, Storage};
+use crate::traits::{
+    factory::*,
+    registry::{
+        self,
+        RegistryRef,
+    },
+};
+use ink::{
+    env::hash::Blake2x256,
+    prelude::vec::Vec,
+};
+use openbrush::traits::{
+    AccountId,
+    Hash,
+    Storage,
+};
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
@@ -22,7 +34,7 @@ impl<T: Storage<Data>> Factory for T {
     default fn create(&self, asset: AccountId, data: Vec<u8>) -> Result<AccountId> {
         let pool = self._create(asset, &data)?;
         self._on_create_pool(asset, pool, &data)?;
-        return Ok(pool);
+        return Ok(pool)
     }
 }
 
@@ -39,18 +51,18 @@ impl<T: Storage<Data>> Internal for T {
     // must be overriden
     default fn _instantiate(
         &self,
-        asset: AccountId,
-        salt: &[u8],
-        data: &Vec<u8>,
+        _asset: AccountId,
+        _salt: &[u8],
+        _data: &Vec<u8>,
     ) -> Result<AccountId> {
         Err(Error::PoolImplementationMissing)
     }
 
     default fn _on_create_pool(
         &self,
-        asset: AccountId,
-        pool: AccountId,
-        data: &Vec<u8>,
+        _asset: AccountId,
+        _pool: AccountId,
+        _data: &Vec<u8>,
     ) -> Result<()> {
         Ok(())
     }

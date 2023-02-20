@@ -1,7 +1,10 @@
 use crate::traits::registry::*;
 use openbrush::{
     storage::Mapping,
-    traits::{AccountId, Storage},
+    traits::{
+        AccountId,
+        Storage,
+    },
 };
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
@@ -62,7 +65,7 @@ impl<T: Storage<Data>> Internal for T {
 
     default fn _register_pool(&mut self, asset: &AccountId, pool: &AccountId) -> Result<()> {
         if self._pool(asset).is_some() {
-            return Err(Error::PoolAlreadyExists);
+            return Err(Error::PoolAlreadyExists)
         }
         self.data().pools.insert(asset, pool);
 

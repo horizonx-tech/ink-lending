@@ -1,10 +1,17 @@
 use crate::traits::{
-    asset_pool::{self, AssetPoolRef},
+    asset_pool::{
+        self,
+        AssetPoolRef,
+    },
     registry::RegistryRef,
     risk_strategy::RiskStrategyRef,
     service::*,
 };
-use openbrush::traits::{AccountId, Balance, Storage};
+use openbrush::traits::{
+    AccountId,
+    Balance,
+    Storage,
+};
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 

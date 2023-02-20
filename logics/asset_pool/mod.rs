@@ -1,11 +1,22 @@
 use crate::traits::{
-    asset_pool::*, rate_strategy::RateStrategyRef, registry::RegistryRef,
-    risk_strategy::RiskStrategyRef, shares_token::SharesRef,
+    asset_pool::*,
+    rate_strategy::RateStrategyRef,
+    registry::RegistryRef,
+    risk_strategy::RiskStrategyRef,
+    shares::SharesRef,
 };
 use ink::prelude::vec::Vec;
 use openbrush::{
-    contracts::{psp22::PSP22Error, traits::psp22::PSP22Ref},
-    traits::{AccountId, Balance, Storage, Timestamp},
+    contracts::{
+        psp22::PSP22Error,
+        traits::psp22::PSP22Ref,
+    },
+    traits::{
+        AccountId,
+        Balance,
+        Storage,
+        Timestamp,
+    },
 };
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
@@ -226,9 +237,9 @@ impl<T: Storage<Data>> Internal for T {
     }
 
     default fn _calculate_index_with_interest(
-        current_index: u128,
-        rate: u128,
-        elapsed_sec: u128,
+        _current_index: u128,
+        _rate: u128,
+        _elapsed_sec: u128,
     ) -> u128 {
         todo!()
     }

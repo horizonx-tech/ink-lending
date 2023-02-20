@@ -1,4 +1,7 @@
-use openbrush::traits::{AccountId, Balance};
+use openbrush::traits::{
+    AccountId,
+    Balance,
+};
 
 #[openbrush::wrapper]
 pub type RiskStrategyRef = dyn RiskStrategy;

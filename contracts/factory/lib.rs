@@ -3,9 +3,11 @@
 
 #[openbrush::contract]
 pub mod factory {
-    use ink::{prelude::vec::Vec, ToAccountId};
-    use logics::factory::*;
-    use logics::traits::factory::*;
+    use logics::{
+        factory::*,
+        traits::factory::*,
+    };
+    // use shares_token::shares_token::SharesTokenRef;
     use openbrush::traits::Storage;
 
     #[ink(storage)]
@@ -45,6 +47,7 @@ pub mod factory {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
+        use ink::ToAcountId;
 
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 

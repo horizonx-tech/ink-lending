@@ -1,7 +1,11 @@
 use openbrush::contracts::traits::{
     ownable::*,
     psp22::{
-        extensions::{burnable::*, metadata::*, mintable::*},
+        extensions::{
+            burnable::*,
+            metadata::*,
+            mintable::*,
+        },
         *,
     },
 };
