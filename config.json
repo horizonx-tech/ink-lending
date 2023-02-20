@@ -1,5 +1,5 @@
 {
-  "projectFiles": ["contracts/**/*"],
+  "projectFiles": ["contracts/**/*", "mocks/**/*"],
   "typechainGeneratedPath": "types",
   "isWorkspace": true,
   "workspacePath": "./"

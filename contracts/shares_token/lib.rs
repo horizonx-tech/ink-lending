@@ -21,51 +21,58 @@ pub mod token {
     };
 
     #[ink(storage)]
-    #[derive(Default, Storage)]
-    pub struct MyPSP22 {
+    #[derive(Storage)]
+    pub struct SharesToken {
         #[storage_field]
         psp22: psp22::Data,
         #[storage_field]
         ownable: ownable::Data,
         #[storage_field]
         metadata: metadata::Data,
+        asset: AccountId,
     }
 
-    impl Ownable for MyPSP22 {}
-    impl PSP22 for MyPSP22 {}
-    impl PSP22Burnable for MyPSP22 {
+    impl Ownable for SharesToken {}
+    impl PSP22 for SharesToken {}
+    impl PSP22Metadata for SharesToken {}
+    impl PSP22Burnable for SharesToken {
         #[ink(message)]
         #[modifiers(only_owner)]
         fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
             self._burn_from(account, amount)
         }
     }
-    impl PSP22Mintable for MyPSP22 {
+    impl PSP22Mintable for SharesToken {
         #[ink(message)]
         #[modifiers(only_owner)]
         fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
             self._mint_to(account, amount)
         }
     }
-    impl Shares for MyPSP22 {}
+    impl Shares for SharesToken {}
 
-    impl PSP22Metadata for MyPSP22 {}
 
-    impl MyPSP22 {
+    impl SharesToken {
         #[ink(constructor)]
         pub fn new(
-            total_supply: Balance,
+            asset: AccountId,
             name: Option<String>,
             symbol: Option<String>,
             decimals: u8,
         ) -> Self {
-            let mut instance = Self::default();
-            instance.metadata.name = name;
-            instance.metadata.symbol = symbol;
-            instance.metadata.decimals = decimals;
-            instance
-                ._mint_to(instance.env().caller(), total_supply)
-                .expect("Should mint");
+            let mut instance = Self {
+                psp22: psp22::Data::default(),
+                ownable: ownable::Data::default(),
+                metadata: metadata::Data {
+                    name,
+                    symbol,
+                    decimals,
+                    _reserved: None,
+                },
+                asset,
+            };
+            instance._init_with_owner(Self::env().caller());
+
             instance
         }
     }

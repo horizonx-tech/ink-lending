@@ -12,11 +12,11 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[derive(Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
-    pools: Mapping<AccountId, AccountId>,
-    rate_strategies: Mapping<AccountId, AccountId>,
-    risk_strategies: Mapping<AccountId, AccountId>,
-    default_rate_strategy: AccountId,
-    default_risk_strategy: AccountId,
+    pub pools: Mapping<AccountId, AccountId>,
+    pub rate_strategies: Mapping<AccountId, AccountId>,
+    pub risk_strategies: Mapping<AccountId, AccountId>,
+    pub default_rate_strategy: AccountId,
+    pub default_risk_strategy: AccountId,
 }
 
 trait Internal {
