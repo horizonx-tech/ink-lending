@@ -7,12 +7,10 @@ pub mod registry {
         registry::*,
         traits::registry::*,
     };
-    use openbrush::{
-        traits::Storage,
-    };
+    use openbrush::traits::Storage;
 
     #[ink(storage)]
-    #[derive(Storage)]
+    #[derive(Default, Storage)]
     pub struct RegistryContract {
         #[storage_field]
         registry: Data,
@@ -23,15 +21,7 @@ pub mod registry {
     impl RegistryContract {
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self {
-                registry: Data {
-                    pools: Default::default(),
-                    rate_strategies: Default::default(),
-                    risk_strategies: Default::default(),
-                    default_rate_strategy: [0u8; 32].into(),
-                    default_risk_strategy: [0u8; 32].into(),
-                },
-            }
+            Self::default()
         }
     }
 }

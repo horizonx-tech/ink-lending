@@ -1,23 +1,24 @@
 [package]
-name = "shares_token"
+name = "asset_pool"
 version = "0.1.0"
 authors = ["HorizonX"]
 edition = "2021"
 
 [dependencies]
-ink = { version = "~4.0.0", default-features = false}
+ink = { version = "~4.0.0", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
-openbrush = { git = "https://github.com/727-Ventures/openbrush-contracts", version = "3.0.0", default-features = false, features = ["psp22"] }
+openbrush = { version = "3.0.0", git = "https://github.com/727-Ventures/openbrush-contracts", default-features = false }
 logics = { path = "../../logics", default-features = false }
+shares_token = { path = "../shares_token", default-features = false, features  = ["ink-as-dependency"] }
 
 [lib]
 path = "lib.rs"
 crate-type = [
     "cdylib",
-    "rlib"
+    "rlib",
 ]
 
 [features]
@@ -28,5 +29,6 @@ std = [
     "scale-info/std",
     "openbrush/std",
     "logics/std",
+    "shares_token/std"
 ]
 ink-as-dependency = []

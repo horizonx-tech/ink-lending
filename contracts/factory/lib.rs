@@ -3,6 +3,7 @@
 
 #[openbrush::contract]
 pub mod factory {
+    use asset_pool::pool::AssetPoolContractRef;
     use ink::{
         prelude::vec::Vec,
         ToAccountId,
@@ -11,7 +12,10 @@ pub mod factory {
         factory::*,
         traits::factory::*,
     };
-    use openbrush::traits::Storage;
+    use openbrush::{
+        contracts::psp22::PSP22Ref,
+        traits::Storage,
+    };
     use shares_token::token::SharesTokenRef;
 
     #[ink(storage)]
@@ -25,11 +29,12 @@ pub mod factory {
 
     impl FactoryContract {
         #[ink(constructor)]
-        pub fn new(registry: AccountId, pool_code_hash: Hash) -> Self {
+        pub fn new(registry: AccountId, pool_code_hash: Hash, shares_code_hash: Hash) -> Self {
             Self {
                 factory: Data {
                     registry,
                     pool_code_hash,
+                    shares_code_hash,
                 },
             }
         }
@@ -46,14 +51,32 @@ pub mod factory {
             salt: &[u8],
             _data: &Vec<u8>,
         ) -> Result<AccountId> {
+            // TODO name, symbol
             let collateral =
                 SharesTokenRef::new(asset, Some("collateral".into()), Some("c".into()), 18)
                     .endowment(0)
-                    .code_hash(self.factory.pool_code_hash)
+                    .code_hash(self.factory.shares_code_hash)
                     .salt_bytes(&salt[..4])
                     .instantiate();
+            let variable_debt =
+                SharesTokenRef::new(asset, Some("variable_debt".into()), Some("vd".into()), 18)
+                    .endowment(0)
+                    .code_hash(self.factory.shares_code_hash)
+                    .salt_bytes(&salt[5..9])
+                    .instantiate();
 
-            Ok(collateral.to_account_id())
+            let pool = AssetPoolContractRef::new(
+                self.factory.registry,
+                asset,
+                collateral.to_account_id(),
+                variable_debt.to_account_id(),
+            )
+            .endowment(0)
+            .code_hash(self.factory.pool_code_hash)
+            .salt_bytes(&salt[..4])
+            .instantiate();
+
+            Ok(pool.to_account_id())
         }
     }
 }

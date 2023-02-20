@@ -44,6 +44,18 @@ impl<T: Storage<Data>> Registry for T {
     }
 }
 
+impl Default for Data {
+    fn default() -> Self {
+        Self {
+            pools: Default::default(),
+            rate_strategies: Default::default(),
+            risk_strategies: Default::default(),
+            default_rate_strategy: [0u8; 32].into(),
+            default_risk_strategy: [0u8; 32].into(),
+        }
+    }
+}
+
 impl<T: Storage<Data>> Internal for T {
     default fn _pool(&self, asset: &AccountId) -> Option<AccountId> {
         self.data().pools.get(asset)

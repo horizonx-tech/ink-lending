@@ -51,7 +51,6 @@ pub mod token {
     }
     impl Shares for SharesToken {}
 
-
     impl SharesToken {
         #[ink(constructor)]
         pub fn new(

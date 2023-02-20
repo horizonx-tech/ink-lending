@@ -2,10 +2,12 @@ import { expect } from '@jest/globals';
 import { encodeAddress } from '@polkadot/keyring';
 import BN from 'bn.js';
 import Registry_factory from '../types/constructors/registry';
+import AssetPool_factory from '../types/constructors/asset_pool';
 import Factory_factory from '../types/constructors/factory';
 import SharesToken_factory from '../types/constructors/shares_token';
 import Token_factory from '../types/constructors/psp22_token';
 import Registry from '../types/contracts/registry';
+import AssetPool from '../types/contracts/asset_pool';
 import Factory from '../types/contracts/factory';
 import Token from '../types/contracts/psp22_token';
 import SharesToken from '../types/contracts/shares_token';
@@ -20,21 +22,25 @@ const zeroAddress = encodeAddress(
 );
 const MINIMUM_LIQUIDITY = 1000;
 
-describe('Dex spec', () => {
+describe('Lending spec', () => {
   let api: ApiPromise;
   let deployer: KeyringPair;
   let wallet: KeyringPair;
 
   let registryFactory: Registry_factory;
+  let assetPoolFactory: AssetPool_factory;
   let factoryFactory: Factory_factory;
   let sharesFactory: SharesToken_factory;
   let tokenFactory: Token_factory;
 
-  let sharesHash: Hash;
   let registry: Registry;
+  let assetPool: AssetPool;
   let factory: Factory;
   let shares: SharesToken;
   let token: Token;
+
+  let assetPoolHash: Hash;
+  let sharesHash: Hash;
 
   let gasRequired: WeightV2;
 
@@ -46,6 +52,21 @@ describe('Dex spec', () => {
       deployer,
       api,
     );
+
+    assetPoolFactory = new AssetPool_factory(api, deployer);
+    assetPool = new AssetPool(
+      (
+        await assetPoolFactory.new(
+          zeroAddress,
+          zeroAddress,
+          zeroAddress,
+          zeroAddress,
+        )
+      ).address,
+      deployer,
+      api,
+    );
+    assetPoolHash = assetPool.abi.info.source.wasmHash.toHex();
 
     tokenFactory = new Token_factory(api, deployer);
     token = new Token(
@@ -63,7 +84,9 @@ describe('Dex spec', () => {
 
     factoryFactory = new Factory_factory(api, deployer);
     factory = new Factory(
-      (await factoryFactory.new(registry.address, sharesHash)).address,
+      (
+        await factoryFactory.new(registry.address, assetPoolHash, sharesHash)
+      ).address,
       deployer,
       api,
     );
@@ -71,22 +94,26 @@ describe('Dex spec', () => {
 
   it('create pool', async () => {
     await setup();
-    console.log(token.address);
+
     const {
       value: { ok: registryAddress },
     } = await factory.query.registry();
     expect(registryAddress).toBe(registry.address);
-    let {
+
+    const {
       gasRequired,
       value: {
-        ok: { ok: expectedAddress },
+        ok: { ok: expectedPoolAddress },
       },
     } = await factory.query.create(token.address, []);
-    console.log(expectedAddress);
-    expect(expectedAddress).not.toBe(zeroAddress);
-    const result = await factory.tx.create(token.address, [], {
+    expect(expectedPoolAddress).not.toBe(zeroAddress);
+
+    await factory.tx.create(token.address, [], {
       gasLimit: gasRequired,
     });
-    // expect(result).not.toBe(expectedAddress);
+    const {
+      value: { ok: poolAddress },
+    } = await registry.query.pool(token.address);
+    expect(poolAddress).toBe(expectedPoolAddress);
   });
 });

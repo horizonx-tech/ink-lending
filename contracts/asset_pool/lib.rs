@@ -1,0 +1,49 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+#![feature(min_specialization)]
+
+#[openbrush::contract]
+pub mod pool {
+    use ink::{
+        prelude::vec::Vec,
+        ToAccountId,
+    };
+    use logics::{
+        asset_pool::*,
+        traits::asset_pool::*,
+    };
+    use openbrush::traits::Storage;
+    use shares_token::token::SharesTokenRef;
+
+    #[ink(storage)]
+    #[derive(Storage)]
+    pub struct AssetPoolContract {
+        #[storage_field]
+        asset_pool: Data,
+    }
+
+    impl AssetPool for AssetPoolContract {}
+
+    impl AssetPoolContract {
+        #[ink(constructor)]
+        pub fn new(
+            registry: AccountId,
+            asset: AccountId,
+            collateral_token: AccountId,
+            variable_debt_token: AccountId,
+        ) -> Self {
+            Self {
+                asset_pool: Data {
+                    registry,
+                    asset,
+                    collateral_token,
+                    variable_debt_token,
+                    liquidity_index: 0,
+                    liquidity_rate: 0,
+                    variable_debt_index: 0,
+                    variable_debt_rate: 0,
+                    last_update_timestamp: 0,
+                },
+            }
+        }
+    }
+}

@@ -25,16 +25,16 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     // config
-    registry: AccountId,
-    asset: AccountId,
-    collateral_token: AccountId,
-    variable_debt_token: AccountId,
+    pub registry: AccountId,
+    pub asset: AccountId,
+    pub collateral_token: AccountId,
+    pub variable_debt_token: AccountId,
     // state
-    liquidity_index: u128,
-    liquidity_rate: u128,
-    variable_debt_index: u128,
-    variable_debt_rate: u128,
-    last_update_timestamp: Timestamp,
+    pub liquidity_index: u128,
+    pub liquidity_rate: u128,
+    pub variable_debt_index: u128,
+    pub variable_debt_rate: u128,
+    pub last_update_timestamp: Timestamp,
 }
 
 trait Internal {

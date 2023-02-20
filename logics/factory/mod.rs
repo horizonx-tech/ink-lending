@@ -22,6 +22,7 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 pub struct Data {
     pub registry: AccountId,
     pub pool_code_hash: Hash,
+    pub shares_code_hash: Hash,
 }
 
 pub trait Internal {
