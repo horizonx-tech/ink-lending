@@ -1,5 +1,4 @@
 import { expect } from '@jest/globals';
-import { encodeAddress } from '@polkadot/keyring';
 import SharesToken_factory from '../types/constructors/shares_token';
 import Token_factory from '../types/constructors/psp22_token';
 import Token from '../types/contracts/psp22_token';
@@ -7,13 +6,7 @@ import SharesToken from '../types/contracts/shares_token';
 import { ApiPromise } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { expectToEmit, hexToUtf8 } from './testHelpers';
-import type { WeightV2 } from '@polkadot/types/interfaces';
 import { Transfer } from 'event-types/psp22_token';
-
-const zeroAddress = encodeAddress(
-  '0x0000000000000000000000000000000000000000000000000000000000000000',
-);
-const MINIMUM_LIQUIDITY = 1000;
 
 describe('SharesToken spec', () => {
   let api: ApiPromise;
@@ -26,9 +19,7 @@ describe('SharesToken spec', () => {
   let token: Token;
   let shares: SharesToken;
 
-  let gasRequired: WeightV2;
-
-  async function setup(): Promise<void> {
+  const setup = async (): Promise<void> => {
     ({ api, alice: deployer, bob: wallet } = globalThis.setup);
 
     tokenFactory = new Token_factory(api, deployer);
@@ -50,7 +41,7 @@ describe('SharesToken spec', () => {
       deployer,
       api,
     );
-  }
+  };
 
   beforeAll(async () => {
     await setup();
