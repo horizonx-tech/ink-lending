@@ -3,6 +3,10 @@
 
 #[openbrush::contract]
 pub mod token {
+    use ink::codegen::{
+        EmitEvent,
+        Env,
+    };
     use logics::traits::shares::*;
     use openbrush::{
         contracts::{
@@ -20,6 +24,30 @@ pub mod token {
         },
     };
 
+    #[ink(event)]
+    pub struct Transfer {
+        #[ink(topic)]
+        from: Option<AccountId>,
+        #[ink(topic)]
+        to: Option<AccountId>,
+        value: Balance,
+    }
+
+    #[ink(event)]
+    pub struct Approval {
+        #[ink(topic)]
+        owner: AccountId,
+        #[ink(topic)]
+        spender: AccountId,
+        value: Balance,
+    }
+
+    #[ink(event)]
+    pub struct OwnershipTransferred {
+        previous: Option<AccountId>,
+        new: Option<AccountId>,
+    }
+
     #[ink(storage)]
     #[derive(Storage)]
     pub struct SharesToken {
@@ -31,25 +59,6 @@ pub mod token {
         metadata: metadata::Data,
         asset: AccountId,
     }
-
-    impl Ownable for SharesToken {}
-    impl PSP22 for SharesToken {}
-    impl PSP22Metadata for SharesToken {}
-    impl PSP22Burnable for SharesToken {
-        #[ink(message)]
-        #[modifiers(only_owner)]
-        fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-            self._burn_from(account, amount)
-        }
-    }
-    impl PSP22Mintable for SharesToken {
-        #[ink(message)]
-        #[modifiers(only_owner)]
-        fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
-            self._mint_to(account, amount)
-        }
-    }
-    impl Shares for SharesToken {}
 
     impl SharesToken {
         #[ink(constructor)]
@@ -73,6 +82,55 @@ pub mod token {
             instance._init_with_owner(Self::env().caller());
 
             instance
+        }
+    }
+
+    impl Shares for SharesToken {}
+    impl PSP22 for SharesToken {}
+    impl PSP22Metadata for SharesToken {}
+    impl PSP22Burnable for SharesToken {
+        #[ink(message)]
+        #[modifiers(only_owner)]
+        fn burn(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+            self._burn_from(account, amount)
+        }
+    }
+    impl PSP22Mintable for SharesToken {
+        #[ink(message)]
+        #[modifiers(only_owner)]
+        fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
+            self._mint_to(account, amount)
+        }
+    }
+    impl Ownable for SharesToken {}
+
+    impl psp22::Internal for SharesToken {
+        fn _emit_transfer_event(
+            &self,
+            from: Option<AccountId>,
+            to: Option<AccountId>,
+            value: Balance,
+        ) {
+            self.env().emit_event(Transfer { from, to, value });
+        }
+
+        fn _emit_approval_event(&self, owner: AccountId, spender: AccountId, value: Balance) {
+            self.env().emit_event(Approval {
+                owner,
+                spender,
+                value,
+            });
+        }
+    }
+
+    impl ownable::Internal for SharesToken {
+        fn _emit_ownership_transferred_event(
+            &self,
+            previous: Option<AccountId>,
+            new: Option<AccountId>,
+        ) {
+            self.env()
+                .emit_event(OwnershipTransferred { previous, new });
         }
     }
 }
