@@ -55,11 +55,15 @@ impl<T: Storage<Data>> Registry for T {
     }
 
     default fn register_pool(&mut self, asset: AccountId, pool: AccountId) -> Result<()> {
-        self._register_pool(&asset, &pool)
+        self._register_pool(&asset, &pool)?;
+        self._emit_pool_registered_event(asset, pool);
+        Ok(())
     }
 
     default fn set_factory(&mut self, address: AccountId) -> Result<()> {
-        self._set_factory(address)
+        self._set_factory(address)?;
+        self._emit_factory_changed_event(address);
+        Ok(())
     }
 
     default fn set_rate_strategy(
@@ -67,7 +71,9 @@ impl<T: Storage<Data>> Registry for T {
         address: AccountId,
         asset: Option<AccountId>,
     ) -> Result<()> {
-        self._set_rate_strategy(address, asset)
+        self._set_rate_strategy(address, asset)?;
+        self._emit_rate_strategy_changed_event(address, asset);
+        Ok(())
     }
 
     default fn set_risk_strategy(
@@ -75,7 +81,9 @@ impl<T: Storage<Data>> Registry for T {
         address: AccountId,
         asset: Option<AccountId>,
     ) -> Result<()> {
-        self._set_risk_strategy(address, asset)
+        self._set_risk_strategy(address, asset)?;
+        self._emit_risk_strategy_changed_event(address, asset);
+        Ok(())
     }
 }
 
