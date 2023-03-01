@@ -11,16 +11,31 @@ pub type ServiceRef = dyn Service;
 #[openbrush::trait_definition]
 pub trait Service {
     #[ink(message)]
-    fn deposit(&mut self, asset: AccountId, amount: Balance) -> Result<()>;
+    fn deposit(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        account: Option<AccountId>,
+    ) -> Result<()>;
 
     #[ink(message)]
-    fn withdraw(&mut self, asset: AccountId, amount: Balance) -> Result<()>;
+    fn withdraw(&mut self, asset: AccountId, amount: Balance, to: Option<AccountId>) -> Result<()>;
 
     #[ink(message)]
-    fn borrow(&mut self, asset: AccountId, amount: Balance) -> Result<()>;
+    fn borrow(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        account: Option<AccountId>,
+    ) -> Result<()>;
 
     #[ink(message)]
-    fn repay(&mut self, asset: AccountId, amount: Balance) -> Result<()>;
+    fn repay(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        account: Option<AccountId>,
+    ) -> Result<()>;
 
     #[ink(message)]
     fn liquidation_call(
