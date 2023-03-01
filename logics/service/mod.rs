@@ -18,14 +18,30 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[derive(Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
-    registry: AccountId,
+    pub registry: AccountId,
 }
 
 pub trait Internal {
-    fn _deposit(&mut self, asset: AccountId, amount: Balance) -> Result<()>;
-    fn _withdraw(&mut self, asset: AccountId, amount: Balance) -> Result<()>;
-    fn _borrow(&mut self, asset: AccountId, amount: Balance) -> Result<()>;
-    fn _repay(&mut self, asset: AccountId, amount: Balance) -> Result<()>;
+    fn _deposit(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        account: Option<AccountId>,
+    ) -> Result<()>;
+    fn _withdraw(&mut self, asset: AccountId, amount: Balance, to: Option<AccountId>)
+        -> Result<()>;
+    fn _borrow(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        account: Option<AccountId>,
+    ) -> Result<()>;
+    fn _repay(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        account: Option<AccountId>,
+    ) -> Result<()>;
     fn _liquidation_call(
         &mut self,
         liquidatee: AccountId,
@@ -34,23 +50,82 @@ pub trait Internal {
         debt_amount: Balance,
     ) -> Result<()>;
     fn _pool(&self, asset: AccountId) -> Result<AccountId>;
+
+    // event emission
+    fn _emit_deposited_event(
+        &self,
+        asset: AccountId,
+        account: AccountId,
+        from: AccountId,
+        amount: Balance,
+    );
+    fn _emit_withdrew_event(
+        &self,
+        asset: AccountId,
+        account: AccountId,
+        to: AccountId,
+        amount: Balance,
+    );
+    fn _emit_borrowed_event(
+        &self,
+        asset: AccountId,
+        account: AccountId,
+        to: AccountId,
+        amount: Balance,
+    );
+    fn _emit_repaid_event(
+        &self,
+        asset: AccountId,
+        account: AccountId,
+        from: AccountId,
+        amount: Balance,
+    );
+    fn _emit_liquidated_event(
+        &self,
+        liquidator: AccountId,
+        liquidatee: AccountId,
+        collateral_asset: AccountId,
+        collateral_amount: Balance,
+        debt_asset: AccountId,
+        debt_amount: Balance,
+    );
 }
 
 impl<T: Storage<Data>> Service for T {
-    default fn deposit(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
-        self._deposit(asset, amount)
+    default fn deposit(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        account: Option<AccountId>,
+    ) -> Result<()> {
+        self._deposit(asset, amount, account)
     }
 
-    default fn withdraw(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
-        self._withdraw(asset, amount)
+    default fn withdraw(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        to: Option<AccountId>,
+    ) -> Result<()> {
+        self._withdraw(asset, amount, to)
     }
 
-    default fn borrow(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
-        self._borrow(asset, amount)
+    default fn borrow(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        account: Option<AccountId>,
+    ) -> Result<()> {
+        self._borrow(asset, amount, account)
     }
 
-    default fn repay(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
-        self._repay(asset, amount)
+    default fn repay(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        account: Option<AccountId>,
+    ) -> Result<()> {
+        self._repay(asset, amount, account)
     }
 
     default fn liquidation_call(
@@ -65,28 +140,64 @@ impl<T: Storage<Data>> Service for T {
 }
 
 impl<T: Storage<Data>> Internal for T {
-    default fn _deposit(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
+    default fn _deposit(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        _account: Option<AccountId>,
+    ) -> Result<()> {
         let pool = self._pool(asset)?;
         let caller = Self::env().caller();
-        AssetPoolRef::deposit(&pool, caller, caller, amount).map_err(to_asset_pool_error)
+        let account = _account.unwrap_or(caller);
+        AssetPoolRef::deposit(&pool, account, caller, amount).map_err(to_asset_pool_error)?;
+
+        self._emit_deposited_event(asset, account, caller, amount);
+        Ok(())
     }
 
-    default fn _withdraw(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
+    default fn _withdraw(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        _to: Option<AccountId>,
+    ) -> Result<()> {
         let pool = self._pool(asset)?;
         let caller = Self::env().caller();
-        AssetPoolRef::withdraw(&pool, caller, caller, amount).map_err(to_asset_pool_error)
+        let to = _to.unwrap_or(caller);
+        AssetPoolRef::withdraw(&pool, caller, to, amount).map_err(to_asset_pool_error)?;
+
+        self._emit_withdrew_event(asset, caller, to, amount);
+        Ok(())
     }
 
-    default fn _borrow(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
+    default fn _borrow(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        _account: Option<AccountId>,
+    ) -> Result<()> {
         let pool = self._pool(asset)?;
         let caller = Self::env().caller();
-        AssetPoolRef::borrow(&pool, caller, caller, amount).map_err(to_asset_pool_error)
+        let account = _account.unwrap_or(caller);
+        AssetPoolRef::borrow(&pool, account, caller, amount).map_err(to_asset_pool_error)?;
+
+        self._emit_borrowed_event(asset, account, caller, amount);
+        Ok(())
     }
 
-    default fn _repay(&mut self, asset: AccountId, amount: Balance) -> Result<()> {
+    default fn _repay(
+        &mut self,
+        asset: AccountId,
+        amount: Balance,
+        _account: Option<AccountId>,
+    ) -> Result<()> {
         let pool = self._pool(asset)?;
         let caller = Self::env().caller();
-        AssetPoolRef::repay(&pool, caller, caller, amount).map_err(to_asset_pool_error)
+        let account = _account.unwrap_or(caller);
+        AssetPoolRef::repay(&pool, account, caller, amount).map_err(to_asset_pool_error)?;
+
+        self._emit_borrowed_event(asset, account, caller, amount);
+        Ok(())
     }
 
     default fn _liquidation_call(
@@ -111,21 +222,76 @@ impl<T: Storage<Data>> Internal for T {
             Err(e) => return Err(to_risk_error(e)),
         };
 
-        AssetPoolRef::repay(&debt_pool, liquidatee, Self::env().caller(), debt_amount)
+        let liquidator = Self::env().caller();
+        AssetPoolRef::repay(&debt_pool, liquidatee, liquidator, debt_amount)
             .map_err(to_asset_pool_error)?;
+
         AssetPoolRef::transfer_collateral_on_liquidation(
             &collateral_pool,
             liquidatee,
-            Self::env().caller(),
+            liquidator,
             collateral_amount,
         )
         .map_err(to_asset_pool_error)?;
 
+        self._emit_liquidated_event(
+            liquidator,
+            liquidatee,
+            collateral_asset,
+            collateral_amount,
+            debt_asset,
+            debt_amount,
+        );
         Ok(())
     }
 
     default fn _pool(&self, asset: AccountId) -> Result<AccountId> {
         RegistryRef::pool(&self.data().registry, asset).ok_or(Error::PoolNotFound)
+    }
+
+    // event emission
+    default fn _emit_deposited_event(
+        &self,
+        _asset: AccountId,
+        _account: AccountId,
+        _from: AccountId,
+        _amount: Balance,
+    ) {
+    }
+    default fn _emit_withdrew_event(
+        &self,
+        _asset: AccountId,
+        _account: AccountId,
+        _to: AccountId,
+        _amount: Balance,
+    ) {
+    }
+    default fn _emit_borrowed_event(
+        &self,
+        _asset: AccountId,
+        _account: AccountId,
+        _to: AccountId,
+        _amount: Balance,
+    ) {
+    }
+    default fn _emit_repaid_event(
+        &self,
+        _asset: AccountId,
+        _account: AccountId,
+        _from: AccountId,
+        _amount: Balance,
+    ) {
+    }
+
+    default fn _emit_liquidated_event(
+        &self,
+        _liquidator: AccountId,
+        _liquidatee: AccountId,
+        _collateral_asset: AccountId,
+        _collateral_amount: Balance,
+        _debt_asset: AccountId,
+        _debt_amount: Balance,
+    ) {
     }
 }
 

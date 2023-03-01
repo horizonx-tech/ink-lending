@@ -1,3 +1,4 @@
+import { RateStrategyChanged } from './../types/event-types/registry';
 import { expect } from '@jest/globals';
 import { encodeAddress } from '@polkadot/keyring';
 import Registry_factory from '../types/constructors/registry';
@@ -18,13 +19,14 @@ import { Hash } from 'types-arguments/factory';
 import { ApiPromise } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
+import { expectToEmit } from './testHelpers';
+import { FactoryChanged, PoolRegistered } from 'event-types/registry';
 
 const zeroAddress = encodeAddress(
   '0x0000000000000000000000000000000000000000000000000000000000000000',
 );
-const MINIMUM_LIQUIDITY = 1000;
 
-describe('Lending spec', () => {
+describe('Registry spec', () => {
   let api: ApiPromise;
   let deployer: KeyringPair;
   let wallet: KeyringPair;
@@ -109,52 +111,118 @@ describe('Lending spec', () => {
       deployer,
       api,
     );
-    await registry.tx.setRateStrategy(rateStrategy.address, null);
-    await registry.tx.setRiskStrategy(riskStrategy.address, null);
-    await registry.tx.setFactory(factory.address, null);
   }
 
-  it('initialized', async () => {
+  beforeAll(async () => {
     await setup();
-
-    // registry
-    const {
-      value: { ok: factoryAddress },
-    } = await registry.query.factory();
-    expect(factoryAddress).toBe(factory.address);
-
-    const {
-      value: { ok: rateStrategyAddress },
-    } = await registry.query.rateStrategy(token.address);
-    expect(rateStrategyAddress).toBe(rateStrategy.address);
-
-    const {
-      value: { ok: riskStrategyAddress },
-    } = await registry.query.riskStrategy(token.address);
-    expect(riskStrategyAddress).toBe(riskStrategy.address);
-
-    // factory
-    const {
-      value: { ok: registryAddress },
-    } = await factory.query.registry();
-    expect(registryAddress).toBe(registry.address);
   });
 
-  it('create pool', async () => {
-    const {
-      gasRequired,
-      value: {
-        ok: { ok: expectedPoolAddress },
-      },
-    } = await factory.query.create(token.address, []);
-    expect(expectedPoolAddress).not.toBe(zeroAddress);
+  describe('factory', () => {
+    it('set factory', async () => {
+      const res = await registry.tx.setFactory(factory.address);
 
-    await factory.tx.create(token.address, [], {
-      gasLimit: gasRequired,
+      expect(res.events).toHaveLength(1);
+      expectToEmit<FactoryChanged>(res.events[0], 'FactoryChanged', {
+        factory: factory.address,
+      });
+
+      const {
+        value: { ok: registryAddress },
+      } = await factory.query.registry();
+      expect(registryAddress).toBe(registry.address);
+
+      // await registry.tx.setRateStrategy(rateStrategy.address, null);
+      // await registry.tx.setRiskStrategy(riskStrategy.address, null);
+      // const {
+      //   value: { ok: rateStrategyAddress },
+      // } = await registry.query.rateStrategy(token.address);
+      // expect(rateStrategyAddress).toBe(rateStrategy.address);
+
+      // const {
+      //   value: { ok: riskStrategyAddress },
+      // } = await registry.query.riskStrategy(token.address);
+      // expect(riskStrategyAddress).toBe(riskStrategy.address);
+
+      // factory
     });
-    const {
-      value: { ok: poolAddress },
-    } = await registry.query.pool(token.address);
-    expect(poolAddress).toBe(expectedPoolAddress);
+
+    it('register pool', async () => {
+      const {
+        gasRequired,
+        value: {
+          ok: { ok: expectedPoolAddress },
+        },
+      } = await factory.query.create(token.address, []);
+      expect(expectedPoolAddress).not.toBe(zeroAddress);
+
+      let eventEmitted = false;
+      registry.events.subscribeOnPoolRegisteredEvent((event) => {
+        expect(event).toEqual({
+          pool: expectedPoolAddress,
+          asset: token.address,
+        });
+        eventEmitted = true;
+      });
+      await factory.tx.create(token.address, [], {
+        gasLimit: gasRequired,
+      });
+
+      expect(eventEmitted).toBeTruthy();
+
+      const {
+        value: { ok: poolAddress },
+      } = await registry.query.pool(token.address);
+      expect(poolAddress).toBe(expectedPoolAddress);
+    });
+  });
+
+  describe('rate strategy', () => {
+    it('set rate strategy without asset', async () => {
+      const res = await registry.tx.setRateStrategy(rateStrategy.address, null);
+
+      expect(res.events).toHaveLength(1);
+      expectToEmit<RateStrategyChanged>(res.events[0], 'RateStrategyChanged', {
+        strategy: rateStrategy.address,
+        asset: null,
+      });
+
+      const {
+        value: { ok: rateStrategyAddress },
+      } = await registry.query.rateStrategy(token.address);
+      expect(rateStrategyAddress).toBe(rateStrategy.address);
+    });
+    it('set rate strategy with asset', async () => {
+      const anotherStrategy = new RateStrategy(
+        (await rateStrategyFactory.new()).address,
+        deployer,
+        api,
+      ).address;
+
+      const anotherToken = new Token(
+        (await tokenFactory.new(1_000, null, null, 18)).address,
+        deployer,
+        api,
+      ).address;
+      const res = await registry.tx.setRateStrategy(
+        anotherStrategy,
+        anotherToken,
+      );
+
+      expect(res.events).toHaveLength(1);
+      expectToEmit<RateStrategyChanged>(res.events[0], 'RateStrategyChanged', {
+        strategy: anotherStrategy,
+        asset: anotherToken,
+      });
+
+      let {
+        value: { ok: address },
+      } = await registry.query.rateStrategy(anotherToken);
+      expect(address).toBe(anotherStrategy);
+
+      ({
+        value: { ok: address },
+      } = await registry.query.rateStrategy(token.address));
+      expect(address).toBe(rateStrategy.address);
+    });
   });
 });

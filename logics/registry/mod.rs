@@ -20,7 +20,7 @@ pub struct Data {
     pub default_risk_strategy: AccountId,
 }
 
-trait Internal {
+pub trait Internal {
     fn _factory(&self) -> AccountId;
     fn _pool(&self, asset: &AccountId) -> Option<AccountId>;
     fn _rate_strategy(&self, asset: &AccountId) -> AccountId;
@@ -29,6 +29,12 @@ trait Internal {
     fn _set_factory(&mut self, address: AccountId) -> Result<()>;
     fn _set_rate_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
     fn _set_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
+
+    // event emission
+    fn _emit_pool_registered_event(&self, asset: AccountId, pool: AccountId);
+    fn _emit_factory_changed_event(&self, factory: AccountId);
+    fn _emit_rate_strategy_changed_event(&self, strategy: AccountId, asset: Option<AccountId>);
+    fn _emit_risk_strategy_changed_event(&self, strategy: AccountId, asset: Option<AccountId>);
 }
 
 impl<T: Storage<Data>> Registry for T {
@@ -49,11 +55,15 @@ impl<T: Storage<Data>> Registry for T {
     }
 
     default fn register_pool(&mut self, asset: AccountId, pool: AccountId) -> Result<()> {
-        self._register_pool(&asset, &pool)
+        self._register_pool(&asset, &pool)?;
+        self._emit_pool_registered_event(asset, pool);
+        Ok(())
     }
 
     default fn set_factory(&mut self, address: AccountId) -> Result<()> {
-        self._set_factory(address)
+        self._set_factory(address)?;
+        self._emit_factory_changed_event(address);
+        Ok(())
     }
 
     default fn set_rate_strategy(
@@ -61,7 +71,9 @@ impl<T: Storage<Data>> Registry for T {
         address: AccountId,
         asset: Option<AccountId>,
     ) -> Result<()> {
-        self._set_rate_strategy(address, asset)
+        self._set_rate_strategy(address, asset)?;
+        self._emit_rate_strategy_changed_event(address, asset);
+        Ok(())
     }
 
     default fn set_risk_strategy(
@@ -69,7 +81,9 @@ impl<T: Storage<Data>> Registry for T {
         address: AccountId,
         asset: Option<AccountId>,
     ) -> Result<()> {
-        self._set_risk_strategy(address, asset)
+        self._set_risk_strategy(address, asset)?;
+        self._emit_risk_strategy_changed_event(address, asset);
+        Ok(())
     }
 }
 
@@ -151,5 +165,21 @@ impl<T: Storage<Data>> Internal for T {
             self.data().default_risk_strategy = address;
         }
         Ok(())
+    }
+
+    // event emission
+    default fn _emit_pool_registered_event(&self, _asset: AccountId, _pool: AccountId) {}
+    default fn _emit_factory_changed_event(&self, _factory: AccountId) {}
+    default fn _emit_rate_strategy_changed_event(
+        &self,
+        _strategy: AccountId,
+        _asset: Option<AccountId>,
+    ) {
+    }
+    default fn _emit_risk_strategy_changed_event(
+        &self,
+        _strategy: AccountId,
+        _asset: Option<AccountId>,
+    ) {
     }
 }
