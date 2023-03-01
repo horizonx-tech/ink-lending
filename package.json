@@ -36,6 +36,7 @@
     "@polkadot/api-contract": "^9.10.3"
   },
   "devDependencies": {
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "type-fest": "^3.6.1"
   }
 }

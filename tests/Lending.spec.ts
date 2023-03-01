@@ -1,6 +1,5 @@
 import { expect } from '@jest/globals';
 import { encodeAddress } from '@polkadot/keyring';
-import BN from 'bn.js';
 import Registry_factory from '../types/constructors/registry';
 import AssetPool_factory from '../types/constructors/asset_pool';
 import Factory_factory from '../types/constructors/factory';
@@ -15,10 +14,9 @@ import RateStrategy from '../types/contracts/rate_strategies';
 import RiskStrategy from '../types/contracts/risk_strategies';
 import Token from '../types/contracts/psp22_token';
 import SharesToken from '../types/contracts/shares_token';
-import { AccountId, Hash } from 'types-arguments/factory';
+import { Hash } from 'types-arguments/factory';
 import { ApiPromise } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { emit, revertedWith } from './testHelpers';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 
 const zeroAddress = encodeAddress(
