@@ -3,13 +3,12 @@
 
 #[openbrush::contract]
 pub mod pool {
-    
+
     use logics::{
         asset_pool::*,
         traits::asset_pool::*,
     };
     use openbrush::traits::Storage;
-    
 
     #[ink(storage)]
     #[derive(Storage)]

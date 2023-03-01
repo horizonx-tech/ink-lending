@@ -12,9 +12,7 @@ pub mod factory {
         factory::*,
         traits::factory::*,
     };
-    use openbrush::{
-        traits::Storage,
-    };
+    use openbrush::traits::Storage;
     use shares_token::token::SharesTokenRef;
 
     #[ink(storage)]
