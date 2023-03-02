@@ -9,6 +9,9 @@ pub type RiskStrategyRef = dyn RiskStrategy;
 #[openbrush::trait_definition]
 pub trait RiskStrategy {
     #[ink(message)]
+    fn price_oracle(&self) -> AccountId;
+
+    #[ink(message)]
     fn validate_borrow(&self, account: AccountId, asset: AccountId, amount: Balance) -> Result<()>;
 
     #[ink(message)]
