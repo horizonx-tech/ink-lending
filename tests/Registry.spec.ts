@@ -20,7 +20,7 @@ import { ApiPromise } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
 import type { WeightV2 } from '@polkadot/types/interfaces';
 import { expectToEmit } from './testHelpers';
-import { FactoryChanged, PoolRegistered } from 'event-types/registry';
+import { FactoryChanged } from 'event-types/registry';
 
 const zeroAddress = encodeAddress(
   '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -107,7 +107,7 @@ describe('Registry spec', () => {
     );
     riskStrategyFactory = new RiskStrategy_factory(api, deployer);
     riskStrategy = new RiskStrategy(
-      (await riskStrategyFactory.new()).address,
+      (await riskStrategyFactory.new(null)).address,
       deployer,
       api,
     );
@@ -130,20 +130,6 @@ describe('Registry spec', () => {
         value: { ok: registryAddress },
       } = await factory.query.registry();
       expect(registryAddress).toBe(registry.address);
-
-      // await registry.tx.setRateStrategy(rateStrategy.address, null);
-      // await registry.tx.setRiskStrategy(riskStrategy.address, null);
-      // const {
-      //   value: { ok: rateStrategyAddress },
-      // } = await registry.query.rateStrategy(token.address);
-      // expect(rateStrategyAddress).toBe(rateStrategy.address);
-
-      // const {
-      //   value: { ok: riskStrategyAddress },
-      // } = await registry.query.riskStrategy(token.address);
-      // expect(riskStrategyAddress).toBe(riskStrategy.address);
-
-      // factory
     });
 
     it('register pool', async () => {

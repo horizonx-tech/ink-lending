@@ -105,7 +105,7 @@ describe('Lending spec', () => {
     );
     riskStrategyFactory = new RiskStrategy_factory(api, deployer);
     riskStrategy = new RiskStrategy(
-      (await riskStrategyFactory.new()).address,
+      (await riskStrategyFactory.new(null)).address,
       deployer,
       api,
     );
