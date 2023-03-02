@@ -22,7 +22,6 @@ import type { WeightV2 } from '@polkadot/types/interfaces';
 const zeroAddress = encodeAddress(
   '0x0000000000000000000000000000000000000000000000000000000000000000',
 );
-const MINIMUM_LIQUIDITY = 1000;
 
 describe('Lending spec', () => {
   let api: ApiPromise;
@@ -42,15 +41,12 @@ describe('Lending spec', () => {
   let factory: Factory;
   let rateStrategy: RateStrategy;
   let riskStrategy: RiskStrategy;
-  let shares: SharesToken;
   let token: Token;
 
   let assetPoolHash: Hash;
   let sharesHash: Hash;
 
-  let gasRequired: WeightV2;
-
-  async function setup(): Promise<void> {
+  const setup = async (): Promise<void> => {
     ({ api, alice: deployer, bob: wallet } = globalThis.setup);
     registryFactory = new Registry_factory(api, deployer);
     registry = new Registry(
@@ -112,7 +108,7 @@ describe('Lending spec', () => {
     await registry.tx.setRateStrategy(rateStrategy.address, null);
     await registry.tx.setRiskStrategy(riskStrategy.address, null);
     await registry.tx.setFactory(factory.address, null);
-  }
+  };
 
   it('initialized', async () => {
     await setup();
@@ -142,16 +138,13 @@ describe('Lending spec', () => {
 
   it('create pool', async () => {
     const {
-      gasRequired,
       value: {
         ok: { ok: expectedPoolAddress },
       },
     } = await factory.query.create(token.address, []);
     expect(expectedPoolAddress).not.toBe(zeroAddress);
 
-    await factory.tx.create(token.address, [], {
-      gasLimit: gasRequired,
-    });
+    await factory.tx.create(token.address, []);
     const {
       value: { ok: poolAddress },
     } = await registry.query.pool(token.address);

@@ -18,7 +18,6 @@ import SharesToken from '../types/contracts/shares_token';
 import { Hash } from 'types-arguments/factory';
 import { ApiPromise } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
-import type { WeightV2 } from '@polkadot/types/interfaces';
 import { expectToEmit } from './testHelpers';
 import { FactoryChanged } from 'event-types/registry';
 
@@ -44,15 +43,12 @@ describe('Registry spec', () => {
   let factory: Factory;
   let rateStrategy: RateStrategy;
   let riskStrategy: RiskStrategy;
-  let shares: SharesToken;
   let token: Token;
 
   let assetPoolHash: Hash;
   let sharesHash: Hash;
 
-  let gasRequired: WeightV2;
-
-  async function setup(): Promise<void> {
+  const setup = async (): Promise<void> => {
     ({ api, alice: deployer, bob: wallet } = globalThis.setup);
     registryFactory = new Registry_factory(api, deployer);
     registry = new Registry(
@@ -111,7 +107,7 @@ describe('Registry spec', () => {
       deployer,
       api,
     );
-  }
+  };
 
   beforeAll(async () => {
     await setup();
@@ -134,7 +130,6 @@ describe('Registry spec', () => {
 
     it('register pool', async () => {
       const {
-        gasRequired,
         value: {
           ok: { ok: expectedPoolAddress },
         },
@@ -149,9 +144,7 @@ describe('Registry spec', () => {
         });
         eventEmitted = true;
       });
-      await factory.tx.create(token.address, [], {
-        gasLimit: gasRequired,
-      });
+      await factory.tx.create(token.address, []);
 
       expect(eventEmitted).toBeTruthy();
 
