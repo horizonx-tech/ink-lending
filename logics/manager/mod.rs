@@ -18,8 +18,8 @@ pub trait Internal {
     fn _set_emergency_admin(&mut self, address: AccountId) -> Result<()>;
 
     // event emission
-    fn _emit_pool_admin_ownership_transferred_event(&self, previous: AccountId, new: AccountId);
-    fn _emit_emergency_admin_ownership_transferred_event(&self, previous: AccountId, new: AccountId);
+    fn _emit_pool_admin_ownership_transferred_event(&self, previous: Option<AccountId>, new: Option<AccountId>);
+    fn _emit_emergency_admin_ownership_transferred_event(&self, previous: Option<AccountId>, new: Option<AccountId>);
 }
 
 impl<T: Storage<Data>> Manager for T {
@@ -34,14 +34,14 @@ impl<T: Storage<Data>> Manager for T {
     default fn set_pool_admin(&mut self, id: AccountId) -> Result<()> {
         let previous = self._pool_admin();
         self._set_pool_admin(id)?;
-        self._emit_pool_admin_ownership_transferred_event(previous, id);
+        self._emit_pool_admin_ownership_transferred_event(Some(previous), Some(id));
         Ok(())
     }
 
     default fn set_emergency_admin(&mut self, id: AccountId) -> Result<()> {
         let previous = self._emergency_admin();
         self._set_emergency_admin(id)?;
-        self._emit_emergency_admin_ownership_transferred_event(previous, id);
+        self._emit_emergency_admin_ownership_transferred_event(Some(previous), Some(id));
         Ok(())
     }
 }
@@ -60,29 +60,29 @@ impl<T: Storage<Data>> Internal for T {
         self.data().pool_admin
     }
 
-    fn _emergency_admin(&self) -> AccountId {
+    default fn _emergency_admin(&self) -> AccountId {
         self.data().emergency_admin
     }
 
-    fn _set_pool_admin(&mut self, address: AccountId) -> Result<()> {
+    default fn _set_pool_admin(&mut self, address: AccountId) -> Result<()> {
         self.data().pool_admin = address;
         Ok(())
     }
 
-    fn _set_emergency_admin(&mut self, address: AccountId) -> Result<()> {
+    default fn _set_emergency_admin(&mut self, address: AccountId) -> Result<()> {
         self.data().emergency_admin = address;
         Ok(())
     }
 
-    fn _emit_pool_admin_ownership_transferred_event(
+    default fn _emit_pool_admin_ownership_transferred_event(
         &self,
-        _previous: AccountId,
-        _new: AccountId
+        _previous: Option<AccountId>,
+        _new: Option<AccountId>
     ) {}
 
-    fn _emit_emergency_admin_ownership_transferred_event(
+    default fn _emit_emergency_admin_ownership_transferred_event(
         &self,
-        _previous: AccountId,
-        _new: AccountId
+        _previous: Option<AccountId>,
+        _new: Option<AccountId>
     ) {}
 }
