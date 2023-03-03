@@ -37,7 +37,17 @@ pub struct Data {
     pub last_update_timestamp: Timestamp,
 }
 
-trait Internal {
+pub trait Internal {
+    fn _deposit(&mut self, account: AccountId, from: AccountId, amount: Balance) -> Result<()>;
+    fn _withdraw(&mut self, account: AccountId, to: AccountId, amount: Balance) -> Result<()>;
+    fn _borrow(&mut self, account: AccountId, to: AccountId, amount: Balance) -> Result<()>;
+    fn _repay(&mut self, account: AccountId, from: AccountId, amount: Balance) -> Result<()>;
+    fn _transfer_collateral_on_liquidation(
+        &mut self,
+        liquidatee: AccountId,
+        receiver: AccountId,
+        amount: Balance,
+    ) -> Result<()>;
     fn _update_state(&mut self);
     fn _update_rate(&mut self, asset: AccountId, liquidity_added: Balance, liqudity_taken: Balance);
     fn _validate_withdraw(
@@ -60,6 +70,48 @@ impl<T: Storage<Data>> AssetPool for T {
         from: AccountId,
         amount: Balance,
     ) -> Result<()> {
+        self._deposit(account, from, amount)
+    }
+
+    default fn withdraw(
+        &mut self,
+        account: AccountId,
+        to: AccountId,
+        amount: Balance,
+    ) -> Result<()> {
+        self._withdraw(account, to, amount)
+    }
+
+    default fn borrow(&mut self, account: AccountId, to: AccountId, amount: Balance) -> Result<()> {
+        self._borrow(account, to, amount)
+    }
+
+    default fn repay(
+        &mut self,
+        account: AccountId,
+        from: AccountId,
+        amount: Balance,
+    ) -> Result<()> {
+        self._repay(account, from, amount)
+    }
+
+    default fn transfer_collateral_on_liquidation(
+        &mut self,
+        liquidatee: AccountId,
+        receiver: AccountId,
+        amount: Balance,
+    ) -> Result<()> {
+        self._transfer_collateral_on_liquidation(liquidatee, receiver, amount)
+    }
+}
+
+impl<T: Storage<Data>> Internal for T {
+    default fn _deposit(
+        &mut self,
+        account: AccountId,
+        from: AccountId,
+        amount: Balance,
+    ) -> Result<()> {
         self._update_state();
         let asset = self.data().asset;
         self._update_rate(asset, amount, 0);
@@ -73,7 +125,7 @@ impl<T: Storage<Data>> AssetPool for T {
         Ok(())
     }
 
-    default fn withdraw(
+    default fn _withdraw(
         &mut self,
         account: AccountId,
         to: AccountId,
@@ -94,7 +146,12 @@ impl<T: Storage<Data>> AssetPool for T {
         Ok(())
     }
 
-    default fn borrow(&mut self, account: AccountId, to: AccountId, amount: Balance) -> Result<()> {
+    default fn _borrow(
+        &mut self,
+        account: AccountId,
+        to: AccountId,
+        amount: Balance,
+    ) -> Result<()> {
         self._update_state();
         let asset = self.data().asset;
         self._update_rate(asset, 0, amount);
@@ -116,7 +173,7 @@ impl<T: Storage<Data>> AssetPool for T {
         Ok(())
     }
 
-    default fn repay(
+    default fn _repay(
         &mut self,
         account: AccountId,
         from: AccountId,
@@ -141,7 +198,7 @@ impl<T: Storage<Data>> AssetPool for T {
         Ok(())
     }
 
-    default fn transfer_collateral_on_liquidation(
+    default fn _transfer_collateral_on_liquidation(
         &mut self,
         liquidatee: AccountId,
         receiver: AccountId,
@@ -159,9 +216,7 @@ impl<T: Storage<Data>> AssetPool for T {
 
         Ok(())
     }
-}
 
-impl<T: Storage<Data>> Internal for T {
     default fn _update_state(&mut self) {
         let timestamp = Self::env().block_timestamp();
         let elapsed = (timestamp - self.data().last_update_timestamp) as u128;
