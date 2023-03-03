@@ -4,8 +4,10 @@ import { encodeAddress } from '@polkadot/keyring';
 import Registry_factory from '../types/constructors/registry';
 import DummyPool_factory from '../types/constructors/dummy_pool';
 import Service_factory from '../types/constructors/service';
+import DummyRiskStrategy_factory from '../types/constructors/dummy_risk_strategy';
 import Registry from '../types/contracts/registry';
 import DummyPool from '../types/contracts/dummy_pool';
+import DummyRiskStrategy from '../types/contracts/dummy_risk_strategy';
 import Service from '../types/contracts/service';
 import { ApiPromise } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
@@ -13,6 +15,7 @@ import { expectToEmit } from './testHelpers';
 import {
   Borrowed,
   Deposited,
+  Liquidated,
   Repaid,
   Withdrew,
 } from 'event-types/service';
@@ -33,6 +36,7 @@ describe('Service spec', () => {
   let registry: Registry;
   let dummyPool: DummyPool;
   let service: Service;
+  let dummmyRiskStrategy: DummyRiskStrategy;
 
   const asset = encodeAddress(
     '0x0000000000000000000000000000000000000000000000000000000000000001',
@@ -61,6 +65,17 @@ describe('Service spec', () => {
       api,
     );
     await registry.tx.registerPool(asset, dummyPool.address);
+
+    const dummmyRiskStrategyFactory = new DummyRiskStrategy_factory(
+      api,
+      deployer,
+    );
+    dummmyRiskStrategy = new DummyRiskStrategy(
+      (await dummmyRiskStrategyFactory.new()).address,
+      deployer,
+      api,
+    );
+    await registry.tx.setRiskStrategy(dummmyRiskStrategy.address, null);
 
     serviceFactory = new Service_factory(api, deployer);
     service = new Service(
@@ -160,6 +175,30 @@ describe('Service spec', () => {
         amount,
         asset,
         from: signer,
+      });
+    });
+    it('liquidated', async () => {
+      const collateralAsset = asset;
+      const debtAsset = asset;
+      const collateralAmount = 99;
+      const debtAmount = amount;
+
+      await dummmyRiskStrategy.tx.setCollateralAmount(collateralAmount);
+
+      const res = await service.tx.liquidationCall(
+        anotherAcconut,
+        collateralAsset,
+        debtAsset,
+        debtAmount,
+      );
+      expect(res.events).toHaveLength(1);
+      expectToEmit<Liquidated>(res.events[0], 'Liquidated', {
+        liquidator: signer,
+        liquidatee: anotherAcconut,
+        collateralAsset,
+        debtAsset,
+        collateralAmount,
+        debtAmount,
       });
     });
   });
