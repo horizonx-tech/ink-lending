@@ -142,32 +142,44 @@ pub mod token {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use ink::env;
+        use ink::env::{
+            test::{
+                self,
+                recorded_events,
+                DefaultAccounts,
+                EmittedEvent,
+            },
+            DefaultEnvironment,
+        };
+        use openbrush::contracts::traits::errors::{
+            OwnableError,
+            PSP22Error,
+        };
 
         type Event = <SharesToken as ink::reflect::ContractEventBase>::Type;
 
-        fn default_accounts() -> env::test::DefaultAccounts<env::DefaultEnvironment> {
-            env::test::default_accounts::<env::DefaultEnvironment>()
+        fn default_accounts() -> DefaultAccounts<DefaultEnvironment> {
+            test::default_accounts::<DefaultEnvironment>()
         }
         fn set_caller(id: AccountId) {
-            env::test::set_caller::<env::DefaultEnvironment>(id);
+            test::set_caller::<DefaultEnvironment>(id);
         }
-        fn get_emitted_events() -> Vec<env::test::EmittedEvent> {
-            ink::env::test::recorded_events().collect::<Vec<_>>()
+        fn get_emitted_events() -> Vec<EmittedEvent> {
+            recorded_events().collect::<Vec<_>>()
         }
-        fn decode_transfer_event(event: env::test::EmittedEvent) -> Transfer {
-            let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..]);
-            match decoded_event {
-                Ok(Event::Transfer(x)) => return x,
-                _ => panic!("unexpected event kind: expected Transfer event")
+        fn decode_transfer_event(event: EmittedEvent) -> Transfer {
+            if let Ok(Event::Transfer(x)) = <Event as scale::Decode>::decode(&mut &event.data[..]) {
+                return x
             }
+            panic!("unexpected event kind: expected Transfer event")
         }
-        fn decode_ownership_transferred_event(event: env::test::EmittedEvent) -> OwnershipTransferred {
-            let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..]);
-            match decoded_event {
-                Ok(Event::OwnershipTransferred(x)) => return x,
-                _ => panic!("unexpected event kind: expected OwnershipTransferred event")
+        fn decode_ownership_transferred_event(event: EmittedEvent) -> OwnershipTransferred {
+            if let Ok(Event::OwnershipTransferred(x)) =
+                <Event as scale::Decode>::decode(&mut &event.data[..])
+            {
+                return x
             }
+            panic!("unexpected event kind: expected OwnershipTransferred event")
         }
 
         #[ink::test]
@@ -219,8 +231,6 @@ pub mod token {
 
         #[ink::test]
         fn mint_works_cannot_by_not_owner() {
-            use openbrush::contracts::traits::errors;
-
             let accounts = default_accounts();
             let alice = accounts.alice;
             let bob = accounts.bob;
@@ -235,7 +245,7 @@ pub mod token {
             set_caller(alice);
             assert_eq!(
                 contract.mint(bob, 100_000).unwrap_err(),
-                errors::PSP22Error::from(errors::OwnableError::CallerIsNotOwner)
+                PSP22Error::from(OwnableError::CallerIsNotOwner)
             );
         }
 
@@ -284,8 +294,6 @@ pub mod token {
 
         #[ink::test]
         fn burn_works_cannot_by_not_owner() {
-            use openbrush::contracts::traits::errors;
-
             let accounts = default_accounts();
             let alice = accounts.alice;
             let bob = accounts.bob;
@@ -301,7 +309,7 @@ pub mod token {
             set_caller(alice);
             assert_eq!(
                 contract.burn(bob, 50_000).unwrap_err(),
-                errors::PSP22Error::from(errors::OwnableError::CallerIsNotOwner)
+                PSP22Error::from(OwnableError::CallerIsNotOwner)
             );
         }
 
