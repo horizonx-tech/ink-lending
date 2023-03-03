@@ -138,120 +138,171 @@ pub mod token {
                 .emit_event(OwnershipTransferred { previous, new });
         }
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use ink::env;
-    use openbrush::traits::{AccountId, String};
-    use openbrush::{
-        contracts::{
-            ownable::*,
-            psp22::extensions::{
-                metadata::*,
-            },
-        },
-    };
-    use super::token;
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use ink::env;
 
-    fn default_accounts() -> env::test::DefaultAccounts<env::DefaultEnvironment> {
-        env::test::default_accounts::<env::DefaultEnvironment>()
-    }
+        type Event = <SharesToken as ink::reflect::ContractEventBase>::Type;
 
-    #[ink::test]
-    fn new_works() {
-        let accounts = default_accounts();
-        env::test::set_caller::<env::DefaultEnvironment>(accounts.bob);
+        fn default_accounts() -> env::test::DefaultAccounts<env::DefaultEnvironment> {
+            env::test::default_accounts::<env::DefaultEnvironment>()
+        }
 
-        let asset = AccountId::from([0xff; 32]);
-        let contract = token::SharesToken::new(
-            asset.clone(),
-            Some(String::from("share coin")),
-            Some(String::from("sCOIN")),
-            8,
-        );
-        assert_eq!(contract.asset(), asset.clone());
-        assert_eq!(contract.token_name().unwrap(), String::from("share coin"));
-        assert_eq!(contract.token_symbol().unwrap(), String::from("sCOIN"));
-        assert_eq!(contract.token_decimals(), 8);
-        assert_eq!(contract.total_supply(), 0);
-        assert_eq!(contract.owner(), accounts.bob);
-    }
+        #[ink::test]
+        fn new_works() {
+            let accounts = default_accounts();
+            env::test::set_caller::<env::DefaultEnvironment>(accounts.bob);
 
-    #[ink::test]
-    fn mint_works() {
-        use openbrush::contracts::{
-            psp22::extensions::mintable::*,
-            traits::errors
-        };
+            let asset = AccountId::from([0xff; 32]);
+            let contract = SharesToken::new(
+                asset.clone(),
+                Some(String::from("share coin")),
+                Some(String::from("sCOIN")),
+                8,
+            );
+            assert_eq!(contract.asset(), asset.clone());
+            assert_eq!(contract.token_name().unwrap(), String::from("share coin"));
+            assert_eq!(contract.token_symbol().unwrap(), String::from("sCOIN"));
+            assert_eq!(contract.token_decimals(), 8);
+            assert_eq!(contract.total_supply(), 0);
+            assert_eq!(contract.owner(), accounts.bob);
 
-        let accounts = default_accounts();
-        let alice = accounts.alice;
-        let bob = accounts.bob;
-        ink::env::test::set_caller::<ink::env::DefaultEnvironment>(bob);
-        let mut contract = token::SharesToken::new(
-            AccountId::from([0x00; 32]),
-            Some(String::from("share coin")),
-            Some(String::from("sCOIN")),
-            8,
-        );
+            // emit event
+            let events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            assert_eq!(events.len(), 1);
+            let decoded_event = <Event as scale::Decode>::decode(&mut &events[0].data[..]);
+            match decoded_event {
+                Ok(Event::OwnershipTransferred(OwnershipTransferred { previous, new })) => {
+                    assert_eq!(previous, None);
+                    assert_eq!(new, Some(accounts.bob));
+                },
+                _ => panic!("unexpected event kind: expected OwnershipTransferred event")
+            }
+        }
 
-        // by owner
-        assert!(contract.mint(bob, 10_000_000).is_ok());
-        assert!(contract.mint(alice, 5_000_000).is_ok());
-        assert_eq!(contract.balance_of(bob), 10_000_000);
-        assert_eq!(contract.balance_of(alice), 5_000_000);
-        assert_eq!(contract.total_supply(), 15_000_000);
+        #[ink::test]
+        fn mint_works() {
+            use openbrush::contracts::traits::errors;
 
-        // by not owner
-        ink::env::test::set_caller::<ink::env::DefaultEnvironment>(alice);
-        assert_eq!(
-            contract.mint(bob, 2_500_000).unwrap_err(),
-            errors::PSP22Error::from(errors::OwnableError::CallerIsNotOwner)
-        );
-        assert_eq!(contract.balance_of(bob), 10_000_000);
-        assert_eq!(contract.balance_of(alice), 5_000_000);
-        assert_eq!(contract.total_supply(), 15_000_000);
-    }
+            let accounts = default_accounts();
+            let alice = accounts.alice;
+            let bob = accounts.bob;
+            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(bob);
+            let mut contract = SharesToken::new(
+                AccountId::from([0x00; 32]),
+                Some(String::from("share coin")),
+                Some(String::from("sCOIN")),
+                8,
+            );
 
-    #[ink::test]
-    fn burn_works() {
-        use openbrush::contracts::{
-            psp22::extensions::{
-                mintable::*,
-                burnable::*
-            },
-            traits::errors
-        };
+            // by owner
+            assert!(contract.mint(bob, 10_000_000).is_ok());
+            assert!(contract.mint(alice, 5_000_000).is_ok());
+            assert_eq!(contract.balance_of(bob), 10_000_000);
+            assert_eq!(contract.balance_of(alice), 5_000_000);
+            assert_eq!(contract.total_supply(), 15_000_000);
 
-        let accounts = default_accounts();
-        let alice = accounts.alice;
-        let bob = accounts.bob;
-        ink::env::test::set_caller::<ink::env::DefaultEnvironment>(bob);
-        let mut contract = token::SharesToken::new(
-            AccountId::from([0x00; 32]),
-            Some(String::from("share coin")),
-            Some(String::from("sCOIN")),
-            8,
-        );
-        assert!(contract.mint(bob, 10_000_000).is_ok());
-        assert!(contract.mint(alice, 5_000_000).is_ok());
+            // by not owner
+            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(alice);
+            assert_eq!(
+                contract.mint(bob, 2_500_000).unwrap_err(),
+                errors::PSP22Error::from(errors::OwnableError::CallerIsNotOwner)
+            );
+            assert_eq!(contract.balance_of(bob), 10_000_000);
+            assert_eq!(contract.balance_of(alice), 5_000_000);
+            assert_eq!(contract.total_supply(), 15_000_000);
+        }
 
-        // by owner
-        assert!(contract.burn(bob, 1_000_000).is_ok());
-        assert!(contract.burn(alice, 3_000_000).is_ok());
-        assert_eq!(contract.balance_of(bob), 9_000_000);
-        assert_eq!(contract.balance_of(alice), 2_000_000);
-        assert_eq!(contract.total_supply(), 11_000_000);
+        #[ink::test]
+        fn mint_works_event() {
+            let accounts = default_accounts();
+            let alice = accounts.alice;
+            let bob = accounts.bob;
+            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(bob);
+            let mut contract = SharesToken::new(
+                AccountId::from([0x00; 32]),
+                Some(String::from("share coin")),
+                Some(String::from("sCOIN")),
+                8,
+            );
 
-        // by not owner
-        ink::env::test::set_caller::<ink::env::DefaultEnvironment>(alice);
-        assert_eq!(
-            contract.burn(bob, 500_000).unwrap_err(),
-            errors::PSP22Error::from(errors::OwnableError::CallerIsNotOwner)
-        );
-        assert_eq!(contract.balance_of(bob), 9_000_000);
-        assert_eq!(contract.balance_of(alice), 2_000_000);
-        assert_eq!(contract.total_supply(), 11_000_000);
+            assert!(contract.mint(alice, 10_000_000).is_ok());
+            // emit event
+            let events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let decoded_event = <Event as scale::Decode>::decode(&mut &events[1].data[..]);
+            match decoded_event {
+                Ok(Event::Transfer(Transfer { from, to, value })) => {
+                    assert_eq!(from, None);
+                    assert_eq!(to, Some(alice));
+                    assert_eq!(value, 10_000_000);
+                },
+                _ => panic!("unexpected event kind: expected Transfer event")
+            }
+        }
+
+        #[ink::test]
+        fn burn_works() {
+            use openbrush::contracts::traits::errors;
+
+            let accounts = default_accounts();
+            let alice = accounts.alice;
+            let bob = accounts.bob;
+            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(bob);
+            let mut contract = SharesToken::new(
+                AccountId::from([0x00; 32]),
+                Some(String::from("share coin")),
+                Some(String::from("sCOIN")),
+                8,
+            );
+            assert!(contract.mint(bob, 10_000_000).is_ok());
+            assert!(contract.mint(alice, 5_000_000).is_ok());
+
+            // by owner
+            assert!(contract.burn(bob, 1_000_000).is_ok());
+            assert!(contract.burn(alice, 3_000_000).is_ok());
+            assert_eq!(contract.balance_of(bob), 9_000_000);
+            assert_eq!(contract.balance_of(alice), 2_000_000);
+            assert_eq!(contract.total_supply(), 11_000_000);
+
+            // by not owner
+            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(alice);
+            assert_eq!(
+                contract.burn(bob, 500_000).unwrap_err(),
+                errors::PSP22Error::from(errors::OwnableError::CallerIsNotOwner)
+            );
+            assert_eq!(contract.balance_of(bob), 9_000_000);
+            assert_eq!(contract.balance_of(alice), 2_000_000);
+            assert_eq!(contract.total_supply(), 11_000_000);
+        }
+
+        #[ink::test]
+        fn burn_works_event() {
+            let accounts = default_accounts();
+            let alice = accounts.alice;
+            let bob = accounts.bob;
+            ink::env::test::set_caller::<ink::env::DefaultEnvironment>(bob);
+            let mut contract = SharesToken::new(
+                AccountId::from([0x00; 32]),
+                Some(String::from("share coin")),
+                Some(String::from("sCOIN")),
+                8,
+            );
+
+            assert!(contract.mint(alice, 10_000_000).is_ok());
+            assert!(contract.burn(alice, 7_500_000).is_ok());
+            // emit event
+            let events = ink::env::test::recorded_events().collect::<Vec<_>>();
+            let decoded_event = <Event as scale::Decode>::decode(&mut &events[2].data[..]);
+            match decoded_event {
+                Ok(Event::Transfer(Transfer { from, to, value })) => {
+                    assert_eq!(from, Some(alice));
+                    assert_eq!(to, None);
+                    assert_eq!(value, 7_500_000);
+                },
+                _ => panic!("unexpected event kind: expected Transfer event")
+            }
+        }
     }
 }
