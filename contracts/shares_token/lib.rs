@@ -166,7 +166,85 @@ mod tests {
         );
         assert_eq!(contract.token_name().unwrap(), String::from("share coin"));
         assert_eq!(contract.token_symbol().unwrap(), String::from("sCOIN"));
+        assert_eq!(contract.token_decimals(), 8);
         assert_eq!(contract.total_supply(), 0);
         assert_eq!(contract.owner(), accounts.bob);
+    }
+
+    #[ink::test]
+    fn mint_works() {
+        use openbrush::contracts::{
+            psp22::extensions::mintable::*,
+            traits::errors
+        };
+
+        let accounts = default_accounts();
+        let alice = accounts.alice;
+        let bob = accounts.bob;
+        ink::env::test::set_caller::<ink::env::DefaultEnvironment>(bob);
+        let mut contract = token::SharesToken::new(
+            AccountId::from([0x00; 32]),
+            Some(String::from("share coin")),
+            Some(String::from("sCOIN")),
+            8,
+        );
+
+        // by owner
+        assert!(contract.mint(bob, 10_000_000).is_ok());
+        assert!(contract.mint(alice, 5_000_000).is_ok());
+        assert_eq!(contract.balance_of(bob), 10_000_000);
+        assert_eq!(contract.balance_of(alice), 5_000_000);
+        assert_eq!(contract.total_supply(), 15_000_000);
+
+        // by not owner
+        ink::env::test::set_caller::<ink::env::DefaultEnvironment>(alice);
+        assert_eq!(
+            contract.mint(bob, 2_500_000).unwrap_err(),
+            errors::PSP22Error::from(errors::OwnableError::CallerIsNotOwner)
+        );
+        assert_eq!(contract.balance_of(bob), 10_000_000);
+        assert_eq!(contract.balance_of(alice), 5_000_000);
+        assert_eq!(contract.total_supply(), 15_000_000);
+    }
+
+    #[ink::test]
+    fn burn_works() {
+        use openbrush::contracts::{
+            psp22::extensions::{
+                mintable::*,
+                burnable::*
+            },
+            traits::errors
+        };
+
+        let accounts = default_accounts();
+        let alice = accounts.alice;
+        let bob = accounts.bob;
+        ink::env::test::set_caller::<ink::env::DefaultEnvironment>(bob);
+        let mut contract = token::SharesToken::new(
+            AccountId::from([0x00; 32]),
+            Some(String::from("share coin")),
+            Some(String::from("sCOIN")),
+            8,
+        );
+        assert!(contract.mint(bob, 10_000_000).is_ok());
+        assert!(contract.mint(alice, 5_000_000).is_ok());
+
+        // by owner
+        assert!(contract.burn(bob, 1_000_000).is_ok());
+        assert!(contract.burn(alice, 3_000_000).is_ok());
+        assert_eq!(contract.balance_of(bob), 9_000_000);
+        assert_eq!(contract.balance_of(alice), 2_000_000);
+        assert_eq!(contract.total_supply(), 11_000_000);
+
+        // by not owner
+        ink::env::test::set_caller::<ink::env::DefaultEnvironment>(alice);
+        assert_eq!(
+            contract.burn(bob, 500_000).unwrap_err(),
+            errors::PSP22Error::from(errors::OwnableError::CallerIsNotOwner)
+        );
+        assert_eq!(contract.balance_of(bob), 9_000_000);
+        assert_eq!(contract.balance_of(alice), 2_000_000);
+        assert_eq!(contract.total_supply(), 11_000_000);
     }
 }
