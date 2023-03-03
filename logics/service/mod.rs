@@ -147,11 +147,11 @@ impl<T: Storage<Data>> Internal for T {
         _account: Option<AccountId>,
     ) -> Result<()> {
         let pool = self._pool(asset)?;
-        let caller = Self::env().caller();
-        let account = _account.unwrap_or(caller);
-        AssetPoolRef::deposit(&pool, account, caller, amount).map_err(to_asset_pool_error)?;
+        let from = Self::env().caller();
+        let account = _account.unwrap_or(from);
+        AssetPoolRef::deposit(&pool, account, from, amount).map_err(to_asset_pool_error)?;
 
-        self._emit_deposited_event(asset, account, caller, amount);
+        self._emit_deposited_event(asset, account, from, amount);
         Ok(())
     }
 
@@ -162,11 +162,11 @@ impl<T: Storage<Data>> Internal for T {
         _to: Option<AccountId>,
     ) -> Result<()> {
         let pool = self._pool(asset)?;
-        let caller = Self::env().caller();
-        let to = _to.unwrap_or(caller);
-        AssetPoolRef::withdraw(&pool, caller, to, amount).map_err(to_asset_pool_error)?;
+        let account = Self::env().caller();
+        let to = _to.unwrap_or(account);
+        AssetPoolRef::withdraw(&pool, account, to, amount).map_err(to_asset_pool_error)?;
 
-        self._emit_withdrew_event(asset, caller, to, amount);
+        self._emit_withdrew_event(asset, account, to, amount);
         Ok(())
     }
 
@@ -174,14 +174,14 @@ impl<T: Storage<Data>> Internal for T {
         &mut self,
         asset: AccountId,
         amount: Balance,
-        _account: Option<AccountId>,
+        _to: Option<AccountId>,
     ) -> Result<()> {
         let pool = self._pool(asset)?;
-        let caller = Self::env().caller();
-        let account = _account.unwrap_or(caller);
-        AssetPoolRef::borrow(&pool, account, caller, amount).map_err(to_asset_pool_error)?;
+        let account = Self::env().caller();
+        let to = _to.unwrap_or(account);
+        AssetPoolRef::borrow(&pool, account, to, amount).map_err(to_asset_pool_error)?;
 
-        self._emit_borrowed_event(asset, account, caller, amount);
+        self._emit_borrowed_event(asset, account, to, amount);
         Ok(())
     }
 
@@ -192,11 +192,11 @@ impl<T: Storage<Data>> Internal for T {
         _account: Option<AccountId>,
     ) -> Result<()> {
         let pool = self._pool(asset)?;
-        let caller = Self::env().caller();
-        let account = _account.unwrap_or(caller);
-        AssetPoolRef::repay(&pool, account, caller, amount).map_err(to_asset_pool_error)?;
+        let from = Self::env().caller();
+        let account = _account.unwrap_or(from);
+        AssetPoolRef::repay(&pool, account, from, amount).map_err(to_asset_pool_error)?;
 
-        self._emit_borrowed_event(asset, account, caller, amount);
+        self._emit_repaid_event(asset, account, from, amount);
         Ok(())
     }
 

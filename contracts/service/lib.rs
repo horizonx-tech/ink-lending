@@ -63,7 +63,6 @@ pub mod service {
         liquidator: AccountId,
         #[ink(topic)]
         liquidatee: AccountId,
-        #[ink(topic)]
         collateral_asset: AccountId,
         collateral_amount: Balance,
         #[ink(topic)]
