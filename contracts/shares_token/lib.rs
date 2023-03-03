@@ -134,3 +134,39 @@ pub mod token {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use ink::env;
+    use openbrush::traits::{AccountId, String};
+    use openbrush::{
+        contracts::{
+            ownable::*,
+            psp22::extensions::{
+                metadata::*,
+            },
+        },
+    };
+    use super::token;
+
+    fn default_accounts() -> env::test::DefaultAccounts<env::DefaultEnvironment> {
+        env::test::default_accounts::<env::DefaultEnvironment>()
+    }
+
+    #[ink::test]
+    fn new_works() {
+        let accounts = default_accounts();
+        env::test::set_caller::<env::DefaultEnvironment>(accounts.bob);
+
+        let contract = token::SharesToken::new(
+            AccountId::from([0x00; 32]),
+            Some(String::from("share coin")),
+            Some(String::from("sCOIN")),
+            8,
+        );
+        assert_eq!(contract.token_name().unwrap(), String::from("share coin"));
+        assert_eq!(contract.token_symbol().unwrap(), String::from("sCOIN"));
+        assert_eq!(contract.total_supply(), 0);
+        assert_eq!(contract.owner(), accounts.bob);
+    }
+}
