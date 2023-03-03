@@ -83,6 +83,11 @@ pub mod token {
 
             instance
         }
+
+        #[ink(message)]
+        pub fn asset(&self) -> AccountId {
+            self.asset
+        }
     }
 
     impl Shares for SharesToken {}
@@ -158,12 +163,14 @@ mod tests {
         let accounts = default_accounts();
         env::test::set_caller::<env::DefaultEnvironment>(accounts.bob);
 
+        let asset = AccountId::from([0xff; 32]);
         let contract = token::SharesToken::new(
-            AccountId::from([0x00; 32]),
+            asset.clone(),
             Some(String::from("share coin")),
             Some(String::from("sCOIN")),
             8,
         );
+        assert_eq!(contract.asset(), asset.clone());
         assert_eq!(contract.token_name().unwrap(), String::from("share coin"));
         assert_eq!(contract.token_symbol().unwrap(), String::from("sCOIN"));
         assert_eq!(contract.token_decimals(), 8);
