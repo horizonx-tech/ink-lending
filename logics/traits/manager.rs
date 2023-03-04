@@ -1,10 +1,11 @@
 use openbrush::traits::AccountId;
+use openbrush::contracts::traits::ownable::*;
 
 #[openbrush::wrapper]
 pub type ManagerRef = dyn Manager;
 
 #[openbrush::trait_definition]
-pub trait Manager {
+pub trait Manager: Ownable {
     #[ink(message)]
     fn pool_admin(&self) -> AccountId;
 

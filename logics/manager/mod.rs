@@ -1,4 +1,7 @@
-use openbrush::traits::{AccountId, Storage};
+use openbrush::{
+    contracts::ownable,
+    traits::{AccountId, Storage}
+};
 
 use crate::traits::manager::*;
 
@@ -22,7 +25,7 @@ pub trait Internal {
     fn _emit_emergency_admin_ownership_transferred_event(&self, previous: Option<AccountId>, new: Option<AccountId>);
 }
 
-impl<T: Storage<Data>> Manager for T {
+impl<T: Storage<Data> + Storage<ownable::Data>> Manager for T {
     default fn pool_admin(&self) -> AccountId {
         self._pool_admin()
     }
