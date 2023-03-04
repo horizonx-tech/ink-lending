@@ -105,6 +105,22 @@ impl<T: Storage<Data>> AssetPool for T {
     }
 }
 
+impl Default for Data {
+    fn default() -> Self {
+        Self {
+            registry: AccountId::from([0u8; 32]),
+            asset: AccountId::from([0u8; 32]),
+            collateral_token: AccountId::from([0u8; 32]),
+            debt_token: AccountId::from([0u8; 32]),
+            liquidity_index: 0,
+            liquidity_rate: 0,
+            debt_index: 0,
+            debt_rate: 0,
+            last_update_timestamp: 0,
+        }
+    }
+}
+
 impl<T: Storage<Data>> Internal for T {
     default fn _deposit(
         &mut self,
