@@ -8,16 +8,29 @@ mod manager {
         Env,
     };
     use logics::{
-        manager::*,
+        manager,
+        manager::Internal as ManagerInternal,
         traits::manager::*,
     };
-    use openbrush::traits::Storage;
+    use openbrush::{
+        contracts::ownable,
+        contracts::ownable::Internal as OwnableInternal,
+        traits::Storage,
+    };
 
     #[ink(storage)]
     #[derive(Storage)]
     pub struct ManagerContract {
         #[storage_field]
-        manager: Data,
+        ownable: ownable::Data,
+        #[storage_field]
+        manager: manager::Data,
+    }
+
+    #[ink(event)]
+    pub struct OwnershipTransferred {
+        previous: Option<AccountId>,
+        new: Option<AccountId>,
     }
 
     #[ink(event)]
@@ -33,8 +46,9 @@ mod manager {
     }
 
     impl Manager for ManagerContract {}
+    impl ownable::Ownable for ManagerContract {}
 
-    impl Internal for ManagerContract {
+    impl manager::Internal for ManagerContract {
         fn _emit_pool_admin_ownership_transferred_event(
             &self,
             previous: Option<AccountId>,
@@ -54,15 +68,28 @@ mod manager {
         }
     }
 
+    impl ownable::Internal for ManagerContract {
+        fn _emit_ownership_transferred_event(
+            &self,
+            previous: Option<AccountId>,
+            new: Option<AccountId>,
+        ) {
+            self.env()
+                .emit_event(OwnershipTransferred { previous, new });
+        }
+    }
+
     impl ManagerContract {
         #[ink(constructor)]
         pub fn new(pool_admin: AccountId, emergency_admin: AccountId) -> Self {
-            let instance = Self {
-                manager: Data {
+            let mut instance = Self {
+                ownable: ownable::Data::default(),
+                manager: manager::Data {
                     pool_admin,
                     emergency_admin,
                 },
             };
+            instance._init_with_owner(Self::env().caller());
             instance._emit_pool_admin_ownership_transferred_event(
                 None,
                 Some(pool_admin)
@@ -79,6 +106,7 @@ mod manager {
     mod tests {
         use super::*;
         use ink::env;
+        use openbrush::contracts::ownable::Ownable;
 
         type Event = <ManagerContract as ink::reflect::ContractEventBase>::Type;
 
@@ -90,6 +118,13 @@ mod manager {
         }
         fn get_emitted_events() -> Vec<env::test::EmittedEvent> {
             ink::env::test::recorded_events().collect::<Vec<_>>()
+        }
+        fn decode_ownership_transferred_event(event: env::test::EmittedEvent) -> OwnershipTransferred {
+            let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..]);
+            match decoded_event {
+                Ok(Event::OwnershipTransferred(x)) => return x,
+                _ => panic!("unexpected event kind: expected OwnershipTransferred event")
+            }
         }
         fn decode_pool_admin_ownership_transferred_event(event: env::test::EmittedEvent) -> PoolAdminOwnershipTransferred {
             let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..]);
@@ -117,15 +152,19 @@ mod manager {
                 pool_admin,
                 emergency_admin
             );
+            assert_eq!(contract.owner(), accounts.bob);
             assert_eq!(contract.pool_admin(), pool_admin);
             assert_eq!(contract.emergency_admin(), emergency_admin);
 
             let events = get_emitted_events();
-            assert_eq!(events.len(), 2);
-            let event = decode_pool_admin_ownership_transferred_event(events[0].clone());
+            assert_eq!(events.len(), 3);
+            let event = decode_ownership_transferred_event(events[0].clone());
+            assert_eq!(event.previous, None);
+            assert_eq!(event.new, Some(accounts.bob));
+            let event = decode_pool_admin_ownership_transferred_event(events[1].clone());
             assert_eq!(event.previous, None);
             assert_eq!(event.new, Some(pool_admin));
-            let event = decode_emergency_admin_ownership_transferred_event(events[1].clone());
+            let event = decode_emergency_admin_ownership_transferred_event(events[2].clone());
             assert_eq!(event.previous, None);
             assert_eq!(event.new, Some(emergency_admin));
         }
@@ -146,7 +185,7 @@ mod manager {
 
             assert_eq!(contract.pool_admin(), new_pool_admin);
 
-            let event = decode_pool_admin_ownership_transferred_event(get_emitted_events()[2].clone());
+            let event = decode_pool_admin_ownership_transferred_event(get_emitted_events()[3].clone());
             assert_eq!(event.previous, Some(pool_admin));
             assert_eq!(event.new, Some(new_pool_admin));
         }
@@ -167,7 +206,7 @@ mod manager {
 
             assert_eq!(contract.emergency_admin(), new_emergency_admin);
 
-            let event = decode_emergency_admin_ownership_transferred_event(get_emitted_events()[2].clone());
+            let event = decode_emergency_admin_ownership_transferred_event(get_emitted_events()[3].clone());
             assert_eq!(event.previous, Some(emergency_admin));
             assert_eq!(event.new, Some(new_emergency_admin));
         }
