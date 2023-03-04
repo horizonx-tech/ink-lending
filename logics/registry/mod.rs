@@ -1,4 +1,5 @@
 use crate::traits::registry::*;
+use ink::prelude::vec::Vec;
 use openbrush::{
     storage::Mapping,
     traits::{
@@ -14,6 +15,7 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 pub struct Data {
     pub factory: AccountId,
     pub pools: Mapping<AccountId, AccountId>,
+    pub asset_list: Vec<AccountId>,
     pub rate_strategies: Mapping<AccountId, AccountId>,
     pub risk_strategies: Mapping<AccountId, AccountId>,
     pub default_rate_strategy: AccountId,
@@ -22,6 +24,9 @@ pub struct Data {
 
 pub trait Internal {
     fn _factory(&self) -> AccountId;
+    fn _asset_list(&self) -> Vec<AccountId>;
+    fn _asset(&self, index: u64) -> Option<AccountId>;
+    fn _assets_count(&self) -> u64;
     fn _pool(&self, asset: &AccountId) -> Option<AccountId>;
     fn _rate_strategy(&self, asset: &AccountId) -> AccountId;
     fn _risk_strategy(&self, asset: &AccountId) -> AccountId;
@@ -40,6 +45,18 @@ pub trait Internal {
 impl<T: Storage<Data>> Registry for T {
     default fn factory(&self) -> AccountId {
         self._factory()
+    }
+
+    default fn asset_list(&self) -> Vec<AccountId> {
+        self._asset_list()
+    }
+
+    default fn asset(&self, index: u64) -> Option<AccountId> {
+        self._asset(index)
+    }
+
+    default fn assets_count(&self) -> u64 {
+        self._assets_count()
     }
 
     default fn pool(&self, asset: AccountId) -> Option<AccountId> {
@@ -91,6 +108,7 @@ impl Default for Data {
     fn default() -> Self {
         Self {
             factory: [0u8; 32].into(),
+            asset_list: Vec::new(),
             pools: Default::default(),
             rate_strategies: Default::default(),
             risk_strategies: Default::default(),
@@ -103,6 +121,18 @@ impl Default for Data {
 impl<T: Storage<Data>> Internal for T {
     default fn _factory(&self) -> AccountId {
         self.data().factory
+    }
+
+    default fn _asset_list(&self) -> Vec<AccountId> {
+        self.data().asset_list.clone()
+    }
+
+    default fn _asset(&self, index: u64) -> Option<AccountId> {
+        self.data().asset_list.get(index as usize).cloned()
+    }
+
+    default fn _assets_count(&self) -> u64 {
+        self.data().asset_list.len() as u64
     }
 
     default fn _pool(&self, asset: &AccountId) -> Option<AccountId> {
@@ -127,6 +157,7 @@ impl<T: Storage<Data>> Internal for T {
         if self._pool(asset).is_some() {
             return Err(Error::PoolAlreadyExists)
         }
+        self.data().asset_list.push(*asset);
         self.data().pools.insert(asset, pool);
 
         Ok(())

@@ -1,3 +1,4 @@
+use ink::prelude::vec::Vec;
 use openbrush::traits::AccountId;
 
 #[openbrush::wrapper]
@@ -7,6 +8,15 @@ pub type RegistryRef = dyn Registry;
 pub trait Registry {
     #[ink(message)]
     fn factory(&self) -> AccountId;
+
+    #[ink(message)]
+    fn asset_list(&self) -> Vec<AccountId>;
+
+    #[ink(message)]
+    fn asset(&self, index: u64) -> Option<AccountId>;
+
+    #[ink(message)]
+    fn assets_count(&self) -> u64;
 
     #[ink(message)]
     fn pool(&self, asset: AccountId) -> Option<AccountId>;
