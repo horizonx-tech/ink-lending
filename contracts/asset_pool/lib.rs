@@ -25,18 +25,18 @@ pub mod pool {
             registry: AccountId,
             asset: AccountId,
             collateral_token: AccountId,
-            variable_debt_token: AccountId,
+            debt_token: AccountId,
         ) -> Self {
             Self {
                 asset_pool: Data {
                     registry,
                     asset,
                     collateral_token,
-                    variable_debt_token,
+                    debt_token,
                     liquidity_index: 0,
                     liquidity_rate: 0,
-                    variable_debt_index: 0,
-                    variable_debt_rate: 0,
+                    debt_index: 0,
+                    debt_rate: 0,
                     last_update_timestamp: 0,
                 },
             }

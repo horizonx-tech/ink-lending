@@ -26,12 +26,13 @@ pub mod factory {
 
     impl FactoryContract {
         #[ink(constructor)]
-        pub fn new(registry: AccountId, pool_code_hash: Hash, shares_code_hash: Hash) -> Self {
+        pub fn new(registry: AccountId, pool_code_hash: Hash, shares_code_hash: Hash, manager: AccountId) -> Self {
             Self {
                 factory: Data {
                     registry,
                     pool_code_hash,
                     shares_code_hash,
+                    manager
                 },
             }
         }
@@ -55,8 +56,8 @@ pub mod factory {
                     .code_hash(self.factory.shares_code_hash)
                     .salt_bytes(&salt[..4])
                     .instantiate();
-            let variable_debt =
-                SharesTokenRef::new(asset, Some("variable_debt".into()), Some("vd".into()), 18)
+            let debt =
+                SharesTokenRef::new(asset, Some("debt".into()), Some("vd".into()), 18)
                     .endowment(0)
                     .code_hash(self.factory.shares_code_hash)
                     .salt_bytes(&salt[5..9])
@@ -66,7 +67,7 @@ pub mod factory {
                 self.factory.registry,
                 asset,
                 collateral.to_account_id(),
-                variable_debt.to_account_id(),
+                debt.to_account_id(),
             )
             .endowment(0)
             .code_hash(self.factory.pool_code_hash)

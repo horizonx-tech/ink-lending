@@ -28,12 +28,12 @@ pub struct Data {
     pub registry: AccountId,
     pub asset: AccountId,
     pub collateral_token: AccountId,
-    pub variable_debt_token: AccountId,
+    pub debt_token: AccountId,
     // state
     pub liquidity_index: u128,
     pub liquidity_rate: u128,
-    pub variable_debt_index: u128,
-    pub variable_debt_rate: u128,
+    pub debt_index: u128,
+    pub debt_rate: u128,
     pub last_update_timestamp: Timestamp,
 }
 
@@ -59,7 +59,7 @@ pub trait Internal {
     fn _validate_borrow(&self, account: AccountId, asset: AccountId, amount: Balance)
         -> Result<()>;
     fn _to_liquidity_share(&self, amount: Balance) -> Balance;
-    fn _to_variable_debt_share(&self, amount: Balance) -> Balance;
+    fn _to_debt_share(&self, amount: Balance) -> Balance;
     fn _calculate_index_with_interest(current_index: u128, rate: u128, elapsed_sec: u128) -> u128;
 }
 
@@ -158,8 +158,8 @@ impl<T: Storage<Data>> Internal for T {
 
         self._validate_borrow(account, asset, amount)?;
 
-        let share = self._to_variable_debt_share(amount);
-        SharesRef::mint(&self.data().variable_debt_token, account, share)
+        let share = self._to_debt_share(amount);
+        SharesRef::mint(&self.data().debt_token, account, share)
             .map_err(to_psp22_error)?;
         PSP22Ref::transfer_from(
             &asset,
@@ -191,8 +191,8 @@ impl<T: Storage<Data>> Internal for T {
             Vec::<u8>::new(),
         )
         .map_err(to_psp22_error)?;
-        let share = self._to_variable_debt_share(amount);
-        SharesRef::burn(&self.data().variable_debt_token, account, share)
+        let share = self._to_debt_share(amount);
+        SharesRef::burn(&self.data().debt_token, account, share)
             .map_err(to_psp22_error)?;
 
         Ok(())
@@ -226,9 +226,9 @@ impl<T: Storage<Data>> Internal for T {
             self.data().liquidity_rate,
             elapsed,
         );
-        self.data().variable_debt_index = Self::_calculate_index_with_interest(
-            self.data().variable_debt_index,
-            self.data().variable_debt_rate,
+        self.data().debt_index = Self::_calculate_index_with_interest(
+            self.data().debt_index,
+            self.data().debt_rate,
             elapsed,
         );
         self.data().last_update_timestamp = timestamp;
@@ -241,11 +241,11 @@ impl<T: Storage<Data>> Internal for T {
         liquidity_taken: Balance,
     ) {
         let strategy = RegistryRef::rate_strategy(&self.data().registry, asset);
-        let (liquidity_rate, variable_debt_rate) =
+        let (liquidity_rate, debt_rate) =
             RateStrategyRef::calculate_rate(&strategy, asset, liquidity_added, liquidity_taken);
 
         self.data().liquidity_rate = liquidity_rate;
-        self.data().variable_debt_rate = variable_debt_rate;
+        self.data().debt_rate = debt_rate;
     }
 
     default fn _validate_withdraw(
@@ -282,12 +282,12 @@ impl<T: Storage<Data>> Internal for T {
         }
     }
 
-    default fn _to_variable_debt_share(&self, amount: Balance) -> Balance {
-        let variable_debt_index = self.data().variable_debt_index;
-        if variable_debt_index == 0 {
+    default fn _to_debt_share(&self, amount: Balance) -> Balance {
+        let debt_index = self.data().debt_index;
+        if debt_index == 0 {
             amount
         } else {
-            amount / variable_debt_index
+            amount / debt_index
         }
     }
 
