@@ -74,4 +74,36 @@ pub mod registry {
                 .emit_event(RiskStrategyChanged { strategy, asset });
         }
     }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use ink::env::{
+            test::{
+                self,
+                DefaultAccounts,
+            },
+            DefaultEnvironment,
+        };
+
+        fn default_accounts() -> DefaultAccounts<DefaultEnvironment> {
+            test::default_accounts::<DefaultEnvironment>()
+        }
+        fn set_caller(id: AccountId) {
+            test::set_caller::<DefaultEnvironment>(id);
+        }
+
+        #[ink::test]
+        fn new_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let defaultAccountId = [0u8; 32].into();
+            let contract = RegistryContract::default();
+
+            assert_eq!(contract.factory(), defaultAccountId);
+            assert_eq!(contract.default_rate_strategy(), defaultAccountId);
+            assert_eq!(contract.default_risk_strategy(), defaultAccountId);
+        }
+    }
 }

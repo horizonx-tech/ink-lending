@@ -18,6 +18,12 @@ pub trait Registry {
     fn risk_strategy(&self, asset: AccountId) -> AccountId;
 
     #[ink(message)]
+    fn default_rate_strategy(&self) -> AccountId;
+
+    #[ink(message)]
+    fn default_risk_strategy(&self) -> AccountId;
+
+    #[ink(message)]
     fn register_pool(&mut self, asset: AccountId, pool: AccountId) -> Result<()>;
 
     #[ink(message)]
