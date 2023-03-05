@@ -3,6 +3,7 @@ use openbrush::{
     traits::{
         AccountId,
         Balance,
+        Timestamp,
     },
 };
 
@@ -30,6 +31,25 @@ pub trait AssetPool {
         receiver: AccountId,
         amount: Balance,
     ) -> Result<()>;
+
+    #[ink(message)]
+    fn registry(&self) -> AccountId;
+    #[ink(message)]
+    fn asset(&self) -> AccountId;
+    #[ink(message)]
+    fn collateral_token(&self) -> AccountId;
+    #[ink(message)]
+    fn debt_token(&self) -> AccountId;
+    #[ink(message)]
+    fn liquidity_index(&self) -> u128;
+    #[ink(message)]
+    fn liquidity_rate(&self) -> u128;
+    #[ink(message)]
+    fn debt_index(&self) -> u128;
+    #[ink(message)]
+    fn debt_rate(&self) -> u128;
+    #[ink(message)]
+    fn last_update_timestamp(&self) -> Timestamp;
 }
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]

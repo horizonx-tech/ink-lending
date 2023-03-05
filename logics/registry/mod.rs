@@ -54,6 +54,14 @@ impl<T: Storage<Data>> Registry for T {
         self._risk_strategy(&asset)
     }
 
+    default fn default_rate_strategy(&self) -> AccountId {
+        self.data().default_rate_strategy
+    }
+
+    default fn default_risk_strategy(&self) -> AccountId {
+        self.data().default_risk_strategy
+    }
+
     default fn register_pool(&mut self, asset: AccountId, pool: AccountId) -> Result<()> {
         self._register_pool(&asset, &pool)?;
         self._emit_pool_registered_event(asset, pool);

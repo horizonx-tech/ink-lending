@@ -103,6 +103,16 @@ impl<T: Storage<Data>> AssetPool for T {
     ) -> Result<()> {
         self._transfer_collateral_on_liquidation(liquidatee, receiver, amount)
     }
+
+    default fn registry(&self) -> AccountId { self.data().registry }
+    default fn asset(&self) -> AccountId { self.data().asset }
+    default fn collateral_token(&self) -> AccountId { self.data().collateral_token }
+    default fn debt_token(&self) -> AccountId { self.data().debt_token }
+    default fn liquidity_index(&self) -> u128 { self.data().liquidity_index }
+    default fn liquidity_rate(&self) -> u128 { self.data().liquidity_rate }
+    default fn debt_index(&self) -> u128 { self.data().debt_index }
+    default fn debt_rate(&self) -> u128 { self.data().debt_rate }
+    default fn last_update_timestamp(&self) -> Timestamp { self.data().last_update_timestamp }
 }
 
 impl<T: Storage<Data>> Internal for T {
