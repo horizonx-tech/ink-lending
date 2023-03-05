@@ -3,6 +3,7 @@
 
 pub mod asset_pool;
 pub mod factory;
+pub mod manager;
 pub mod registry;
 pub mod service;
 pub mod traits;

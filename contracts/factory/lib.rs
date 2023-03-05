@@ -26,12 +26,13 @@ pub mod factory {
 
     impl FactoryContract {
         #[ink(constructor)]
-        pub fn new(registry: AccountId, pool_code_hash: Hash, shares_code_hash: Hash) -> Self {
+        pub fn new(registry: AccountId, pool_code_hash: Hash, shares_code_hash: Hash, manager: AccountId) -> Self {
             Self {
                 factory: Data {
                     registry,
                     pool_code_hash,
                     shares_code_hash,
+                    manager
                 },
             }
         }
