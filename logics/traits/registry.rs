@@ -28,6 +28,9 @@ pub trait Registry {
     fn risk_strategy(&self, asset: AccountId) -> AccountId;
 
     #[ink(message)]
+    fn price_oracle(&self) -> AccountId;
+
+    #[ink(message)]
     fn register_pool(&mut self, asset: AccountId, pool: AccountId) -> Result<()>;
 
     #[ink(message)]
@@ -38,6 +41,9 @@ pub trait Registry {
 
     #[ink(message)]
     fn set_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
+
+    #[ink(message)]
+    fn set_price_oracle(&mut self, address: AccountId) -> Result<()>;
 }
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]

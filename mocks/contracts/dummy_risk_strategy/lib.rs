@@ -15,11 +15,6 @@ pub mod dummy_risk_strategy {
 
     impl RiskStrategy for DummyRiskStrategyContract {
         #[ink(message)]
-        fn price_oracle(&self) -> AccountId {
-            AccountId::from([0u8; 32])
-        }
-
-        #[ink(message)]
         fn validate_borrow(
             &self,
             _account: AccountId,

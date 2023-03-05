@@ -18,6 +18,7 @@ pub struct Data {
     pub asset_list: Vec<AccountId>,
     pub rate_strategies: Mapping<AccountId, AccountId>,
     pub risk_strategies: Mapping<AccountId, AccountId>,
+    pub price_oracle: AccountId,
     pub default_rate_strategy: AccountId,
     pub default_risk_strategy: AccountId,
 }
@@ -30,16 +31,19 @@ pub trait Internal {
     fn _pool(&self, asset: &AccountId) -> Option<AccountId>;
     fn _rate_strategy(&self, asset: &AccountId) -> AccountId;
     fn _risk_strategy(&self, asset: &AccountId) -> AccountId;
+    fn _price_oracle(&self) -> AccountId;
     fn _register_pool(&mut self, asset: &AccountId, pool: &AccountId) -> Result<()>;
     fn _set_factory(&mut self, address: AccountId) -> Result<()>;
     fn _set_rate_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
     fn _set_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
+    fn _set_price_oracle(&mut self, address: AccountId) -> Result<()>;
 
     // event emission
     fn _emit_pool_registered_event(&self, asset: AccountId, pool: AccountId);
     fn _emit_factory_changed_event(&self, factory: AccountId);
     fn _emit_rate_strategy_changed_event(&self, strategy: AccountId, asset: Option<AccountId>);
     fn _emit_risk_strategy_changed_event(&self, strategy: AccountId, asset: Option<AccountId>);
+    fn _emit_price_oracle_changed_event(&self, price_oracle: AccountId);
 }
 
 impl<T: Storage<Data>> Registry for T {
@@ -69,6 +73,10 @@ impl<T: Storage<Data>> Registry for T {
 
     default fn risk_strategy(&self, asset: AccountId) -> AccountId {
         self._risk_strategy(&asset)
+    }
+
+    default fn price_oracle(&self) -> AccountId {
+        self._price_oracle()
     }
 
     default fn register_pool(&mut self, asset: AccountId, pool: AccountId) -> Result<()> {
@@ -102,6 +110,12 @@ impl<T: Storage<Data>> Registry for T {
         self._emit_risk_strategy_changed_event(address, asset);
         Ok(())
     }
+
+    default fn set_price_oracle(&mut self, address: AccountId) -> Result<()> {
+        self._set_price_oracle(address)?;
+        self._emit_price_oracle_changed_event(address);
+        Ok(())
+    }
 }
 
 impl Default for Data {
@@ -112,6 +126,7 @@ impl Default for Data {
             pools: Default::default(),
             rate_strategies: Default::default(),
             risk_strategies: Default::default(),
+            price_oracle: [0u8; 32].into(),
             default_rate_strategy: [0u8; 32].into(),
             default_risk_strategy: [0u8; 32].into(),
         }
@@ -151,6 +166,10 @@ impl<T: Storage<Data>> Internal for T {
             .risk_strategies
             .get(asset)
             .unwrap_or(self.data().default_risk_strategy)
+    }
+
+    default fn _price_oracle(&self) -> AccountId {
+        self.data().price_oracle
     }
 
     default fn _register_pool(&mut self, asset: &AccountId, pool: &AccountId) -> Result<()> {
@@ -198,6 +217,11 @@ impl<T: Storage<Data>> Internal for T {
         Ok(())
     }
 
+    default fn _set_price_oracle(&mut self, address: AccountId) -> Result<()> {
+        self.data().price_oracle = address;
+        Ok(())
+    }
+
     // event emission
     default fn _emit_pool_registered_event(&self, _asset: AccountId, _pool: AccountId) {}
     default fn _emit_factory_changed_event(&self, _factory: AccountId) {}
@@ -213,4 +237,5 @@ impl<T: Storage<Data>> Internal for T {
         _asset: Option<AccountId>,
     ) {
     }
+    default fn _emit_price_oracle_changed_event(&self, _price_oracle: AccountId) {}
 }
