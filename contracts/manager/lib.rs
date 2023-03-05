@@ -15,6 +15,7 @@ mod manager {
     use openbrush::{
         contracts::ownable,
         contracts::ownable::Internal as OwnableInternal,
+        modifiers,
         traits::Storage,
     };
 
@@ -45,7 +46,19 @@ mod manager {
         new: Option<AccountId>,
     }
 
-    impl Manager for ManagerContract {}
+    impl Manager for ManagerContract {
+        #[ink(message)]
+        #[modifiers(ownable::only_owner)]
+        fn set_pool_admin(&mut self, id: AccountId) -> Result<()> {
+            self._set_pool_admin(id)
+        }
+
+        #[ink(message)]
+        #[modifiers(ownable::only_owner)]
+        fn set_emergency_admin(&mut self, id: AccountId) -> Result<()> {
+            self._set_emergency_admin(id)
+        }
+    }
     impl ownable::Ownable for ManagerContract {}
 
     impl manager::Internal for ManagerContract {
@@ -107,6 +120,7 @@ mod manager {
         use super::*;
         use ink::env;
         use openbrush::contracts::ownable::Ownable;
+        use logics::traits::manager::Error;
 
         type Event = <ManagerContract as ink::reflect::ContractEventBase>::Type;
 
@@ -190,6 +204,26 @@ mod manager {
             assert_eq!(event.new, Some(new_pool_admin));
         }
 
+
+        #[ink::test]
+        fn set_pool_admin_works_cannot_by_not_owner() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let previous_pool_admin = AccountId::from([0x00; 32]);
+            let mut contract = ManagerContract::new(
+                previous_pool_admin,
+                AccountId::from([0x00; 32])
+            );
+
+            set_caller(accounts.charlie);
+            assert_eq!(
+                contract.set_pool_admin(AccountId::from([0xff; 32])).unwrap_err(),
+                Error::OwnableError(ownable::OwnableError::CallerIsNotOwner)
+            );
+            assert_eq!(contract.pool_admin(), previous_pool_admin);
+        }
+
         #[ink::test]
         fn set_emergency_admin_works() {
             let accounts = default_accounts();
@@ -197,7 +231,7 @@ mod manager {
 
             let emergency_admin = AccountId::from([0x00; 32]);
             let mut contract = ManagerContract::new(
-                AccountId::from([0x00; 32]),
+                AccountId::from([0xff; 32]),
                 emergency_admin
             );
 
@@ -209,6 +243,26 @@ mod manager {
             let event = decode_emergency_admin_ownership_transferred_event(get_emitted_events()[3].clone());
             assert_eq!(event.previous, Some(emergency_admin));
             assert_eq!(event.new, Some(new_emergency_admin));
+        }
+
+
+        #[ink::test]
+        fn set_emergency_admin_works_cannot_by_not_owner() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let previous_emergency_admin = AccountId::from([0x00; 32]);
+            let mut contract = ManagerContract::new(
+                AccountId::from([0xff; 32]),
+                previous_emergency_admin
+            );
+
+            set_caller(accounts.charlie);
+            assert_eq!(
+                contract.set_emergency_admin(AccountId::from([0xff; 32])).unwrap_err(),
+                Error::OwnableError(ownable::OwnableError::CallerIsNotOwner)
+            );
+            assert_eq!(contract.emergency_admin(), previous_emergency_admin);
         }
     }
 }

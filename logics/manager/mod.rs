@@ -35,17 +35,11 @@ impl<T: Storage<Data> + Storage<ownable::Data>> Manager for T {
     }
 
     default fn set_pool_admin(&mut self, id: AccountId) -> Result<()> {
-        let previous = self._pool_admin();
-        self._set_pool_admin(id)?;
-        self._emit_pool_admin_ownership_transferred_event(Some(previous), Some(id));
-        Ok(())
+        self._set_pool_admin(id)
     }
 
     default fn set_emergency_admin(&mut self, id: AccountId) -> Result<()> {
-        let previous = self._emergency_admin();
-        self._set_emergency_admin(id)?;
-        self._emit_emergency_admin_ownership_transferred_event(Some(previous), Some(id));
-        Ok(())
+        self._set_emergency_admin(id)
     }
 }
 
@@ -67,13 +61,17 @@ impl<T: Storage<Data>> Internal for T {
         self.data().emergency_admin
     }
 
-    default fn _set_pool_admin(&mut self, address: AccountId) -> Result<()> {
-        self.data().pool_admin = address;
+    default fn _set_pool_admin(&mut self, id: AccountId) -> Result<()> {
+        let previous = self._pool_admin();
+        self.data().pool_admin = id;
+        self._emit_pool_admin_ownership_transferred_event(Some(previous), Some(id));
         Ok(())
     }
 
-    default fn _set_emergency_admin(&mut self, address: AccountId) -> Result<()> {
-        self.data().emergency_admin = address;
+    default fn _set_emergency_admin(&mut self, id: AccountId) -> Result<()> {
+        let previous = self._emergency_admin();
+        self.data().emergency_admin = id;
+        self._emit_emergency_admin_ownership_transferred_event(Some(previous), Some(id));
         Ok(())
     }
 

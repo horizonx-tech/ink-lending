@@ -1,11 +1,11 @@
 use openbrush::traits::AccountId;
-use openbrush::contracts::traits::ownable::*;
+use openbrush::contracts::traits::ownable::{*, OwnableError};
 
 #[openbrush::wrapper]
 pub type ManagerRef = dyn Manager;
 
 #[openbrush::trait_definition]
-pub trait Manager: Ownable {
+pub trait Manager: Ownable + {
     #[ink(message)]
     fn pool_admin(&self) -> AccountId;
 
@@ -23,6 +23,13 @@ pub trait Manager: Ownable {
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
     NewOwnerIsZero,
+    OwnableError(OwnableError),
+}
+
+impl From<OwnableError> for Error {
+    fn from(error: OwnableError) -> Self {
+        Error::OwnableError(error)
+    }
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
