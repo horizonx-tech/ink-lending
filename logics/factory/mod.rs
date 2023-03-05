@@ -4,6 +4,9 @@ use crate::traits::{
         self,
         RegistryRef,
     },
+    manager::{
+        ManagerRef,
+    },
 };
 use ink::{
     env::hash::Blake2x256,
@@ -23,16 +26,19 @@ pub struct Data {
     pub registry: AccountId,
     pub pool_code_hash: Hash,
     pub shares_code_hash: Hash,
+    pub manager: AccountId,
 }
 
 pub trait Internal {
     fn _create(&self, asset: AccountId, data: &Vec<u8>) -> Result<AccountId>;
     fn _instantiate(&self, asset: AccountId, salt: &[u8], data: &Vec<u8>) -> Result<AccountId>;
     fn _on_create_pool(&self, asset: AccountId, pool: AccountId, data: &Vec<u8>) -> Result<()>;
+    fn _assert_pool_admin(&self) -> Result<()>;
 }
 
 impl<T: Storage<Data>> Factory for T {
     default fn create(&self, asset: AccountId, data: Vec<u8>) -> Result<AccountId> {
+        self._assert_pool_admin()?;
         let pool = self._create(asset, &data)?;
         self._on_create_pool(asset, pool, &data)?;
         return Ok(pool)
@@ -65,6 +71,13 @@ impl<T: Storage<Data>> Internal for T {
         _pool: AccountId,
         _data: &Vec<u8>,
     ) -> Result<()> {
+        Ok(())
+    }
+
+    default fn _assert_pool_admin(&self) -> Result<()> {
+        let authorized = ManagerRef::pool_admin(&self.data().manager);
+        if authorized != Self::env().caller() { return Err(Error::CallerIsNotPoolAdmin); }
+
         Ok(())
     }
 }
