@@ -94,16 +94,74 @@ pub mod registry {
         }
 
         #[ink::test]
-        fn new_works() {
+        fn default_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
 
-            let defaultAccountId = [0u8; 32].into();
+            let default_account_id = [0u8; 32].into();
             let contract = RegistryContract::default();
 
-            assert_eq!(contract.factory(), defaultAccountId);
-            assert_eq!(contract.default_rate_strategy(), defaultAccountId);
-            assert_eq!(contract.default_risk_strategy(), defaultAccountId);
+            assert_eq!(contract.factory(), default_account_id);
+            assert_eq!(contract.default_rate_strategy(), default_account_id);
+            assert_eq!(contract.default_risk_strategy(), default_account_id);
+        }
+
+        #[ink::test]
+        fn registry_pool_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::default();
+
+            let asset = AccountId::from([0xaa; 32]);
+            assert_eq!(contract.pool(asset), None);
+            let pool = AccountId::from([0xff; 32]);
+            assert!(contract.register_pool(asset, pool).is_ok());
+            assert_eq!(contract.pool(asset), Some(pool));
+            assert_eq!(
+                contract.register_pool(asset, AccountId::from([0xee; 32])).unwrap_err(),
+                Error::PoolAlreadyExists
+            );
+        }
+
+        #[ink::test]
+        fn set_factory_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::default();
+
+            let factory = AccountId::from([0xaa; 32]);
+            assert!(contract.set_factory(factory).is_ok());
+            assert_eq!(contract.factory(), factory);
+        }
+
+        #[ink::test]
+        fn set_risk_strategy_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::default();
+
+            let asset = AccountId::from([0xaa; 32]);
+            let default_strategy = contract.default_risk_strategy();
+            assert_eq!(contract.risk_strategy(asset), default_strategy);
+
+            let strategy = AccountId::from([0xff; 32]);
+            assert!(contract.set_risk_strategy(strategy, Some(asset)).is_ok());
+            assert_eq!(contract.risk_strategy(asset), strategy);
+        }
+
+        #[ink::test]
+        fn set_rate_strategy_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::default();
+
+            let asset = AccountId::from([0xaa; 32]);
+            let default_strategy = contract.default_rate_strategy();
+            assert_eq!(contract.rate_strategy(asset), default_strategy);
+
+            let strategy = AccountId::from([0xff; 32]);
+            assert!(contract.set_rate_strategy(strategy, Some(asset)).is_ok());
+            assert_eq!(contract.rate_strategy(asset), strategy);
         }
     }
 }
