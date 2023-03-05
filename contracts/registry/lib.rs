@@ -81,16 +81,47 @@ pub mod registry {
         use ink::env::{
             test::{
                 self,
+                recorded_events,
                 DefaultAccounts,
+                EmittedEvent,
             },
             DefaultEnvironment,
         };
+
+        type Event = <RegistryContract as ink::reflect::ContractEventBase>::Type;
 
         fn default_accounts() -> DefaultAccounts<DefaultEnvironment> {
             test::default_accounts::<DefaultEnvironment>()
         }
         fn set_caller(id: AccountId) {
             test::set_caller::<DefaultEnvironment>(id);
+        }
+        fn get_emitted_events() -> Vec<EmittedEvent> {
+            recorded_events().collect::<Vec<_>>()
+        }
+        fn decode_pool_registered_event(event: EmittedEvent) -> PoolRegistered {
+            if let Ok(Event::PoolRegistered(x)) = <Event as scale::Decode>::decode(&mut &event.data[..]) {
+                return x
+            }
+            panic!("unexpected event kind: expected PoolRegistered event")
+        }
+        fn decode_factory_changed_event(event: EmittedEvent) -> FactoryChanged {
+            if let Ok(Event::FactoryChanged(x)) = <Event as scale::Decode>::decode(&mut &event.data[..]) {
+                return x
+            }
+            panic!("unexpected event kind: expected FactoryChanged event")
+        }
+        fn decode_risk_strategy_changed_event(event: EmittedEvent) -> RiskStrategyChanged {
+            if let Ok(Event::RiskStrategyChanged(x)) = <Event as scale::Decode>::decode(&mut &event.data[..]) {
+                return x
+            }
+            panic!("unexpected event kind: expected RiskStrategyChanged event")
+        }
+        fn decode_rate_strategy_changed_event(event: EmittedEvent) -> RateStrategyChanged {
+            if let Ok(Event::RateStrategyChanged(x)) = <Event as scale::Decode>::decode(&mut &event.data[..]) {
+                return x
+            }
+            panic!("unexpected event kind: expected RateStrategyChanged event")
         }
 
         #[ink::test]
@@ -124,6 +155,21 @@ pub mod registry {
         }
 
         #[ink::test]
+        fn registry_pool_works_event() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::default();
+
+            let asset = AccountId::from([0xaa; 32]);
+            let pool = AccountId::from([0xff; 32]);
+            assert!(contract.register_pool(asset, pool).is_ok());
+
+            let event = decode_pool_registered_event(get_emitted_events()[0].clone());
+            assert_eq!(event.asset, asset);
+            assert_eq!(event.pool, pool);
+        }
+
+        #[ink::test]
         fn set_factory_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
@@ -132,6 +178,9 @@ pub mod registry {
             let factory = AccountId::from([0xaa; 32]);
             assert!(contract.set_factory(factory).is_ok());
             assert_eq!(contract.factory(), factory);
+
+            let event = decode_factory_changed_event(get_emitted_events()[0].clone());
+            assert_eq!(event.factory, factory);
         }
 
         #[ink::test]
@@ -150,6 +199,20 @@ pub mod registry {
         }
 
         #[ink::test]
+        fn set_risk_strategy_works_event() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::default();
+
+            let asset = AccountId::from([0xaa; 32]);
+            let strategy = AccountId::from([0xff; 32]);
+            assert!(contract.set_risk_strategy(strategy, Some(asset)).is_ok());
+            let event = decode_risk_strategy_changed_event(get_emitted_events()[0].clone());
+            assert_eq!(event.asset, Some(asset));
+            assert_eq!(event.strategy, strategy);
+        }
+
+        #[ink::test]
         fn set_rate_strategy_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
@@ -162,6 +225,20 @@ pub mod registry {
             let strategy = AccountId::from([0xff; 32]);
             assert!(contract.set_rate_strategy(strategy, Some(asset)).is_ok());
             assert_eq!(contract.rate_strategy(asset), strategy);
+        }
+
+        #[ink::test]
+        fn set_rate_strategy_works_event() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::default();
+
+            let asset = AccountId::from([0xaa; 32]);
+            let strategy = AccountId::from([0xff; 32]);
+            assert!(contract.set_rate_strategy(strategy, Some(asset)).is_ok());
+            let event = decode_rate_strategy_changed_event(get_emitted_events()[0].clone());
+            assert_eq!(event.asset, Some(asset));
+            assert_eq!(event.strategy, strategy);
         }
     }
 }
