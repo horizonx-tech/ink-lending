@@ -11,7 +11,7 @@ scale = { package = "parity-scale-codec", version = "3", default-features = fals
 scale-info = { version = "2.3", default-features = false, features = ["derive"], optional = true }
 
 openbrush = { git = "https://github.com/727-Ventures/openbrush-contracts", version = "3.0.0", default-features = false, features = ["psp22", "ownable", "reentrancy_guard"] }
-numext-fixed-uint = "0.1.6"
+#numext-fixed-uint = { git = "https://github.com/cryptape/rust-numext", version = "0.1.6", default-features = false }
 
 [lib]
 path = "lib.rs"
