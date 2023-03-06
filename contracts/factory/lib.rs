@@ -32,7 +32,7 @@ pub mod factory {
                     registry,
                     pool_code_hash,
                     shares_code_hash,
-                    manager
+                    manager,
                 },
             }
         }
@@ -48,6 +48,11 @@ pub mod factory {
         pub fn shares_code_hash(&self) -> Hash {
             self.factory.shares_code_hash
         }
+        #[ink(message)]
+        pub fn manager(&self) -> AccountId {
+            self.factory.manager
+        }
+
     }
 
     impl Internal for FactoryContract {
@@ -112,16 +117,37 @@ pub mod factory {
             let registry = AccountId::from([0xfa; 32]);
             let pool_code_hash = [1u8; 32].into();
             let shares_code_hash = [2u8; 32].into();
+            let manager = AccountId::from([0xfb; 32]);
             let contract = FactoryContract::new(
                 registry,
                 pool_code_hash,
                 shares_code_hash,
-                AccountId::from([0x0; 32])
+                manager
             );
 
             assert_eq!(contract.registry(), registry);
             assert_eq!(contract.pool_code_hash(), pool_code_hash);
             assert_eq!(contract.shares_code_hash(), shares_code_hash);
+            assert_eq!(contract.manager(), manager);
+        }
+
+        #[ink::test]
+        fn create_works_cannot_by_not_owner() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let contract = FactoryContract::new(
+                AccountId::from([0x00; 32]),
+                [0u8; 32].into(),
+                [0u8; 32].into(),
+                accounts.bob
+            );
+
+            set_caller(accounts.charlie);
+            assert_eq!(
+                contract.create(AccountId::from([0x00; 32]), vec![]).unwrap_err(),
+                Error::CallerIsNotManager
+            );
         }
     }
 }
