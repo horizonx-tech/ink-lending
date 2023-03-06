@@ -88,6 +88,16 @@ pub mod token {
         pub fn asset(&self) -> AccountId {
             self.asset
         }
+
+        #[ink(message)]
+        pub fn total_share(&self) -> Balance {
+            self.psp22.supply.clone()
+        }
+
+        #[ink(message)]
+        pub fn share_of(&self, owner: AccountId) -> Balance {
+            self.psp22.balances.get(&owner).unwrap_or(0)
+        }
     }
 
     impl Shares for SharesToken {}

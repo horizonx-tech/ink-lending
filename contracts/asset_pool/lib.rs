@@ -3,6 +3,7 @@
 
 #[openbrush::contract]
 pub mod pool {
+    use ink::env::call::FromAccountId;
     use logics::{
         asset_pool::*,
         traits::asset_pool::*,
@@ -12,6 +13,7 @@ pub mod pool {
         Decode,
         Encode,
     };
+    use shares_token::token::SharesTokenRef;
 
     #[ink(storage)]
     #[derive(Default, Storage)]
@@ -27,8 +29,10 @@ pub mod pool {
         pub asset: AccountId,
         pub collateral_token: AccountId,
         pub debt_token: AccountId,
+        pub liquidity_share: u128,
         pub liquidity_index: u128,
         pub liquidity_rate: u128,
+        pub debt_share: u128,
         pub debt_index: u128,
         pub debt_rate: u128,
         pub last_update_timestamp: Timestamp,
@@ -41,8 +45,10 @@ pub mod pool {
                 asset: item.asset,
                 collateral_token: item.collateral_token,
                 debt_token: item.debt_token,
+                liquidity_share: 0,
                 liquidity_index: item.liquidity_index,
                 liquidity_rate: item.liquidity_rate,
+                debt_share: 0,
                 debt_index: item.debt_index,
                 debt_rate: item.debt_rate,
                 last_update_timestamp: item.last_update_timestamp,
@@ -71,7 +77,13 @@ pub mod pool {
 
         #[ink(message)]
         pub fn pool_data(&self) -> PoolData {
-            self._pool_data().into()
+            let mut data: PoolData = self._pool_data().into();
+            let collateral: SharesTokenRef = FromAccountId::from_account_id(data.collateral_token);
+            data.liquidity_share = collateral.total_share();
+            let debt: SharesTokenRef = FromAccountId::from_account_id(data.debt_token);
+            data.debt_share = debt.total_share();
+
+            data
         }
     }
 }
