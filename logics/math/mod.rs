@@ -10,14 +10,16 @@ use numext_fixed_uint::{
     U256,
 };
 
-const WAD: U256 = u256!("1_000_000_000_000_000_000");
+pub const WAD: U256 = u256!("1_000_000_000_000_000_000");
 const HALF_WAD: U256 = u256!("500_000_000_000_000_000");
-const RAY: U256 = u256!("1_000_000_000_000_000_000_000_000_000");
+pub const RAY: U256 = u256!("1_000_000_000_000_000_000_000_000_000");
 const HALF_RAY: U256 = u256!("500_000_000_000_000_000");
 const ZERO: U256 = U256::zero();
+pub const PERCENTAGE_FACTOR: U256 = u256!("10_000"); // percentage plus two decimals
+const HALF_PERCENT: U256 = u256!("5_000");
 #[derive(Debug, PartialEq)]
 pub enum Error {
-    MulOverflow,
+    CalcOverflow,
     DivByZero,
 }
 
@@ -39,6 +41,32 @@ pub fn ray_div(a: U256, b: U256) -> Result<U256, Error> {
 
 pub fn ray_mul(a: U256, b: U256) -> Result<U256, Error> {
     _mul(a, b, &Ray {})
+}
+
+pub fn percent_mul(value: U256, percentage: U256) -> Result<U256, Error> {
+    if value.is_zero() || percentage.clone().is_zero() {
+        return Ok(U256::zero())
+    } else if value.gt(&U256::max_value().sub(HALF_PERCENT).div(percentage.clone())) {
+        return Err(Error::CalcOverflow)
+    }
+    Ok(value
+        .mul(percentage.add(HALF_PERCENT))
+        .div(PERCENTAGE_FACTOR))
+}
+
+pub fn percent_div(value: U256, percentage: U256) -> Result<U256, Error> {
+    let half_percentage = percentage.clone().div(u256!("2"));
+    if percentage.clone().is_zero() {
+        return Err(Error::DivByZero)
+    } else if value.gt(&U256::max_value()
+        .sub(half_percentage.clone())
+        .div(PERCENTAGE_FACTOR))
+    {
+        return Err(Error::CalcOverflow)
+    }
+    Ok(value
+        .mul(PERCENTAGE_FACTOR.add(half_percentage.clone()))
+        .div(percentage))
 }
 
 struct Wad {}
@@ -67,7 +95,7 @@ fn _mul(a: U256, b: U256, precision: &dyn Precision) -> Result<U256, Error> {
         .sub(precision.precision_half())
         .div(b.clone()))
     {
-        Err(Error::MulOverflow)
+        Err(Error::CalcOverflow)
     } else {
         Ok(a.mul(b).add(precision.precision_half()).div(WAD))
     }
@@ -78,7 +106,7 @@ fn _div(a: U256, b: U256, precision: &dyn Precision) -> Result<U256, Error> {
     if b == ZERO {
         Err(Error::DivByZero)
     } else if a.gt(&U256::max_value().sub(half_b.clone().div(precision.precision()))) {
-        Err(Error::MulOverflow)
+        Err(Error::CalcOverflow)
     } else {
         Ok(a.mul(precision.precision()).add(half_b).div(b))
     }
@@ -111,7 +139,7 @@ mod tests {
         let max = u256!("340282366920938463463374607431768211456");
         assert_eq!(
             wad_mul(max.clone(), max.clone()).unwrap_err(),
-            Error::MulOverflow
+            Error::CalcOverflow
         )
     }
     #[test]
