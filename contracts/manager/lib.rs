@@ -3,9 +3,12 @@
 
 #[openbrush::contract]
 mod manager {
-    use ink::codegen::{
-        EmitEvent,
-        Env,
+    use ink::{
+        self,
+        codegen::{
+            EmitEvent,
+            Env,
+        },
     };
     use logics::{
         manager,
@@ -22,6 +25,8 @@ mod manager {
         modifiers,
         traits::Storage,
     };
+
+    const POOL_ADMIN: RoleType = ink::selector_id!("POOL_ADMIN");
 
     #[ink(storage)]
     #[derive(Storage)]
@@ -76,19 +81,19 @@ mod manager {
         }
 
         #[ink(message)]
-        #[modifiers(access_control::only_role(DEFAULT_ADMIN_ROLE))] // temp
+        #[modifiers(access_control::only_role(POOL_ADMIN))]
         fn create_pool(&mut self, asset: AccountId, data: Vec<u8>) -> Result<AccountId> {
             self._create_pool(asset, data.clone())
         }
 
         #[ink(message)]
-        #[modifiers(access_control::only_role(DEFAULT_ADMIN_ROLE))] // temp
+        #[modifiers(access_control::only_role(POOL_ADMIN))]
         fn update_rate_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()> {
             self._update_rate_strategy(address, asset)
         }
     
         #[ink(message)]
-        #[modifiers(access_control::only_role(DEFAULT_ADMIN_ROLE))] // temp
+        #[modifiers(access_control::only_role(POOL_ADMIN))]
         fn update_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()> {
             self._update_risk_strategy(address, asset)
         }
@@ -251,6 +256,57 @@ mod manager {
                 Error::AccessControl(access_control::AccessControlError::MissingRole)
             );
             assert_eq!(contract.registry(), previous_registry);
+        }
+
+        #[ink::test]
+        fn create_pool_works_cannot_by_not_pool_admin() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let mut contract = ManagerContract::new(
+                AccountId::from([0x00; 32]),
+                AccountId::from([0x00; 32]),
+            );
+
+            assert!(!contract.has_role(POOL_ADMIN, accounts.bob));
+            assert_eq!(
+                contract.create_pool(AccountId::from([0x00; 32]), vec![]).unwrap_err(),
+                Error::AccessControl(access_control::AccessControlError::MissingRole)
+            );
+        }
+
+        #[ink::test]
+        fn update_rate_strategy_works_cannot_by_not_pool_admin() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let mut contract = ManagerContract::new(
+                AccountId::from([0x00; 32]),
+                AccountId::from([0x00; 32]),
+            );
+
+            assert!(!contract.has_role(POOL_ADMIN, accounts.bob));
+            assert_eq!(
+                contract.update_rate_strategy(AccountId::from([0x00; 32]), None).unwrap_err(),
+                Error::AccessControl(access_control::AccessControlError::MissingRole)
+            );
+        }
+
+        #[ink::test]
+        fn update_risk_strategy_works_cannot_by_not_pool_admin() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let mut contract = ManagerContract::new(
+                AccountId::from([0x00; 32]),
+                AccountId::from([0x00; 32]),
+            );
+
+            assert!(!contract.has_role(POOL_ADMIN, accounts.bob));
+            assert_eq!(
+                contract.update_risk_strategy(AccountId::from([0x00; 32]), None).unwrap_err(),
+                Error::AccessControl(access_control::AccessControlError::MissingRole)
+            );
         }
     }
 }
