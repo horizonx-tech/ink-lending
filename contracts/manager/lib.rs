@@ -13,7 +13,6 @@ mod manager {
         traits::manager::*,
     };
     use openbrush::{
-        contracts::ownable,
         contracts::access_control::{
             self,
             RoleType,
@@ -28,17 +27,9 @@ mod manager {
     #[derive(Storage)]
     pub struct ManagerContract {
         #[storage_field]
-        ownable: ownable::Data,
-        #[storage_field]
         access: access_control::Data,
         #[storage_field]
         manager: manager::Data,
-    }
-
-    #[ink(event)]
-    pub struct OwnershipTransferred {
-        previous: Option<AccountId>,
-        new: Option<AccountId>,
     }
 
     #[ink(event)]
@@ -102,19 +93,8 @@ mod manager {
             self._update_risk_strategy(address, asset)
         }
     }
-    impl ownable::Ownable for ManagerContract {}
-    impl access_control::AccessControl for ManagerContract {}
 
-    impl ownable::Internal for ManagerContract {
-        fn _emit_ownership_transferred_event(
-            &self,
-            previous: Option<AccountId>,
-            new: Option<AccountId>,
-        ) {
-            self.env()
-                .emit_event(OwnershipTransferred { previous, new });
-        }
-    }
+    impl access_control::AccessControl for ManagerContract {}
 
     impl access_control::Internal for ManagerContract {
         fn _emit_role_admin_changed(&mut self, role: u32, previous_admin_role: u32, new_admin_role: u32) {
@@ -145,7 +125,6 @@ mod manager {
             registry: AccountId
         ) -> Self {
             let mut instance = Self {
-                ownable: ownable::Data::default(),
                 access: access_control::Data::default(),
                 manager: manager::Data {
                     factory,

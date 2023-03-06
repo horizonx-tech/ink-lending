@@ -1,5 +1,4 @@
 use openbrush::traits::AccountId;
-use openbrush::contracts::traits::ownable::{*, OwnableError};
 use openbrush::contracts::traits::access_control::AccessControlError;
 use super::{factory, registry};
 
@@ -7,7 +6,7 @@ use super::{factory, registry};
 pub type ManagerRef = dyn Manager;
 
 #[openbrush::trait_definition]
-pub trait Manager: Ownable + {
+pub trait Manager: {
     #[ink(message)]
     fn factory(&self) -> AccountId;
 
@@ -33,16 +32,9 @@ pub trait Manager: Ownable + {
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
-    OwnableError(OwnableError),
     AccessControlError(AccessControlError),
     FactoryError(factory::Error),
     RegistryError(registry::Error)
-}
-
-impl From<OwnableError> for Error {
-    fn from(error: OwnableError) -> Self {
-        Error::OwnableError(error)
-    }
 }
 
 impl From<AccessControlError> for Error {
