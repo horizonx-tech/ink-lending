@@ -32,7 +32,7 @@ pub mod factory {
                     registry,
                     pool_code_hash,
                     shares_code_hash,
-                    manager
+                    manager,
                 },
             }
         }

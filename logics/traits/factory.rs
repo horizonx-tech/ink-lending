@@ -16,7 +16,7 @@ pub trait Factory {
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
     PoolImplementationMissing,
-    CallerIsNotPoolAdmin,
+    CallerIsNotManager,
     Registry(registry::Error),
     Custom(u8),
 }

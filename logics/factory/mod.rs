@@ -3,10 +3,7 @@ use crate::traits::{
     registry::{
         self,
         RegistryRef,
-    },
-    manager::{
-        ManagerRef,
-    },
+    }
 };
 use ink::{
     env::hash::Blake2x256,
@@ -33,12 +30,12 @@ pub trait Internal {
     fn _create(&self, asset: AccountId, data: &Vec<u8>) -> Result<AccountId>;
     fn _instantiate(&self, asset: AccountId, salt: &[u8], data: &Vec<u8>) -> Result<AccountId>;
     fn _on_create_pool(&self, asset: AccountId, pool: AccountId, data: &Vec<u8>) -> Result<()>;
-    fn _assert_pool_admin(&self) -> Result<()>;
+    fn _assert_manager(&self) -> Result<()>;
 }
 
 impl<T: Storage<Data>> Factory for T {
     default fn create(&self, asset: AccountId, data: Vec<u8>) -> Result<AccountId> {
-        self._assert_pool_admin()?;
+        self._assert_manager()?;
         let pool = self._create(asset, &data)?;
         self._on_create_pool(asset, pool, &data)?;
         return Ok(pool)
@@ -74,10 +71,10 @@ impl<T: Storage<Data>> Internal for T {
         Ok(())
     }
 
-    default fn _assert_pool_admin(&self) -> Result<()> {
-        let authorized = ManagerRef::pool_admin(&self.data().manager);
-        if authorized != Self::env().caller() { return Err(Error::CallerIsNotPoolAdmin); }
-
+    default fn _assert_manager(&self) -> Result<()> {
+        if self.data().manager != Self::env().caller() {
+            return Err(Error::CallerIsNotManager);
+        }
         Ok(())
     }
 }
