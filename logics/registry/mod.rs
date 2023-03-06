@@ -13,6 +13,7 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     pub factory: AccountId,
+    pub manager: AccountId,
     pub pools: Mapping<AccountId, AccountId>,
     pub rate_strategies: Mapping<AccountId, AccountId>,
     pub risk_strategies: Mapping<AccountId, AccountId>,
@@ -22,13 +23,16 @@ pub struct Data {
 
 pub trait Internal {
     fn _factory(&self) -> AccountId;
+    fn _manager(&self) -> AccountId;
     fn _pool(&self, asset: &AccountId) -> Option<AccountId>;
     fn _rate_strategy(&self, asset: &AccountId) -> AccountId;
     fn _risk_strategy(&self, asset: &AccountId) -> AccountId;
     fn _register_pool(&mut self, asset: &AccountId, pool: &AccountId) -> Result<()>;
     fn _set_factory(&mut self, address: AccountId) -> Result<()>;
+    fn _set_manager(&mut self, address: AccountId) -> Result<()>;
     fn _set_rate_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
     fn _set_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
+    fn _assert_manager(&self) -> Result<()>;
 
     // event emission
     fn _emit_pool_registered_event(&self, asset: AccountId, pool: AccountId);
@@ -40,6 +44,10 @@ pub trait Internal {
 impl<T: Storage<Data>> Registry for T {
     default fn factory(&self) -> AccountId {
         self._factory()
+    }
+
+    default fn manager(&self) -> AccountId {
+        self._manager()
     }
 
     default fn pool(&self, asset: AccountId) -> Option<AccountId> {
@@ -79,6 +87,7 @@ impl<T: Storage<Data>> Registry for T {
         address: AccountId,
         asset: Option<AccountId>,
     ) -> Result<()> {
+        self._assert_manager()?;
         self._set_rate_strategy(address, asset)?;
         self._emit_rate_strategy_changed_event(address, asset);
         Ok(())
@@ -89,6 +98,7 @@ impl<T: Storage<Data>> Registry for T {
         address: AccountId,
         asset: Option<AccountId>,
     ) -> Result<()> {
+        self._assert_manager()?;
         self._set_risk_strategy(address, asset)?;
         self._emit_risk_strategy_changed_event(address, asset);
         Ok(())
@@ -99,6 +109,7 @@ impl Default for Data {
     fn default() -> Self {
         Self {
             factory: [0u8; 32].into(),
+            manager: [0u8; 32].into(),
             pools: Default::default(),
             rate_strategies: Default::default(),
             risk_strategies: Default::default(),
@@ -111,6 +122,10 @@ impl Default for Data {
 impl<T: Storage<Data>> Internal for T {
     default fn _factory(&self) -> AccountId {
         self.data().factory
+    }
+
+    default fn _manager(&self) -> AccountId {
+        self.data().manager
     }
 
     default fn _pool(&self, asset: &AccountId) -> Option<AccountId> {
@@ -145,6 +160,11 @@ impl<T: Storage<Data>> Internal for T {
         Ok(())
     }
 
+    default fn _set_manager(&mut self, address: AccountId) -> Result<()> {
+        self.data().manager = address;
+        Ok(())
+    }
+
     default fn _set_rate_strategy(
         &mut self,
         address: AccountId,
@@ -171,6 +191,13 @@ impl<T: Storage<Data>> Internal for T {
                 .insert(&asset.unwrap(), &address)
         } else {
             self.data().default_risk_strategy = address;
+        }
+        Ok(())
+    }
+
+    default fn _assert_manager(&self) -> Result<()> {
+        if self.data().manager != Self::env().caller() {
+            return Err(Error::CallerIsNotManager);
         }
         Ok(())
     }

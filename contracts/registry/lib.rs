@@ -48,8 +48,11 @@ pub mod registry {
 
     impl RegistryContract {
         #[ink(constructor)]
-        pub fn new() -> Self {
-            Self::default()
+        pub fn new(factory: AccountId, manager: AccountId) -> Self {
+            let mut instance = Self::default();
+            instance._set_factory(factory).unwrap(); // TODO: event?
+            instance._set_manager(manager).unwrap(); // TODO: event?
+            instance
         }
     }
 
@@ -124,6 +127,26 @@ pub mod registry {
             panic!("unexpected event kind: expected RateStrategyChanged event")
         }
 
+
+        #[ink::test]
+        fn new_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let factory = AccountId::from([0xf1; 32]);
+            let manager = AccountId::from([0xf1; 32]);
+            let default_account_id = [0u8; 32].into();
+            let contract = RegistryContract::new(
+                factory,
+                manager
+            );
+
+            assert_eq!(contract.factory(), factory);
+            assert_eq!(contract.manager(), manager);
+            assert_eq!(contract.default_rate_strategy(), default_account_id);
+            assert_eq!(contract.default_risk_strategy(), default_account_id);
+        }
+
         #[ink::test]
         fn default_works() {
             let accounts = default_accounts();
@@ -133,6 +156,7 @@ pub mod registry {
             let contract = RegistryContract::default();
 
             assert_eq!(contract.factory(), default_account_id);
+            assert_eq!(contract.manager(), default_account_id);
             assert_eq!(contract.default_rate_strategy(), default_account_id);
             assert_eq!(contract.default_risk_strategy(), default_account_id);
         }
@@ -141,7 +165,10 @@ pub mod registry {
         fn registry_pool_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::default();
+            let mut contract = RegistryContract::new(
+                AccountId::from([0x00; 32]),
+                accounts.bob
+            );
 
             let asset = AccountId::from([0xaa; 32]);
             assert_eq!(contract.pool(asset), None);
@@ -158,7 +185,10 @@ pub mod registry {
         fn registry_pool_works_event() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::default();
+            let mut contract = RegistryContract::new(
+                AccountId::from([0x00; 32]),
+                accounts.bob
+            );
 
             let asset = AccountId::from([0xaa; 32]);
             let pool = AccountId::from([0xff; 32]);
@@ -173,7 +203,10 @@ pub mod registry {
         fn set_factory_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::default();
+            let mut contract = RegistryContract::new(
+                AccountId::from([0x00; 32]),
+                accounts.bob
+            );
 
             let factory = AccountId::from([0xaa; 32]);
             assert!(contract.set_factory(factory).is_ok());
@@ -187,7 +220,10 @@ pub mod registry {
         fn set_risk_strategy_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::default();
+            let mut contract = RegistryContract::new(
+                AccountId::from([0x00; 32]),
+                accounts.bob
+            );
 
             let asset = AccountId::from([0xaa; 32]);
             let default_strategy = contract.default_risk_strategy();
@@ -202,7 +238,10 @@ pub mod registry {
         fn set_risk_strategy_works_event() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::default();
+            let mut contract = RegistryContract::new(
+                AccountId::from([0x00; 32]),
+                accounts.bob
+            );
 
             let asset = AccountId::from([0xaa; 32]);
             let strategy = AccountId::from([0xff; 32]);
@@ -216,7 +255,10 @@ pub mod registry {
         fn set_rate_strategy_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::default();
+            let mut contract = RegistryContract::new(
+                AccountId::from([0x00; 32]),
+                accounts.bob
+            );
 
             let asset = AccountId::from([0xaa; 32]);
             let default_strategy = contract.default_rate_strategy();
@@ -231,7 +273,10 @@ pub mod registry {
         fn set_rate_strategy_works_event() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::default();
+            let mut contract = RegistryContract::new(
+                AccountId::from([0x00; 32]),
+                accounts.bob
+            );
 
             let asset = AccountId::from([0xaa; 32]);
             let strategy = AccountId::from([0xff; 32]);

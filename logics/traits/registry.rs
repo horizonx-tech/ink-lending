@@ -9,6 +9,9 @@ pub trait Registry {
     fn factory(&self) -> AccountId;
 
     #[ink(message)]
+    fn manager(&self) -> AccountId;
+
+    #[ink(message)]
     fn pool(&self, asset: AccountId) -> Option<AccountId>;
 
     #[ink(message)]
@@ -40,6 +43,7 @@ pub trait Registry {
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
     PoolAlreadyExists,
+    CallerIsNotManager,
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
