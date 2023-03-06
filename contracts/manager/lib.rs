@@ -64,6 +64,18 @@ mod manager {
         fn create_pool(&mut self, asset: AccountId, data: Vec<u8>) -> Result<AccountId> {
             self._create_pool(asset, data.clone())
         }
+
+        #[ink(message)]
+        #[modifiers(ownable::only_owner)] // temp
+        fn update_rate_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()> {
+            self._update_rate_strategy(address, asset)
+        }
+    
+        #[ink(message)]
+        #[modifiers(ownable::only_owner)] // temp
+        fn update_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()> {
+            self._update_risk_strategy(address, asset)
+        }
     }
     impl ownable::Ownable for ManagerContract {}
 
@@ -100,13 +112,19 @@ mod manager {
 
     impl ManagerContract {
         #[ink(constructor)]
-        pub fn new(pool_admin: AccountId, emergency_admin: AccountId, factory: AccountId) -> Self {
+        pub fn new(
+            pool_admin: AccountId,
+            emergency_admin: AccountId,
+            factory: AccountId,
+            registry: AccountId
+        ) -> Self {
             let mut instance = Self {
                 ownable: ownable::Data::default(),
                 manager: manager::Data {
                     pool_admin,
                     emergency_admin,
-                    factory
+                    factory,
+                    registry
                 },
             };
             instance._init_with_owner(Self::env().caller());
@@ -170,15 +188,18 @@ mod manager {
             let pool_admin = AccountId::from([0xf0; 32]);
             let emergency_admin = AccountId::from([0xf1; 32]);
             let factory = AccountId::from([0xf2; 32]);
+            let registry = AccountId::from([0xf3; 32]);
             let contract = ManagerContract::new(
                 pool_admin,
                 emergency_admin,
-                factory
+                factory,
+                registry
             );
             assert_eq!(contract.owner(), accounts.bob);
             assert_eq!(contract.pool_admin(), pool_admin);
             assert_eq!(contract.emergency_admin(), emergency_admin);
             assert_eq!(contract.factory(), factory);
+            assert_eq!(contract.registry(), registry);
 
             let events = get_emitted_events();
             assert_eq!(events.len(), 3);
@@ -201,6 +222,7 @@ mod manager {
             let pool_admin = AccountId::from([0x00; 32]);
             let mut contract = ManagerContract::new(
                 pool_admin,
+                AccountId::from([0x00; 32]),
                 AccountId::from([0x00; 32]),
                 AccountId::from([0x00; 32]),
             );
@@ -226,6 +248,7 @@ mod manager {
                 previous_pool_admin,
                 AccountId::from([0x00; 32]),
                 AccountId::from([0x00; 32]),
+                AccountId::from([0x00; 32]),
             );
 
             set_caller(accounts.charlie);
@@ -246,6 +269,7 @@ mod manager {
                 AccountId::from([0xff; 32]),
                 emergency_admin,
                 AccountId::from([0xff; 32]),
+                AccountId::from([0x00; 32]),
             );
 
             let new_emergency_admin = AccountId::from([0xff; 32]);
@@ -269,6 +293,7 @@ mod manager {
                 AccountId::from([0xff; 32]),
                 previous_emergency_admin,
                 AccountId::from([0xff; 32]),
+                AccountId::from([0x00; 32]),
             );
 
             set_caller(accounts.charlie);

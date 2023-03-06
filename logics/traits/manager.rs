@@ -1,6 +1,6 @@
 use openbrush::traits::AccountId;
 use openbrush::contracts::traits::ownable::{*, OwnableError};
-use super::factory;
+use super::{factory, registry};
 
 #[openbrush::wrapper]
 pub type ManagerRef = dyn Manager;
@@ -17,6 +17,9 @@ pub trait Manager: Ownable + {
     fn factory(&self) -> AccountId;
 
     #[ink(message)]
+    fn registry(&self) -> AccountId;
+
+    #[ink(message)]
     fn set_pool_admin(&mut self, id: AccountId) -> Result<()>;
 
     #[ink(message)]
@@ -26,7 +29,16 @@ pub trait Manager: Ownable + {
     fn set_factory(&mut self, id: AccountId) -> Result<()>;
 
     #[ink(message)]
+    fn set_registry(&mut self, id: AccountId) -> Result<()>;
+
+    #[ink(message)]
     fn create_pool(&mut self, asset: AccountId, data: Vec<u8>) -> Result<AccountId>;
+
+    #[ink(message)]
+    fn update_rate_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
+
+    #[ink(message)]
+    fn update_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
 }
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
@@ -34,7 +46,8 @@ pub trait Manager: Ownable + {
 pub enum Error {
     NewOwnerIsZero,
     OwnableError(OwnableError),
-    FactoryError(factory::Error)
+    FactoryError(factory::Error),
+    RegistryError(registry::Error)
 }
 
 impl From<OwnableError> for Error {
