@@ -1,6 +1,9 @@
 use openbrush::traits::AccountId;
 use openbrush::contracts::traits::access_control::AccessControlError;
-use super::{factory, registry};
+use super::{
+    factory::Error as FactoryError,
+    registry::Error as RegistryError
+};
 
 #[openbrush::wrapper]
 pub type ManagerRef = dyn Manager;
@@ -32,14 +35,14 @@ pub trait Manager: {
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
-    AccessControlError(AccessControlError),
-    FactoryError(factory::Error),
-    RegistryError(registry::Error)
+    Factory(FactoryError),
+    Registry(RegistryError),
+    AccessControl(AccessControlError),
 }
 
 impl From<AccessControlError> for Error {
     fn from(error: AccessControlError) -> Self {
-        Error::AccessControlError(error)
+        Error::AccessControl(error)
     }
 }
 

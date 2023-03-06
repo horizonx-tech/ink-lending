@@ -27,9 +27,9 @@ mod manager {
     #[derive(Storage)]
     pub struct ManagerContract {
         #[storage_field]
-        access: access_control::Data,
-        #[storage_field]
         manager: manager::Data,
+        #[storage_field]
+        access: access_control::Data,
     }
 
     #[ink(event)]
@@ -125,11 +125,11 @@ mod manager {
             registry: AccountId
         ) -> Self {
             let mut instance = Self {
-                access: access_control::Data::default(),
                 manager: manager::Data {
                     factory,
                     registry
                 },
+                access: access_control::Data::default(),
             };
             instance._init_with_caller();
             instance
@@ -214,7 +214,7 @@ mod manager {
             set_caller(accounts.charlie);
             assert_eq!(
                 contract.set_factory(AccountId::from([0xff; 32])).unwrap_err(),
-                Error::AccessControlError(access_control::AccessControlError::MissingRole)
+                Error::AccessControl(access_control::AccessControlError::MissingRole)
             );
             assert_eq!(contract.factory(), previous_factory);
         }
@@ -248,7 +248,7 @@ mod manager {
             set_caller(accounts.charlie);
             assert_eq!(
                 contract.set_registry(AccountId::from([0xff; 32])).unwrap_err(),
-                Error::AccessControlError(access_control::AccessControlError::MissingRole)
+                Error::AccessControl(access_control::AccessControlError::MissingRole)
             );
             assert_eq!(contract.registry(), previous_registry);
         }

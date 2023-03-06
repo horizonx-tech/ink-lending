@@ -114,9 +114,9 @@ impl<T: Storage<Data>> Internal for T {
 }
 
 pub fn to_factory_error(e: factory::Error) -> Error {
-    Error::FactoryError(e)
+    Error::Factory(e)
 }
 
 pub fn to_registry_error(e: registry::Error) -> Error {
-    Error::RegistryError(e)
+    Error::Registry(e)
 }
