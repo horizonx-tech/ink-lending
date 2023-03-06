@@ -9,6 +9,7 @@ mod manager {
             EmitEvent,
             Env,
         },
+        prelude::vec::Vec,
     };
     use logics::{
         manager,
@@ -25,7 +26,6 @@ mod manager {
         modifiers,
         traits::Storage,
     };
-    use ink::prelude::vec::Vec;
 
     const POOL_ADMIN: RoleType = ink::selector_id!("POOL_ADMIN");
 
