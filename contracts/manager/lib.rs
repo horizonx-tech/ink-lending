@@ -60,6 +60,18 @@ mod manager {
         }
 
         #[ink(message)]
+        #[modifiers(ownable::only_owner)]
+        fn set_factory(&mut self, id: AccountId) -> Result<()> {
+            self._set_factory(id)
+        }
+
+        #[ink(message)]
+        #[modifiers(ownable::only_owner)]
+        fn set_registry(&mut self, id: AccountId) -> Result<()> {
+            self._set_registry(id)
+        }
+
+        #[ink(message)]
         #[modifiers(ownable::only_owner)] // temp
         fn create_pool(&mut self, asset: AccountId, data: Vec<u8>) -> Result<AccountId> {
             self._create_pool(asset, data.clone())
@@ -282,7 +294,6 @@ mod manager {
             assert_eq!(event.new, Some(new_emergency_admin));
         }
 
-
         #[ink::test]
         fn set_emergency_admin_works_cannot_by_not_owner() {
             let accounts = default_accounts();
@@ -302,6 +313,82 @@ mod manager {
                 Error::OwnableError(ownable::OwnableError::CallerIsNotOwner)
             );
             assert_eq!(contract.emergency_admin(), previous_emergency_admin);
+        }
+
+        #[ink::test]
+        fn set_factory_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let mut contract = ManagerContract::new(
+                AccountId::from([0x00; 32]),
+                AccountId::from([0x00; 32]),
+                AccountId::from([0x00; 32]),
+                AccountId::from([0x00; 32]),
+            );
+
+            let new_factory = AccountId::from([0xff; 32]);
+            assert!(contract.set_factory(new_factory).is_ok());
+            assert_eq!(contract.factory(), new_factory);
+        }
+
+        #[ink::test]
+        fn set_factory_works_cannot_by_not_owner() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let previous_factory = AccountId::from([0x00; 32]);
+            let mut contract = ManagerContract::new(
+                AccountId::from([0x00; 32]),
+                AccountId::from([0x00; 32]),
+                previous_factory,
+                AccountId::from([0x00; 32]),
+            );
+
+            set_caller(accounts.charlie);
+            assert_eq!(
+                contract.set_factory(AccountId::from([0xff; 32])).unwrap_err(),
+                Error::OwnableError(ownable::OwnableError::CallerIsNotOwner)
+            );
+            assert_eq!(contract.factory(), previous_factory);
+        }
+
+        #[ink::test]
+        fn set_registry_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let mut contract = ManagerContract::new(
+                AccountId::from([0x00; 32]),
+                AccountId::from([0x00; 32]),
+                AccountId::from([0x00; 32]),
+                AccountId::from([0x00; 32]),
+            );
+
+            let new_registry = AccountId::from([0xff; 32]);
+            assert!(contract.set_registry(new_registry).is_ok());
+            assert_eq!(contract.registry(), new_registry);
+        }
+
+        #[ink::test]
+        fn set_registry_works_cannot_by_not_owner() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let previous_registry = AccountId::from([0x00; 32]);
+            let mut contract = ManagerContract::new(
+                AccountId::from([0x00; 32]),
+                AccountId::from([0x00; 32]),
+                AccountId::from([0x00; 32]),
+                previous_registry,
+            );
+
+            set_caller(accounts.charlie);
+            assert_eq!(
+                contract.set_registry(AccountId::from([0xff; 32])).unwrap_err(),
+                Error::OwnableError(ownable::OwnableError::CallerIsNotOwner)
+            );
+            assert_eq!(contract.registry(), previous_registry);
         }
     }
 }
