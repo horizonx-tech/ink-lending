@@ -20,8 +20,8 @@
     "ts-node": "^10.9.1"
   },
   "scripts": {
-    "compile": "typechain-compiler --toolchain nightly-2022-10-10",
-    "compile:release": "typechain-compiler --release --toolchain nightly-2022-10-10",
+    "compile": "typechain-compiler --toolchain nightly",
+    "compile:release": "typechain-compiler --release --toolchain nightly",
     "test:typechain": "jest --testPathPattern \".spec.ts$\" --runInBand",
     "test:single": "jest",
     "test": "yarn compile && yarn test:typechain",

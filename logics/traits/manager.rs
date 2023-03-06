@@ -4,6 +4,7 @@ use super::{
     factory::Error as FactoryError,
     registry::Error as RegistryError
 };
+use ink::prelude::vec::Vec;
 
 #[openbrush::wrapper]
 pub type ManagerRef = dyn Manager;
