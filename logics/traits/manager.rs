@@ -1,5 +1,6 @@
 use openbrush::traits::AccountId;
 use openbrush::contracts::traits::ownable::{*, OwnableError};
+use openbrush::contracts::traits::access_control::AccessControlError;
 use super::{factory, registry};
 
 #[openbrush::wrapper]
@@ -33,6 +34,7 @@ pub trait Manager: Ownable + {
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
     OwnableError(OwnableError),
+    AccessControlError(AccessControlError),
     FactoryError(factory::Error),
     RegistryError(registry::Error)
 }
@@ -40,6 +42,12 @@ pub enum Error {
 impl From<OwnableError> for Error {
     fn from(error: OwnableError) -> Self {
         Error::OwnableError(error)
+    }
+}
+
+impl From<AccessControlError> for Error {
+    fn from(error: AccessControlError) -> Self {
+        Error::AccessControlError(error)
     }
 }
 

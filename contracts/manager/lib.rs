@@ -14,7 +14,12 @@ mod manager {
     };
     use openbrush::{
         contracts::ownable,
-        contracts::ownable::Internal as OwnableInternal,
+        contracts::access_control::{
+            self,
+            RoleType,
+            DEFAULT_ADMIN_ROLE,
+            Internal as AccessControlInternal
+        },
         modifiers,
         traits::Storage,
     };
@@ -24,6 +29,8 @@ mod manager {
     pub struct ManagerContract {
         #[storage_field]
         ownable: ownable::Data,
+        #[storage_field]
+        access: access_control::Data,
         #[storage_field]
         manager: manager::Data,
     }
@@ -35,49 +42,68 @@ mod manager {
     }
 
     #[ink(event)]
-    pub struct PoolAdminOwnershipTransferred {
-        previous: Option<AccountId>,
-        new: Option<AccountId>,
+    pub struct RoleAdminChanged {
+        #[ink(topic)]
+        role: RoleType,
+        #[ink(topic)]
+        previous_admin_role: RoleType,
+        #[ink(topic)]
+        new_admin_role: RoleType,
     }
 
     #[ink(event)]
-    pub struct EmergencyAdminOwnershipTransferred {
-        previous: Option<AccountId>,
-        new: Option<AccountId>,
+    pub struct RoleGranted {
+        #[ink(topic)]
+        role: RoleType,
+        #[ink(topic)]
+        grantee: AccountId,
+        #[ink(topic)]
+        grantor: Option<AccountId>,
+    }
+
+    #[ink(event)]
+    pub struct RoleRevoked {
+        #[ink(topic)]
+        role: RoleType,
+        #[ink(topic)]
+        account: AccountId,
+        #[ink(topic)]
+        admin: AccountId,
     }
 
     impl Manager for ManagerContract {
         #[ink(message)]
-        #[modifiers(ownable::only_owner)]
+        #[modifiers(access_control::only_role(DEFAULT_ADMIN_ROLE))]
         fn set_factory(&mut self, id: AccountId) -> Result<()> {
             self._set_factory(id)
         }
 
         #[ink(message)]
-        #[modifiers(ownable::only_owner)]
+        #[modifiers(access_control::only_role(DEFAULT_ADMIN_ROLE))]
         fn set_registry(&mut self, id: AccountId) -> Result<()> {
             self._set_registry(id)
         }
 
         #[ink(message)]
-        #[modifiers(ownable::only_owner)] // temp
+        #[modifiers(access_control::only_role(DEFAULT_ADMIN_ROLE))] // temp
         fn create_pool(&mut self, asset: AccountId, data: Vec<u8>) -> Result<AccountId> {
             self._create_pool(asset, data.clone())
         }
 
         #[ink(message)]
-        #[modifiers(ownable::only_owner)] // temp
+        #[modifiers(access_control::only_role(DEFAULT_ADMIN_ROLE))] // temp
         fn update_rate_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()> {
             self._update_rate_strategy(address, asset)
         }
     
         #[ink(message)]
-        #[modifiers(ownable::only_owner)] // temp
+        #[modifiers(access_control::only_role(DEFAULT_ADMIN_ROLE))] // temp
         fn update_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()> {
             self._update_risk_strategy(address, asset)
         }
     }
     impl ownable::Ownable for ManagerContract {}
+    impl access_control::AccessControl for ManagerContract {}
 
     impl ownable::Internal for ManagerContract {
         fn _emit_ownership_transferred_event(
@@ -90,6 +116,28 @@ mod manager {
         }
     }
 
+    impl access_control::Internal for ManagerContract {
+        fn _emit_role_admin_changed(&mut self, role: u32, previous_admin_role: u32, new_admin_role: u32) {
+            self.env().emit_event(RoleAdminChanged {
+                role,
+                previous_admin_role,
+                new_admin_role,
+            })
+        }
+
+        fn _emit_role_granted(&mut self, role: u32, grantee: AccountId, grantor: Option<AccountId>) {
+            self.env().emit_event(RoleGranted { role, grantee, grantor })
+        }
+
+        fn _emit_role_revoked(&mut self, role: u32, account: AccountId, sender: AccountId) {
+            self.env().emit_event(RoleRevoked {
+                role,
+                account,
+                admin: sender,
+            })
+        }
+    }
+
     impl ManagerContract {
         #[ink(constructor)]
         pub fn new(
@@ -98,12 +146,13 @@ mod manager {
         ) -> Self {
             let mut instance = Self {
                 ownable: ownable::Data::default(),
+                access: access_control::Data::default(),
                 manager: manager::Data {
                     factory,
                     registry
                 },
             };
-            instance._init_with_owner(Self::env().caller());
+            instance._init_with_caller();
             instance
         }
     }
@@ -112,7 +161,7 @@ mod manager {
     mod tests {
         use super::*;
         use ink::env;
-        use openbrush::contracts::ownable::Ownable;
+        use openbrush::contracts::access_control::AccessControl;
         use logics::traits::manager::Error;
 
         type Event = <ManagerContract as ink::reflect::ContractEventBase>::Type;
@@ -126,11 +175,11 @@ mod manager {
         fn get_emitted_events() -> Vec<env::test::EmittedEvent> {
             ink::env::test::recorded_events().collect::<Vec<_>>()
         }
-        fn decode_ownership_transferred_event(event: env::test::EmittedEvent) -> OwnershipTransferred {
+        fn decode_role_granted_event(event: env::test::EmittedEvent) -> RoleGranted {
             let decoded_event = <Event as scale::Decode>::decode(&mut &event.data[..]);
             match decoded_event {
-                Ok(Event::OwnershipTransferred(x)) => return x,
-                _ => panic!("unexpected event kind: expected OwnershipTransferred event")
+                Ok(Event::RoleGranted(x)) => return x,
+                _ => panic!("unexpected event kind: expected RoleGranted event")
             }
         }
 
@@ -145,15 +194,16 @@ mod manager {
                 factory,
                 registry
             );
-            assert_eq!(contract.owner(), accounts.bob);
+            assert!(contract.has_role(DEFAULT_ADMIN_ROLE, accounts.bob));
             assert_eq!(contract.factory(), factory);
             assert_eq!(contract.registry(), registry);
 
             let events = get_emitted_events();
             assert_eq!(events.len(), 1);
-            let event = decode_ownership_transferred_event(events[0].clone());
-            assert_eq!(event.previous, None);
-            assert_eq!(event.new, Some(accounts.bob));
+            let event = decode_role_granted_event(events[0].clone());
+            assert_eq!(event.role, DEFAULT_ADMIN_ROLE);
+            assert_eq!(event.grantee, accounts.bob);
+            assert_eq!(event.grantor, None);
         }
 
         #[ink::test]
@@ -185,7 +235,7 @@ mod manager {
             set_caller(accounts.charlie);
             assert_eq!(
                 contract.set_factory(AccountId::from([0xff; 32])).unwrap_err(),
-                Error::OwnableError(ownable::OwnableError::CallerIsNotOwner)
+                Error::AccessControlError(access_control::AccessControlError::MissingRole)
             );
             assert_eq!(contract.factory(), previous_factory);
         }
@@ -219,7 +269,7 @@ mod manager {
             set_caller(accounts.charlie);
             assert_eq!(
                 contract.set_registry(AccountId::from([0xff; 32])).unwrap_err(),
-                Error::OwnableError(ownable::OwnableError::CallerIsNotOwner)
+                Error::AccessControlError(access_control::AccessControlError::MissingRole)
             );
             assert_eq!(contract.registry(), previous_registry);
         }

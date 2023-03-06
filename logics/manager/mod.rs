@@ -1,5 +1,5 @@
 use openbrush::{
-    contracts::ownable,
+    contracts::{ownable, access_control},
     traits::{AccountId, Storage}
 };
 
@@ -35,7 +35,7 @@ pub trait Internal {
     fn _update_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
 }
 
-impl<T: Storage<Data> + Storage<ownable::Data>> Manager for T {
+impl<T: Storage<Data> + Storage<ownable::Data> + Storage<access_control::Data>> Manager for T {
     default fn factory(&self) -> AccountId {
         self._factory()
     }
