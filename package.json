@@ -30,8 +30,8 @@
     "deploy": "ts-node scripts/deploy.ts"
   },
   "resolutions": {
-    "@polkadot/api": "^9.10.3",
-    "@polkadot/api-contract": "^9.10.3"
+    "@polkadot/api": "^10.0.1",
+    "@polkadot/api-contract": "^10.0.1"
   },
   "devDependencies": {
     "dotenv": "^16.0.3",
