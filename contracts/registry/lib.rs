@@ -90,6 +90,7 @@ pub mod registry {
             },
             DefaultEnvironment,
         };
+        use logics::traits::registry::Error;
 
         type Event = <RegistryContract as ink::reflect::ContractEventBase>::Type;
 
@@ -235,6 +236,25 @@ pub mod registry {
         }
 
         #[ink::test]
+        fn set_risk_strategy_works_cannot_by_not_manager() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::new(
+                AccountId::from([0x00; 32]),
+                accounts.bob
+            );
+
+            let asset = AccountId::from([0xaa; 32]);
+            let strategy = AccountId::from([0xff; 32]);
+            set_caller(accounts.charlie);
+            assert_eq!(
+                contract.set_risk_strategy(strategy, Some(asset)).unwrap_err(),
+                Error::CallerIsNotManager
+            );
+            assert_ne!(contract.risk_strategy(asset), strategy)
+        }
+
+        #[ink::test]
         fn set_risk_strategy_works_event() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
@@ -267,6 +287,25 @@ pub mod registry {
             let strategy = AccountId::from([0xff; 32]);
             assert!(contract.set_rate_strategy(strategy, Some(asset)).is_ok());
             assert_eq!(contract.rate_strategy(asset), strategy);
+        }
+
+        #[ink::test]
+        fn set_rate_strategy_works_cannot_by_not_manager() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::new(
+                AccountId::from([0x00; 32]),
+                accounts.bob
+            );
+
+            let asset = AccountId::from([0xaa; 32]);
+            let strategy = AccountId::from([0xff; 32]);
+            set_caller(accounts.charlie);
+            assert_eq!(
+                contract.set_rate_strategy(strategy, Some(asset)).unwrap_err(),
+                Error::CallerIsNotManager
+            );
+            assert_ne!(contract.rate_strategy(asset), strategy)
         }
 
         #[ink::test]
