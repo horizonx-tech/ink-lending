@@ -57,7 +57,7 @@ pub struct CalculateInterestRatesOutput {
     current_borrow_rate: U256,
 }
 
-fn u256_from_str_unchecked(vec: Vec<u8>) -> U256 {
+fn u256_from_be_bytes_unchecked(vec: Vec<u8>) -> U256 {
     U256::from_be_bytes(into_slice(vec))
 }
 
@@ -73,28 +73,24 @@ fn into_slice<T, const N: usize>(v: Vec<T>) -> [T; N] {
 }
 impl DefaultRateStrategy {
     pub fn new(param: DefaultRateStrategyCreateParam) -> Self {
+        let to_vec = |val: U256| Vec::from(val.to_be_bytes());
         Self {
-            base_borrow_rate: Vec::from(param.base_borrow_rate.to_be_bytes()),
-            optimal_utilization_rate: Vec::from(
-                param.optimal_utilization_rate.clone().to_be_bytes(),
-            ),
-            rate_slope_1: Vec::from(param.rate_slope_1.to_be_bytes()),
-            rate_slope_2: Vec::from(param.rate_slope_2.to_be_bytes()),
-            excess_utilization_rate: Vec::from(
-                ray().sub(param.optimal_utilization_rate).to_be_bytes(),
-            ),
+            base_borrow_rate: to_vec(param.base_borrow_rate),
+            optimal_utilization_rate: to_vec(param.optimal_utilization_rate),
+            rate_slope_1: to_vec(param.rate_slope_1),
+            rate_slope_2: to_vec(param.rate_slope_2),
+            excess_utilization_rate: to_vec(ray().sub(param.optimal_utilization_rate)),
         }
     }
 
     fn to_param(&self) -> DefaultRateStrategyParam {
+        let into_u256 = |val: Vec<u8>| u256_from_be_bytes_unchecked(val.clone());
         DefaultRateStrategyParam {
-            base_borrow_rate: u256_from_str_unchecked(self.base_borrow_rate.clone()),
-            excess_utilization_rate: u256_from_str_unchecked(self.excess_utilization_rate.clone()),
-            optimal_utilization_rate: u256_from_str_unchecked(
-                self.optimal_utilization_rate.clone(),
-            ),
-            rate_slope_1: u256_from_str_unchecked(self.rate_slope_1.clone()),
-            rate_slope_2: u256_from_str_unchecked(self.rate_slope_2.clone()),
+            base_borrow_rate: into_u256(self.base_borrow_rate.clone()),
+            excess_utilization_rate: into_u256(self.excess_utilization_rate.clone()),
+            optimal_utilization_rate: into_u256(self.optimal_utilization_rate.clone()),
+            rate_slope_1: into_u256(self.rate_slope_1.clone()),
+            rate_slope_2: into_u256(self.rate_slope_2.clone()),
         }
     }
     pub fn calculate_interest_rates(
@@ -192,13 +188,10 @@ mod tests {
         U256::from_str_prefixed("1000").unwrap()
     }
 
-    use crate::{
-        math::{
-            percent_mul,
-            percentage_factor,
-            ray,
-        },
-        traits::rate_strategy::RateStrategy,
+    use crate::math::{
+        percent_mul,
+        percentage_factor,
+        ray,
     };
 
     use super::{
@@ -213,17 +206,12 @@ mod tests {
     }
 
     fn rate_strategy() -> DefaultRateStrategy {
+        let to_u256 = |src: &str| U256::from_str_prefixed(src).unwrap();
         DefaultRateStrategy::new(DefaultRateStrategyCreateParam {
             base_borrow_rate: U256::ZERO,
-            optimal_utilization_rate: ray()
-                .mul(U256::from_str_prefixed("8").unwrap())
-                .div(U256::from_str_prefixed("10").unwrap()), // 0.8
-            rate_slope_1: ray()
-                .mul(U256::from_str_prefixed("4").unwrap())
-                .div(U256::from_str_prefixed("100").unwrap()), // 4%
-            rate_slope_2: ray()
-                .mul(U256::from_str_prefixed("75").unwrap())
-                .div(U256::from_str_prefixed("100").unwrap()), // 75%
+            optimal_utilization_rate: ray().mul(to_u256("8")).div(to_u256("10")), // 0.8
+            rate_slope_1: ray().mul(to_u256("4")).div(to_u256("100")),            // 4%
+            rate_slope_2: ray().mul(to_u256("75")).div(to_u256("100")),           // 75%
         })
     }
     #[test]
