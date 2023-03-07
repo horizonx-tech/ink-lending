@@ -145,8 +145,6 @@ impl DefaultRateStrategy {
         }
         vars.current_liquidity_rate = percent_mul(
             ray_mul(
-                // wad_to_ray(vars.current_borrow_rate.clone()).unwrap(),
-                // vars.current_borrow_rate.clone(),
                 overall_borrow_rate(&vars.total_debt, &vars.current_borrow_rate),
                 vars.utilization_rate,
             )
