@@ -1,10 +1,7 @@
 import { RateStrategyChanged } from '../types/event-types/registry';
 import { expect } from '@jest/globals';
 import { encodeAddress } from '@polkadot/keyring';
-import Registry_factory from '../types/constructors/registry';
-import DummyPool_factory from '../types/constructors/dummy_pool';
 import Service_factory from '../types/constructors/service';
-import DummyRiskStrategy_factory from '../types/constructors/dummy_risk_strategy';
 import Registry from '../types/contracts/registry';
 import DummyPool from '../types/contracts/dummy_pool';
 import DummyRiskStrategy from '../types/contracts/dummy_risk_strategy';
@@ -19,6 +16,7 @@ import {
   Repaid,
   Withdrew,
 } from 'event-types/service';
+import { deployDummyPool, deployDummyRiskStrategy, deployRegistry } from './testContractsHelpers';
 
 const zeroAddress = encodeAddress(
   '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -28,10 +26,6 @@ describe('Service spec', () => {
   let api: ApiPromise;
   let deployer: KeyringPair;
   let wallet: KeyringPair;
-
-  let registryFactory: Registry_factory;
-  let dummyPoolFactory: DummyPool_factory;
-  let serviceFactory: Service_factory;
 
   let registry: Registry;
   let dummyPool: DummyPool;
@@ -44,45 +38,39 @@ describe('Service spec', () => {
 
   const setup = async (): Promise<void> => {
     ({ api, alice: deployer, bob: wallet } = globalThis.setup);
-    registryFactory = new Registry_factory(api, deployer);
-    registry = new Registry(
-      (await registryFactory.new(zeroAddress, deployer.address)).address,
-      deployer,
-      api,
-    );
 
-    dummyPoolFactory = new DummyPool_factory(api, deployer);
-    dummyPool = new DummyPool(
-      (
-        await dummyPoolFactory.new(
-          registry.address,
-          asset,
-          zeroAddress,
-          zeroAddress,
-        )
-      ).address,
-      deployer,
+    registry = await deployRegistry({
       api,
-    );
-    await registry.tx.registerPool(asset, dummyPool.address);
+      signer: deployer,
+      args: [zeroAddress, deployer.address]
+    })
 
-    const dummmyRiskStrategyFactory = new DummyRiskStrategy_factory(
+    dummyPool = await deployDummyPool({
       api,
-      deployer,
-    );
-    dummmyRiskStrategy = new DummyRiskStrategy(
-      (await dummmyRiskStrategyFactory.new()).address,
-      deployer,
-      api,
-    );
-    await registry.tx.setRiskStrategy(dummmyRiskStrategy.address, null);
+      signer: deployer,
+      args: [
+        registry.address,
+        asset,
+        zeroAddress,
+        zeroAddress,
+      ]
+    })
 
-    serviceFactory = new Service_factory(api, deployer);
+    dummmyRiskStrategy = await deployDummyRiskStrategy({
+      api,
+      signer: deployer,
+      args: []
+    });
+
     service = new Service(
-      (await serviceFactory.new(registry.address)).address,
+      (await (new Service_factory(api, deployer)).new(registry.address)).address,
       wallet,
       api,
     );
+
+    // initialize
+    await registry.tx.registerPool(asset, dummyPool.address);
+    await registry.tx.setRiskStrategy(dummmyRiskStrategy.address, null);
   };
 
   let signer;
@@ -97,6 +85,7 @@ describe('Service spec', () => {
     const anotherAcconut = encodeAddress(
       '0x0000000000000000000000000000000000000000000000000000000000000002',
     );
+
     it('deposited', async () => {
       const res = await service.tx.deposit(asset, amount, null);
       expect(res.events).toHaveLength(1);

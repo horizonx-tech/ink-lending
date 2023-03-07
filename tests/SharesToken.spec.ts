@@ -1,46 +1,35 @@
 import { expect } from '@jest/globals';
 import SharesToken_factory from '../types/constructors/shares_token';
-import Token_factory from '../types/constructors/psp22_token';
-import Token from '../types/contracts/psp22_token';
 import SharesToken from '../types/contracts/shares_token';
+import PSP22Token from '../types/contracts/psp22_token';
 import { ApiPromise } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { expectToEmit, hexToUtf8 } from './testHelpers';
 import { Transfer } from 'event-types/psp22_token';
+import { deployPSP22Token, deploySharesToken } from './testContractsHelpers';
 
 describe('SharesToken spec', () => {
   let api: ApiPromise;
   let deployer: KeyringPair;
   let wallet: KeyringPair;
 
-  let sharesFactory: SharesToken_factory;
-  let tokenFactory: Token_factory;
-
-  let token: Token;
   let shares: SharesToken;
+  let token: PSP22Token;
 
   const setup = async (): Promise<void> => {
     ({ api, alice: deployer, bob: wallet } = globalThis.setup);
 
-    tokenFactory = new Token_factory(api, deployer);
-    token = new Token(
-      (
-        await tokenFactory.new(
-          1_000,
-          'Dai Stablecoin' as unknown as string[],
-          'DAI' as unknown as string[],
-          18,
-        )
-      ).address,
-      deployer,
+    token = await deployPSP22Token({
       api,
-    );
-    sharesFactory = new SharesToken_factory(api, deployer);
-    shares = new SharesToken(
-      (await sharesFactory.new(token.address, null, null, 18)).address,
-      deployer,
+      signer: deployer,
+      args: [1_000, ['Dai Stablecoin'], ['DAI'], 18]
+    });
+
+    shares = await deploySharesToken({
       api,
-    );
+      signer: deployer,
+      args: [token.address, null, null, 18]
+    });
   };
 
   beforeAll(async () => {
@@ -55,7 +44,7 @@ describe('SharesToken spec', () => {
 
     const instance = new SharesToken(
       (
-        await sharesFactory.new(
+        await (new SharesToken_factory(api, deployer)).new(
           expectedAsset,
           expectedName as unknown as string[],
           expectedSymbol as unknown as string[],
