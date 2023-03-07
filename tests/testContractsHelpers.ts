@@ -151,6 +151,7 @@ export const deployDummyRiskStrategy = async ({
   return new DummyRiskStrategy(contract.address, signer, api);
 };
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const deployPSP22Token = async ({
   api,
   signer,
