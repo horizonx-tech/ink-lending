@@ -26,13 +26,12 @@ pub mod factory {
 
     impl FactoryContract {
         #[ink(constructor)]
-        pub fn new(registry: AccountId, pool_code_hash: Hash, shares_code_hash: Hash, manager: AccountId) -> Self {
+        pub fn new(registry: AccountId, pool_code_hash: Hash, shares_code_hash: Hash) -> Self {
             Self {
                 factory: Data {
                     registry,
                     pool_code_hash,
                     shares_code_hash,
-                    manager,
                 },
             }
         }
@@ -48,11 +47,6 @@ pub mod factory {
         pub fn shares_code_hash(&self) -> Hash {
             self.factory.shares_code_hash
         }
-        #[ink(message)]
-        pub fn manager(&self) -> AccountId {
-            self.factory.manager
-        }
-
     }
 
     impl Internal for FactoryContract {
@@ -69,12 +63,11 @@ pub mod factory {
                     .code_hash(self.factory.shares_code_hash)
                     .salt_bytes(&salt[..4])
                     .instantiate();
-            let debt =
-                SharesTokenRef::new(asset, Some("debt".into()), Some("vd".into()), 18)
-                    .endowment(0)
-                    .code_hash(self.factory.shares_code_hash)
-                    .salt_bytes(&salt[5..9])
-                    .instantiate();
+            let debt = SharesTokenRef::new(asset, Some("debt".into()), Some("vd".into()), 18)
+                .endowment(0)
+                .code_hash(self.factory.shares_code_hash)
+                .salt_bytes(&salt[5..9])
+                .instantiate();
 
             let pool = AssetPoolContractRef::new(
                 self.factory.registry,
@@ -117,18 +110,11 @@ pub mod factory {
             let registry = AccountId::from([0xfa; 32]);
             let pool_code_hash = [1u8; 32].into();
             let shares_code_hash = [2u8; 32].into();
-            let manager = AccountId::from([0xfb; 32]);
-            let contract = FactoryContract::new(
-                registry,
-                pool_code_hash,
-                shares_code_hash,
-                manager
-            );
+            let contract = FactoryContract::new(registry, pool_code_hash, shares_code_hash);
 
             assert_eq!(contract.registry(), registry);
             assert_eq!(contract.pool_code_hash(), pool_code_hash);
             assert_eq!(contract.shares_code_hash(), shares_code_hash);
-            assert_eq!(contract.manager(), manager);
         }
 
         #[ink::test]
@@ -140,12 +126,13 @@ pub mod factory {
                 AccountId::from([0x00; 32]),
                 [0u8; 32].into(),
                 [0u8; 32].into(),
-                accounts.bob
             );
 
             set_caller(accounts.charlie);
             assert_eq!(
-                contract.create(AccountId::from([0x00; 32]), vec![]).unwrap_err(),
+                contract
+                    .create(AccountId::from([0x00; 32]), vec![])
+                    .unwrap_err(),
                 Error::CallerIsNotManager
             );
         }

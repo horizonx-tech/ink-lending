@@ -38,7 +38,7 @@ describe('Lending spec', () => {
     registry = await deployRegistry({
       api,
       signer: deployer,
-      args: [zeroAddress, deployer.address],
+      args: [null],
     });
 
     assetPool = await deployAssetPool({
@@ -64,7 +64,7 @@ describe('Lending spec', () => {
     factory = await deployFactory({
       api,
       signer: deployer,
-      args: [registry.address, assetPoolHash, sharesHash, deployer.address],
+      args: [registry.address, assetPoolHash, sharesHash],
     });
 
     rateStrategy = await deployRateStrategy({

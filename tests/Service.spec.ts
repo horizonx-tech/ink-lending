@@ -45,7 +45,7 @@ describe('Service spec', () => {
     registry = await deployRegistry({
       api,
       signer: deployer,
-      args: [zeroAddress, deployer.address],
+      args: [null],
     });
 
     dummyPool = await deployDummyPool({
