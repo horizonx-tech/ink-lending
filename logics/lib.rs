@@ -3,8 +3,8 @@
 
 pub mod asset_pool;
 pub mod factory;
-// pub mod math;
 pub mod manager;
+pub mod math;
 pub mod registry;
 pub mod service;
 pub mod traits;

@@ -5,16 +5,17 @@ use core::ops::{
     Sub,
 };
 
-use numext_fixed_uint::{
+use ethnum::{
     u256,
     U256,
 };
 
-const WAD: U256 = u256!("1_000_000_000_000_000_000");
-const HALF_WAD: U256 = u256!("500_000_000_000_000_000");
-const RAY: U256 = u256!("1_000_000_000_000_000_000_000_000_000");
-const HALF_RAY: U256 = u256!("500_000_000_000_000_000");
-const ZERO: U256 = U256::zero();
+const WAD: U256 = u256::new(1_000_000_000_000_000_000);
+const HALF_WAD: U256 = u256::new(500_000_000_000_000_000);
+const RAY: U256 = u256::new(1_000_000_000_000_000_000_000_000_000);
+const HALF_RAY: U256 = u256::new(500_000_000_000_000_000);
+const ZERO: U256 = U256::ZERO;
+
 #[derive(Debug, PartialEq)]
 pub enum Error {
     MulOverflow,
@@ -63,10 +64,7 @@ impl Precision for Ray {
 fn _mul(a: U256, b: U256, precision: &dyn Precision) -> Result<U256, Error> {
     if a == ZERO || b == ZERO {
         Ok(ZERO)
-    } else if a.gt(&U256::max_value()
-        .sub(precision.precision_half())
-        .div(b.clone()))
-    {
+    } else if a.gt(&U256::MAX.sub(precision.precision_half()).div(b.clone())) {
         Err(Error::MulOverflow)
     } else {
         Ok(a.mul(b).add(precision.precision_half()).div(WAD))
@@ -74,10 +72,10 @@ fn _mul(a: U256, b: U256, precision: &dyn Precision) -> Result<U256, Error> {
 }
 
 fn _div(a: U256, b: U256, precision: &dyn Precision) -> Result<U256, Error> {
-    let half_b = b.clone().div(u256!("2"));
+    let half_b = b.clone().div(u256::new(2));
     if b == ZERO {
         Err(Error::DivByZero)
-    } else if a.gt(&U256::max_value().sub(half_b.clone().div(precision.precision()))) {
+    } else if a.gt(&U256::MAX.sub(half_b.clone().div(precision.precision()))) {
         Err(Error::MulOverflow)
     } else {
         Ok(a.mul(precision.precision()).add(half_b).div(b))
@@ -89,26 +87,28 @@ mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
 
-    const ONE_ETHER: U256 = u256!("1_000_000_000_000_000_000");
-    const TWO_ETHER: U256 = u256!("2_000_000_000_000_000_000");
+    const ONE_ETHER: U256 = u256::new(1_000_000_000_000_000_000);
+    const TWO_ETHER: U256 = u256::new(2_000_000_000_000_000_000);
     // 2 ** 128 -1
-    const U128_MAX: U256 = u256!("340282366920938463463374607431768211455");
+    const U128_MAX: U256 = u256::new(340_282_366_920_938_463_463_374_607_431_768_211_455u128);
     #[test]
     fn test_add() {
         assert_eq!(ZERO.add(ZERO), ZERO);
-        assert_eq!(ZERO.add(u256!("1")), u256!("1"));
-        assert_eq!(u256!("1").add(u256!("1")), u256!("2"));
+        assert_eq!(ZERO.add(u256::ONE), u256::ONE);
+        assert_eq!(u256::ONE.add(u256::ONE), u256::new(2));
     }
     #[test]
     fn test_sub() {
         assert_eq!(ZERO.sub(ZERO), ZERO);
-        assert_eq!(u256!("1").sub(u256!("1")), ZERO);
-        assert_eq!(u256!("2").sub(u256!("1")), u256!("1"));
+        assert_eq!(u256::ONE.sub(u256::ONE), ZERO);
+        assert_eq!(u256::new(2).sub(u256::ONE), u256::ONE);
     }
 
     #[test]
     fn test_wad_mul_overflow() {
-        let max = u256!("340282366920938463463374607431768211456");
+        // u128 max + 1
+        let max =
+            u256::new(340_282_366_920_938_463_463_374_607_431_768_211_455u128).add(u256::new(1));
         assert_eq!(
             wad_mul(max.clone(), max.clone()).unwrap_err(),
             Error::MulOverflow
@@ -124,8 +124,8 @@ mod tests {
 
     #[test]
     fn tet_wad_mul_fractions() {
-        let _02_ether: U256 = u256!("200_000_000_000_000_000");
-        let _04_ether: U256 = u256!("400_000_000_000_000_000");
+        let _02_ether: U256 = u256::new(200_000_000_000_000_000);
+        let _04_ether: U256 = u256::new(400_000_000_000_000_000);
         assert_eq!(
             wad_mul(ONE_ETHER, _02_ether.clone()).unwrap(),
             _02_ether.clone()
@@ -147,16 +147,16 @@ mod tests {
     }
     #[test]
     fn test_wad_div_fractions() {
-        let _05_ehther: U256 = u256!("500_000_000_000_000_000");
+        let _05_ehther: U256 = u256::new(500_000_000_000_000_000);
         assert_eq!(wad_div(ONE_ETHER, TWO_ETHER).unwrap(), _05_ehther.clone());
         assert_eq!(wad_div(TWO_ETHER, TWO_ETHER).unwrap(), ONE_ETHER);
     }
 
     #[test]
     fn test_was_mul_rounding() {
-        let a: U256 = u256!("950_000_000_000_005_647");
-        let b: U256 = u256!("10000000000");
-        let c: U256 = u256!("9500000000");
+        let a: U256 = u256::new(950_000_000_000_005_647);
+        let b: U256 = u256::new(10000000000);
+        let c: U256 = u256::new(9500000000);
         assert_eq!(wad_mul(a.clone(), b.clone()).unwrap(), c.clone());
         assert_eq!(wad_mul(b.clone(), a.clone()).unwrap(), c.clone());
     }
