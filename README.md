@@ -5,11 +5,12 @@
 https://docs.astar.network/docs/build/environment/ink_environment
 
 - for e2e testing
-https://docs.astar.network/docs/build/wasm/swanky#installation
+  https://docs.astar.network/docs/build/wasm/swanky#installation
 
 ## Test
 
 https://use.ink/basics/contract-testing
+
 ```
 # unittest
 cargo +nightly test
