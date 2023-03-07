@@ -10,12 +10,14 @@ import Factory_factory from '../types/constructors/factory';
 import SharesToken_factory from '../types/constructors/shares_token';
 import RateStrategy_factory from '../types/constructors/rate_strategies';
 import RiskStrategy_factory from '../types/constructors/risk_strategies';
+import Manager_factory from '../types/constructors/manager';
 import Token_factory from '../types/constructors/psp22_token';
 import Registry from '../types/contracts/registry';
 import AssetPool from '../types/contracts/asset_pool';
 import Factory from '../types/contracts/factory';
 import RateStrategy from '../types/contracts/rate_strategies';
 import RiskStrategy from '../types/contracts/risk_strategies';
+import Manager from '../types/contracts/manager';
 import Token from '../types/contracts/psp22_token';
 import SharesToken from '../types/contracts/shares_token';
 import { Hash } from 'types-arguments/factory';
@@ -53,9 +55,13 @@ describe('Registry spec', () => {
 
   const setup = async (): Promise<void> => {
     ({ api, alice: deployer, bob: wallet } = globalThis.setup);
+
     registryFactory = new Registry_factory(api, deployer);
     registry = new Registry(
-      (await registryFactory.new()).address,
+      (await registryFactory.new(
+        zeroAddress,
+        deployer.address
+      )).address,
       deployer,
       api,
     );
@@ -92,7 +98,12 @@ describe('Registry spec', () => {
     factoryFactory = new Factory_factory(api, deployer);
     factory = new Factory(
       (
-        await factoryFactory.new(registry.address, assetPoolHash, sharesHash)
+        await factoryFactory.new(
+            registry.address,
+            assetPoolHash,
+            sharesHash,
+            deployer.address
+        )
       ).address,
       deployer,
       api,

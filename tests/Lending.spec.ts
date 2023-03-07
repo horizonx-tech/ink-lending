@@ -50,7 +50,7 @@ describe('Lending spec', () => {
     ({ api, alice: deployer, bob: wallet } = globalThis.setup);
     registryFactory = new Registry_factory(api, deployer);
     registry = new Registry(
-      (await registryFactory.new()).address,
+      (await registryFactory.new(zeroAddress, deployer.address)).address,
       deployer,
       api,
     );
@@ -87,7 +87,7 @@ describe('Lending spec', () => {
     factoryFactory = new Factory_factory(api, deployer);
     factory = new Factory(
       (
-        await factoryFactory.new(registry.address, assetPoolHash, sharesHash)
+        await factoryFactory.new(registry.address, assetPoolHash, sharesHash, deployer.address)
       ).address,
       deployer,
       api,

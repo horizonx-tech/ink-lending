@@ -1,34 +1,49 @@
+use ink::prelude::vec::Vec;
 use openbrush::traits::AccountId;
-use openbrush::contracts::traits::ownable::{*, OwnableError};
+use openbrush::contracts::traits::access_control::AccessControlError;
+use super::{
+    factory::Error as FactoryError,
+    registry::Error as RegistryError
+};
 
 #[openbrush::wrapper]
 pub type ManagerRef = dyn Manager;
 
 #[openbrush::trait_definition]
-pub trait Manager: Ownable + {
+pub trait Manager: {
     #[ink(message)]
-    fn pool_admin(&self) -> AccountId;
+    fn factory(&self) -> AccountId;
 
     #[ink(message)]
-    fn set_pool_admin(&mut self, id: AccountId) -> Result<()>;
+    fn registry(&self) -> AccountId;
 
     #[ink(message)]
-    fn emergency_admin(&self) -> AccountId;
+    fn set_factory(&mut self, id: AccountId) -> Result<()>;
 
     #[ink(message)]
-    fn set_emergency_admin(&mut self, id: AccountId) -> Result<()>;
+    fn set_registry(&mut self, id: AccountId) -> Result<()>;
+
+    #[ink(message)]
+    fn create_pool(&mut self, asset: AccountId, data: Vec<u8>) -> Result<AccountId>;
+
+    #[ink(message)]
+    fn update_rate_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
+
+    #[ink(message)]
+    fn update_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
 }
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
-    NewOwnerIsZero,
-    OwnableError(OwnableError),
+    Factory(FactoryError),
+    Registry(RegistryError),
+    AccessControl(AccessControlError),
 }
 
-impl From<OwnableError> for Error {
-    fn from(error: OwnableError) -> Self {
-        Error::OwnableError(error)
+impl From<AccessControlError> for Error {
+    fn from(error: AccessControlError) -> Self {
+        Error::AccessControl(error)
     }
 }
 

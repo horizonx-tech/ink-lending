@@ -19,6 +19,9 @@ pub trait Registry {
     fn assets_count(&self) -> u64;
 
     #[ink(message)]
+    fn manager(&self) -> AccountId;
+
+    #[ink(message)]
     fn pool(&self, asset: AccountId) -> Option<AccountId>;
 
     #[ink(message)]
@@ -26,6 +29,12 @@ pub trait Registry {
 
     #[ink(message)]
     fn risk_strategy(&self, asset: AccountId) -> AccountId;
+
+    #[ink(message)]
+    fn default_rate_strategy(&self) -> AccountId;
+
+    #[ink(message)]
+    fn default_risk_strategy(&self) -> AccountId;
 
     #[ink(message)]
     fn price_oracle(&self) -> AccountId;
@@ -50,6 +59,7 @@ pub trait Registry {
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum Error {
     PoolAlreadyExists,
+    CallerIsNotManager,
 }
 
 pub type Result<T> = core::result::Result<T, Error>;

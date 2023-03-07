@@ -86,4 +86,50 @@ pub mod pool {
             data
         }
     }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use ink::env::{
+            test::{
+                self,
+                DefaultAccounts,
+            },
+            DefaultEnvironment,
+        };
+
+        fn default_accounts() -> DefaultAccounts<DefaultEnvironment> {
+            test::default_accounts::<DefaultEnvironment>()
+        }
+        fn set_caller(id: AccountId) {
+            test::set_caller::<DefaultEnvironment>(id);
+        }
+
+        #[ink::test]
+        fn new_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let registry = AccountId::from([0xfa; 32]);
+            let asset = AccountId::from([0xfb; 32]);
+            let collateral_token = AccountId::from([0xfc; 32]);
+            let debt_token = AccountId::from([0xfd; 32]);
+            let contract = AssetPoolContract::new(
+                registry,
+                asset,
+                collateral_token,
+                debt_token,
+            );
+
+            assert_eq!(contract.registry(), registry);
+            assert_eq!(contract.asset(), asset);
+            assert_eq!(contract.collateral_token(), collateral_token);
+            assert_eq!(contract.debt_token(), debt_token);
+            assert_eq!(contract.liquidity_index(), 0);
+            assert_eq!(contract.liquidity_rate(), 0);
+            assert_eq!(contract.debt_index(), 0);
+            assert_eq!(contract.debt_rate(), 0);
+            assert_eq!(contract.last_update_timestamp(), 0);
+        }
+    }
 }

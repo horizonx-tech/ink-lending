@@ -13,9 +13,10 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[derive(Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
+    pub manager: AccountId,
     pub factory: AccountId,
-    pub pools: Mapping<AccountId, AccountId>,
     pub asset_list: Vec<AccountId>,
+    pub pools: Mapping<AccountId, AccountId>,
     pub rate_strategies: Mapping<AccountId, AccountId>,
     pub risk_strategies: Mapping<AccountId, AccountId>,
     pub price_oracle: AccountId,
@@ -28,15 +29,18 @@ pub trait Internal {
     fn _asset_list(&self) -> Vec<AccountId>;
     fn _asset(&self, index: u64) -> Option<AccountId>;
     fn _assets_count(&self) -> u64;
+    fn _manager(&self) -> AccountId;
     fn _pool(&self, asset: &AccountId) -> Option<AccountId>;
     fn _rate_strategy(&self, asset: &AccountId) -> AccountId;
     fn _risk_strategy(&self, asset: &AccountId) -> AccountId;
     fn _price_oracle(&self) -> AccountId;
     fn _register_pool(&mut self, asset: &AccountId, pool: &AccountId) -> Result<()>;
     fn _set_factory(&mut self, address: AccountId) -> Result<()>;
+    fn _set_manager(&mut self, address: AccountId) -> Result<()>;
     fn _set_rate_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
     fn _set_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
     fn _set_price_oracle(&mut self, address: AccountId) -> Result<()>;
+    fn _assert_manager(&self) -> Result<()>;
 
     // event emission
     fn _emit_pool_registered_event(&self, asset: AccountId, pool: AccountId);
@@ -63,6 +67,10 @@ impl<T: Storage<Data>> Registry for T {
         self._assets_count()
     }
 
+    default fn manager(&self) -> AccountId {
+        self._manager()
+    }
+
     default fn pool(&self, asset: AccountId) -> Option<AccountId> {
         self._pool(&asset)
     }
@@ -73,6 +81,14 @@ impl<T: Storage<Data>> Registry for T {
 
     default fn risk_strategy(&self, asset: AccountId) -> AccountId {
         self._risk_strategy(&asset)
+    }
+
+    default fn default_rate_strategy(&self) -> AccountId {
+        self.data().default_rate_strategy
+    }
+
+    default fn default_risk_strategy(&self) -> AccountId {
+        self.data().default_risk_strategy
     }
 
     default fn price_oracle(&self) -> AccountId {
@@ -96,6 +112,7 @@ impl<T: Storage<Data>> Registry for T {
         address: AccountId,
         asset: Option<AccountId>,
     ) -> Result<()> {
+        self._assert_manager()?;
         self._set_rate_strategy(address, asset)?;
         self._emit_rate_strategy_changed_event(address, asset);
         Ok(())
@@ -106,6 +123,7 @@ impl<T: Storage<Data>> Registry for T {
         address: AccountId,
         asset: Option<AccountId>,
     ) -> Result<()> {
+        self._assert_manager()?;
         self._set_risk_strategy(address, asset)?;
         self._emit_risk_strategy_changed_event(address, asset);
         Ok(())
@@ -121,6 +139,7 @@ impl<T: Storage<Data>> Registry for T {
 impl Default for Data {
     fn default() -> Self {
         Self {
+            manager: [0u8; 32].into(),
             factory: [0u8; 32].into(),
             asset_list: Vec::new(),
             pools: Default::default(),
@@ -148,6 +167,10 @@ impl<T: Storage<Data>> Internal for T {
 
     default fn _assets_count(&self) -> u64 {
         self.data().asset_list.len() as u64
+    }
+
+    default fn _manager(&self) -> AccountId {
+        self.data().manager
     }
 
     default fn _pool(&self, asset: &AccountId) -> Option<AccountId> {
@@ -187,6 +210,11 @@ impl<T: Storage<Data>> Internal for T {
         Ok(())
     }
 
+    default fn _set_manager(&mut self, address: AccountId) -> Result<()> {
+        self.data().manager = address;
+        Ok(())
+    }
+
     default fn _set_rate_strategy(
         &mut self,
         address: AccountId,
@@ -219,6 +247,13 @@ impl<T: Storage<Data>> Internal for T {
 
     default fn _set_price_oracle(&mut self, address: AccountId) -> Result<()> {
         self.data().price_oracle = address;
+        Ok(())
+    }
+
+    default fn _assert_manager(&self) -> Result<()> {
+        if self.data().manager != Self::env().caller() {
+            return Err(Error::CallerIsNotManager);
+        }
         Ok(())
     }
 
