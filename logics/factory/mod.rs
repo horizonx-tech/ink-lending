@@ -3,7 +3,7 @@ use crate::traits::{
     registry::{
         self,
         RegistryRef,
-    }
+    },
 };
 use ink::{
     env::hash::Blake2x256,
@@ -23,7 +23,6 @@ pub struct Data {
     pub registry: AccountId,
     pub pool_code_hash: Hash,
     pub shares_code_hash: Hash,
-    pub manager: AccountId,
 }
 
 pub trait Internal {
@@ -31,6 +30,7 @@ pub trait Internal {
     fn _instantiate(&self, asset: AccountId, salt: &[u8], data: &Vec<u8>) -> Result<AccountId>;
     fn _on_create_pool(&self, asset: AccountId, pool: AccountId, data: &Vec<u8>) -> Result<()>;
     fn _assert_manager(&self) -> Result<()>;
+    fn _manager(&self) -> AccountId;
 }
 
 impl<T: Storage<Data>> Factory for T {
@@ -72,10 +72,14 @@ impl<T: Storage<Data>> Internal for T {
     }
 
     default fn _assert_manager(&self) -> Result<()> {
-        if self.data().manager != Self::env().caller() {
-            return Err(Error::CallerIsNotManager);
+        if self._manager() != Self::env().caller() {
+            return Err(Error::CallerIsNotManager)
         }
         Ok(())
+    }
+
+    default fn _manager(&self) -> AccountId {
+        RegistryRef::manager(&self.data().registry)
     }
 }
 
