@@ -48,10 +48,9 @@ pub mod registry {
 
     impl RegistryContract {
         #[ink(constructor)]
-        pub fn new(factory: AccountId, manager: AccountId) -> Self {
+        pub fn new(manager: Option<AccountId>) -> Self {
             let mut instance = Self::default();
-            instance._set_factory(factory).unwrap(); // TODO: event?
-            instance._set_manager(manager).unwrap(); // TODO: event?
+            instance._set_manager(manager.unwrap_or(Self::env().caller()));
             instance
         }
     }
@@ -104,45 +103,47 @@ pub mod registry {
             recorded_events().collect::<Vec<_>>()
         }
         fn decode_pool_registered_event(event: EmittedEvent) -> PoolRegistered {
-            if let Ok(Event::PoolRegistered(x)) = <Event as scale::Decode>::decode(&mut &event.data[..]) {
+            if let Ok(Event::PoolRegistered(x)) =
+                <Event as scale::Decode>::decode(&mut &event.data[..])
+            {
                 return x
             }
             panic!("unexpected event kind: expected PoolRegistered event")
         }
         fn decode_factory_changed_event(event: EmittedEvent) -> FactoryChanged {
-            if let Ok(Event::FactoryChanged(x)) = <Event as scale::Decode>::decode(&mut &event.data[..]) {
+            if let Ok(Event::FactoryChanged(x)) =
+                <Event as scale::Decode>::decode(&mut &event.data[..])
+            {
                 return x
             }
             panic!("unexpected event kind: expected FactoryChanged event")
         }
         fn decode_risk_strategy_changed_event(event: EmittedEvent) -> RiskStrategyChanged {
-            if let Ok(Event::RiskStrategyChanged(x)) = <Event as scale::Decode>::decode(&mut &event.data[..]) {
+            if let Ok(Event::RiskStrategyChanged(x)) =
+                <Event as scale::Decode>::decode(&mut &event.data[..])
+            {
                 return x
             }
             panic!("unexpected event kind: expected RiskStrategyChanged event")
         }
         fn decode_rate_strategy_changed_event(event: EmittedEvent) -> RateStrategyChanged {
-            if let Ok(Event::RateStrategyChanged(x)) = <Event as scale::Decode>::decode(&mut &event.data[..]) {
+            if let Ok(Event::RateStrategyChanged(x)) =
+                <Event as scale::Decode>::decode(&mut &event.data[..])
+            {
                 return x
             }
             panic!("unexpected event kind: expected RateStrategyChanged event")
         }
-
 
         #[ink::test]
         fn new_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
 
-            let factory = AccountId::from([0xf1; 32]);
             let manager = AccountId::from([0xf1; 32]);
             let default_account_id = [0u8; 32].into();
-            let contract = RegistryContract::new(
-                factory,
-                manager
-            );
+            let contract = RegistryContract::new(Some(manager));
 
-            assert_eq!(contract.factory(), factory);
             assert_eq!(contract.manager(), manager);
             assert_eq!(contract.default_rate_strategy(), default_account_id);
             assert_eq!(contract.default_risk_strategy(), default_account_id);
@@ -166,10 +167,7 @@ pub mod registry {
         fn registry_pool_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::new(
-                AccountId::from([0x00; 32]),
-                accounts.bob
-            );
+            let mut contract = RegistryContract::new(Some(accounts.bob));
 
             let asset = AccountId::from([0xaa; 32]);
             assert_eq!(contract.pool(asset), None);
@@ -177,7 +175,9 @@ pub mod registry {
             assert!(contract.register_pool(asset, pool).is_ok());
             assert_eq!(contract.pool(asset), Some(pool));
             assert_eq!(
-                contract.register_pool(asset, AccountId::from([0xee; 32])).unwrap_err(),
+                contract
+                    .register_pool(asset, AccountId::from([0xee; 32]))
+                    .unwrap_err(),
                 Error::PoolAlreadyExists
             );
         }
@@ -186,10 +186,7 @@ pub mod registry {
         fn registry_pool_works_event() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::new(
-                AccountId::from([0x00; 32]),
-                accounts.bob
-            );
+            let mut contract = RegistryContract::new(Some(accounts.bob));
 
             let asset = AccountId::from([0xaa; 32]);
             let pool = AccountId::from([0xff; 32]);
@@ -204,10 +201,7 @@ pub mod registry {
         fn set_factory_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::new(
-                AccountId::from([0x00; 32]),
-                accounts.bob
-            );
+            let mut contract = RegistryContract::new(Some(accounts.bob));
 
             let factory = AccountId::from([0xaa; 32]);
             assert!(contract.set_factory(factory).is_ok());
@@ -221,10 +215,7 @@ pub mod registry {
         fn set_risk_strategy_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::new(
-                AccountId::from([0x00; 32]),
-                accounts.bob
-            );
+            let mut contract = RegistryContract::new(Some(accounts.bob));
 
             let asset = AccountId::from([0xaa; 32]);
             let default_strategy = contract.default_risk_strategy();
@@ -239,16 +230,15 @@ pub mod registry {
         fn set_risk_strategy_works_cannot_by_not_manager() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::new(
-                AccountId::from([0x00; 32]),
-                accounts.bob
-            );
+            let mut contract = RegistryContract::new(Some(accounts.bob));
 
             let asset = AccountId::from([0xaa; 32]);
             let strategy = AccountId::from([0xff; 32]);
             set_caller(accounts.charlie);
             assert_eq!(
-                contract.set_risk_strategy(strategy, Some(asset)).unwrap_err(),
+                contract
+                    .set_risk_strategy(strategy, Some(asset))
+                    .unwrap_err(),
                 Error::CallerIsNotManager
             );
             assert_ne!(contract.risk_strategy(asset), strategy)
@@ -258,10 +248,7 @@ pub mod registry {
         fn set_risk_strategy_works_event() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::new(
-                AccountId::from([0x00; 32]),
-                accounts.bob
-            );
+            let mut contract = RegistryContract::new(Some(accounts.bob));
 
             let asset = AccountId::from([0xaa; 32]);
             let strategy = AccountId::from([0xff; 32]);
@@ -275,10 +262,7 @@ pub mod registry {
         fn set_rate_strategy_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::new(
-                AccountId::from([0x00; 32]),
-                accounts.bob
-            );
+            let mut contract = RegistryContract::new(Some(accounts.bob));
 
             let asset = AccountId::from([0xaa; 32]);
             let default_strategy = contract.default_rate_strategy();
@@ -293,16 +277,15 @@ pub mod registry {
         fn set_rate_strategy_works_cannot_by_not_manager() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::new(
-                AccountId::from([0x00; 32]),
-                accounts.bob
-            );
+            let mut contract = RegistryContract::new(Some(accounts.bob));
 
             let asset = AccountId::from([0xaa; 32]);
             let strategy = AccountId::from([0xff; 32]);
             set_caller(accounts.charlie);
             assert_eq!(
-                contract.set_rate_strategy(strategy, Some(asset)).unwrap_err(),
+                contract
+                    .set_rate_strategy(strategy, Some(asset))
+                    .unwrap_err(),
                 Error::CallerIsNotManager
             );
             assert_ne!(contract.rate_strategy(asset), strategy)
@@ -312,10 +295,7 @@ pub mod registry {
         fn set_rate_strategy_works_event() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
-            let mut contract = RegistryContract::new(
-                AccountId::from([0x00; 32]),
-                accounts.bob
-            );
+            let mut contract = RegistryContract::new(Some(accounts.bob));
 
             let asset = AccountId::from([0xaa; 32]);
             let strategy = AccountId::from([0xff; 32]);
