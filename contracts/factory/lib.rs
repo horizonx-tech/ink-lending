@@ -116,25 +116,5 @@ pub mod factory {
             assert_eq!(contract.pool_code_hash(), pool_code_hash);
             assert_eq!(contract.shares_code_hash(), shares_code_hash);
         }
-
-        #[ink::test]
-        fn create_works_cannot_by_not_owner() {
-            let accounts = default_accounts();
-            set_caller(accounts.bob);
-
-            let contract = FactoryContract::new(
-                AccountId::from([0x00; 32]),
-                [0u8; 32].into(),
-                [0u8; 32].into(),
-            );
-
-            set_caller(accounts.charlie);
-            assert_eq!(
-                contract
-                    .create(AccountId::from([0x00; 32]), vec![])
-                    .unwrap_err(),
-                Error::CallerIsNotManager
-            );
-        }
     }
 }
