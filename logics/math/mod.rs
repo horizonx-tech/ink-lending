@@ -1,23 +1,14 @@
-use core::ops::{
-    Add,
-    Div,
-    Mul,
-    Sub,
+use core::{
+    ops::{
+        Add,
+        Div,
+        Mul,
+        Sub,
+    },
+    str::FromStr,
 };
-
-use ethnum::{
-    u256,
-    U256,
-};
-
-pub const WAD: U256 = u256::new(1_000_000_000_000_000_000);
-const HALF_WAD: U256 = u256::new(500_000_000_000_000_000);
-pub const RAY: U256 = u256::new(1_000_000_000_000_000_000_000_000_000);
-const HALF_RAY: U256 = u256::new(500_000_000_000_000_000);
-const ZERO: U256 = U256::ZERO;
-pub const PERCENTAGE_FACTOR: U256 = U256::new(10_000); // percentage plus two decimals
-const HALF_PERCENT: U256 = u256::new(5_000);
-const WAD_RAY_RATIO: U256 = u256::new(1_000_000_000);
+use sp_core::U256;
+const ZERO: U256 = U256::zero();
 #[derive(Debug, PartialEq)]
 pub enum Error {
     CalcOverflow,
@@ -44,57 +35,71 @@ pub fn ray_mul(a: U256, b: U256) -> Result<U256, Error> {
     _mul(a, b, &Ray {})
 }
 
+pub fn percentage_factor() -> U256 {
+    U256::from_dec_str("10000").unwrap()
+}
+
+fn half_percent() -> U256 {
+    percentage_factor().div(U256::from_dec_str("2").unwrap())
+}
+
+fn wad_way_ratio() -> U256 {
+    U256::from_dec_str("1000000000").unwrap()
+}
+
 pub fn percent_mul(value: U256, percentage: U256) -> Result<U256, Error> {
     if value.eq(&ZERO) || percentage.clone().eq(&ZERO) {
         return Ok(ZERO)
-    } else if value.gt(&U256::MAX.sub(HALF_PERCENT).div(percentage.clone())) {
+    } else if value.gt(&U256::MAX.sub(half_percent()).div(percentage.clone())) {
         return Err(Error::CalcOverflow)
     }
     Ok(value
         .mul(percentage)
-        .add(HALF_PERCENT)
-        .div(PERCENTAGE_FACTOR))
+        .add(half_percent())
+        .div(percentage_factor()))
 }
 
 pub fn wad_to_ray(a: U256) -> Result<U256, Error> {
-    let result = a.clone().mul(WAD_RAY_RATIO);
-    if result.clone().div(WAD_RAY_RATIO).ne(&a.clone()) {
+    let result = a.clone().mul(wad_way_ratio());
+    if result.clone().div(wad_way_ratio()).ne(&a.clone()) {
         return Err(Error::CalcOverflow)
     }
     Ok(result)
 }
 
 pub fn percent_div(value: U256, percentage: U256) -> Result<U256, Error> {
-    let half_percentage = percentage.clone().div(U256::new(2));
+    let half_percentage = percentage.clone().div(U256([2; 4]));
     if percentage.clone().eq(&ZERO) {
         return Err(Error::DivByZero)
     } else if value.gt(&U256::MAX
         .sub(half_percentage.clone())
-        .div(PERCENTAGE_FACTOR))
+        .div(percentage_factor()))
     {
         return Err(Error::CalcOverflow)
     }
     Ok(value
-        .mul(PERCENTAGE_FACTOR.add(half_percentage.clone()))
+        .mul(percentage_factor().add(half_percentage.clone()))
         .div(percentage))
 }
-
+pub fn ray() -> U256 {
+    U256::from_dec_str("1000000000000000000000000000").unwrap()
+}
 struct Wad {}
 struct Ray {}
 impl Precision for Wad {
     fn precision(&self) -> U256 {
-        WAD
+        U256::from_dec_str("1000000000000000000").unwrap()
     }
     fn precision_half(&self) -> U256 {
-        HALF_WAD
+        U256::from_dec_str("500000000000000000").unwrap()
     }
 }
 impl Precision for Ray {
     fn precision(&self) -> U256 {
-        RAY
+        ray()
     }
     fn precision_half(&self) -> U256 {
-        HALF_RAY
+        ray().div(U256::from_str("2").unwrap())
     }
 }
 
@@ -111,7 +116,7 @@ fn _mul(a: U256, b: U256, precision: &dyn Precision) -> Result<U256, Error> {
 }
 
 fn _div(a: U256, b: U256, precision: &dyn Precision) -> Result<U256, Error> {
-    let half_b = b.clone().div(u256::new(2));
+    let half_b = b.clone().div(U256([2; 4]));
     if b == ZERO {
         Err(Error::DivByZero)
     } else if a.gt(&U256::MAX.sub(half_b.clone().div(precision.precision()))) {
@@ -123,31 +128,47 @@ fn _div(a: U256, b: U256, precision: &dyn Precision) -> Result<U256, Error> {
 
 #[cfg(test)]
 mod tests {
+
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
+    use primitive_types::U128;
+    use sp_core::U256;
 
-    const ONE_ETHER: U256 = u256::new(1_000_000_000_000_000_000);
-    const TWO_ETHER: U256 = u256::new(2_000_000_000_000_000_000);
     // 2 ** 128 -1
-    const U128_MAX: U256 = u256::new(340_282_366_920_938_463_463_374_607_431_768_211_455u128);
+    const U128_MAX: U128 = U128::MAX;
+    fn one_ether() -> U256 {
+        U256::from_dec_str("1000000000000000000").unwrap()
+    }
+
+    fn two_ether() -> U256 {
+        one_ether().mul(U256::from_dec_str("2").unwrap())
+    }
+
     #[test]
     fn test_add() {
         assert_eq!(ZERO.add(ZERO), ZERO);
-        assert_eq!(ZERO.add(u256::ONE), u256::ONE);
-        assert_eq!(u256::ONE.add(u256::ONE), u256::new(2));
+        assert_eq!(ZERO.add(U256::one()), U256::one());
+        assert_eq!(
+            U256::one().add(U256::one()),
+            U256::from_dec_str("2").unwrap()
+        );
     }
     #[test]
     fn test_sub() {
         assert_eq!(ZERO.sub(ZERO), ZERO);
-        assert_eq!(u256::ONE.sub(u256::ONE), ZERO);
-        assert_eq!(u256::new(2).sub(u256::ONE), u256::ONE);
+        assert_eq!(U256::one().sub(U256::one()), ZERO);
+        assert_eq!(
+            U256::from_dec_str("2").unwrap().sub(U256::one()),
+            U256::one()
+        );
     }
 
     #[test]
     fn test_wad_mul_overflow() {
         // u128 max + 1
-        let max =
-            u256::new(340_282_366_920_938_463_463_374_607_431_768_211_455u128).add(u256::new(1));
+        let max = U256::from_dec_str(&U128_MAX.to_string())
+            .unwrap()
+            .add(U256::one());
         assert_eq!(
             wad_mul(max.clone(), max.clone()).unwrap_err(),
             Error::CalcOverflow
@@ -155,47 +176,56 @@ mod tests {
     }
     #[test]
     fn test_wad_mul() {
-        assert_eq!(wad_mul(U128_MAX, ONE_ETHER).unwrap(), U128_MAX);
+        let u128_max_minus_one = U256::from_dec_str(&U128_MAX.to_string())
+            .unwrap()
+            .sub(U256::one());
+        assert_eq!(
+            wad_mul(u128_max_minus_one.clone(), one_ether()).unwrap(),
+            u128_max_minus_one.clone()
+        );
         assert_eq!(wad_mul(ZERO, ZERO).unwrap(), ZERO);
-        assert_eq!(wad_mul(ZERO, ONE_ETHER).unwrap(), ZERO);
-        assert_eq!(wad_mul(ONE_ETHER, ONE_ETHER).unwrap(), ONE_ETHER)
+        assert_eq!(wad_mul(ZERO, one_ether()).unwrap(), ZERO);
+        assert_eq!(wad_mul(one_ether(), one_ether()).unwrap(), one_ether())
     }
 
     #[test]
     fn tet_wad_mul_fractions() {
-        let _02_ether: U256 = u256::new(200_000_000_000_000_000);
-        let _04_ether: U256 = u256::new(400_000_000_000_000_000);
+        let _02_ether: U256 = U256::from_dec_str("200000000000000000").unwrap();
+        let _04_ether: U256 = U256::from_dec_str("400000000000000000").unwrap();
         assert_eq!(
-            wad_mul(ONE_ETHER, _02_ether.clone()).unwrap(),
+            wad_mul(one_ether(), _02_ether.clone()).unwrap(),
             _02_ether.clone()
         );
         assert_eq!(
-            wad_mul(TWO_ETHER, _02_ether.clone()).unwrap(),
+            wad_mul(two_ether(), _02_ether.clone()).unwrap(),
             _04_ether.clone()
         )
     }
     #[test]
     fn test_wad_div_by_zero() {
-        assert_eq!(wad_div(ONE_ETHER, ZERO).unwrap_err(), Error::DivByZero);
+        assert_eq!(wad_div(one_ether(), ZERO).unwrap_err(), Error::DivByZero);
     }
 
     #[test]
     fn test_wad_div() {
-        assert_eq!(wad_div(ZERO, ONE_ETHER).unwrap(), ZERO);
-        assert_eq!(wad_div(ONE_ETHER, ONE_ETHER).unwrap(), ONE_ETHER);
+        assert_eq!(wad_div(ZERO, one_ether()).unwrap(), ZERO);
+        assert_eq!(wad_div(one_ether(), one_ether()).unwrap(), one_ether());
     }
     #[test]
     fn test_wad_div_fractions() {
-        let _05_ehther: U256 = u256::new(500_000_000_000_000_000);
-        assert_eq!(wad_div(ONE_ETHER, TWO_ETHER).unwrap(), _05_ehther.clone());
-        assert_eq!(wad_div(TWO_ETHER, TWO_ETHER).unwrap(), ONE_ETHER);
+        let _05_ehther: U256 = U256::from_dec_str("500000000000000000").unwrap();
+        assert_eq!(
+            wad_div(one_ether(), two_ether()).unwrap(),
+            _05_ehther.clone()
+        );
+        assert_eq!(wad_div(two_ether(), two_ether()).unwrap(), one_ether());
     }
 
     #[test]
     fn test_was_mul_rounding() {
-        let a: U256 = u256::new(950_000_000_000_005_647);
-        let b: U256 = u256::new(10000000000);
-        let c: U256 = u256::new(9500000000);
+        let a: U256 = U256::from_dec_str("950000000000005647").unwrap();
+        let b: U256 = U256::from_dec_str("10000000000").unwrap();
+        let c: U256 = U256::from_dec_str("9500000000").unwrap();
         assert_eq!(wad_mul(a.clone(), b.clone()).unwrap(), c.clone());
         assert_eq!(wad_mul(b.clone(), a.clone()).unwrap(), c.clone());
     }
