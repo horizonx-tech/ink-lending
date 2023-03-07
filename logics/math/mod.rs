@@ -133,8 +133,6 @@ mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
 
-    // 2 ** 128 -1
-    const U128_MAX: u128 = u128::MAX;
     fn one_ether() -> U256 {
         U256::new(1000000000000000000)
     }
