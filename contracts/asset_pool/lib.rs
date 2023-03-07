@@ -70,12 +70,7 @@ pub mod pool {
             let asset = AccountId::from([0xfb; 32]);
             let collateral_token = AccountId::from([0xfc; 32]);
             let debt_token = AccountId::from([0xfd; 32]);
-            let contract = AssetPoolContract::new(
-                registry,
-                asset,
-                collateral_token,
-                debt_token,
-            );
+            let contract = AssetPoolContract::new(registry, asset, collateral_token, debt_token);
 
             assert_eq!(contract.registry(), registry);
             assert_eq!(contract.asset(), asset);

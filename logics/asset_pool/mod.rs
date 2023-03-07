@@ -169,8 +169,7 @@ impl<T: Storage<Data>> Internal for T {
         self._validate_borrow(account, asset, amount)?;
 
         let share = self._to_debt_share(amount);
-        SharesRef::mint(&self.data().debt_token, account, share)
-            .map_err(to_psp22_error)?;
+        SharesRef::mint(&self.data().debt_token, account, share).map_err(to_psp22_error)?;
         PSP22Ref::transfer_from(
             &asset,
             self.data().collateral_token,
@@ -202,8 +201,7 @@ impl<T: Storage<Data>> Internal for T {
         )
         .map_err(to_psp22_error)?;
         let share = self._to_debt_share(amount);
-        SharesRef::burn(&self.data().debt_token, account, share)
-            .map_err(to_psp22_error)?;
+        SharesRef::burn(&self.data().debt_token, account, share).map_err(to_psp22_error)?;
 
         Ok(())
     }

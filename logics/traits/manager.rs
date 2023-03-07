@@ -1,27 +1,20 @@
-use ink::prelude::vec::Vec;
-use openbrush::traits::AccountId;
-use openbrush::contracts::traits::access_control::AccessControlError;
 use super::{
     factory::Error as FactoryError,
-    registry::Error as RegistryError
+    registry::Error as RegistryError,
+};
+use ink::prelude::vec::Vec;
+use openbrush::{
+    contracts::traits::access_control::AccessControlError,
+    traits::AccountId,
 };
 
 #[openbrush::wrapper]
 pub type ManagerRef = dyn Manager;
 
 #[openbrush::trait_definition]
-pub trait Manager: {
-    #[ink(message)]
-    fn factory(&self) -> AccountId;
-
+pub trait Manager {
     #[ink(message)]
     fn registry(&self) -> AccountId;
-
-    #[ink(message)]
-    fn set_factory(&mut self, id: AccountId) -> Result<()>;
-
-    #[ink(message)]
-    fn set_registry(&mut self, id: AccountId) -> Result<()>;
 
     #[ink(message)]
     fn create_pool(&mut self, asset: AccountId, data: Vec<u8>) -> Result<AccountId>;
