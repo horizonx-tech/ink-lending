@@ -6,6 +6,7 @@ pub mod dummy_pool {
     use logics::{
         asset_pool::*,
         traits::asset_pool::*,
+        ui_data_providers::pool_data_provider,
     };
     use openbrush::traits::Storage;
 
@@ -17,6 +18,8 @@ pub mod dummy_pool {
     }
 
     impl AssetPool for AssetPoolContract {}
+    impl pool_data_provider::UIPoolDataProvider for AssetPoolContract {}
+
     impl Internal for AssetPoolContract {
         fn _deposit(
             &mut self,
@@ -80,6 +83,47 @@ pub mod dummy_pool {
                     last_update_timestamp: 0,
                 },
             }
+        }
+        #[ink(message)]
+        pub fn set_values(
+            &mut self,
+            registry: Option<AccountId>,
+            asset: Option<AccountId>,
+            collateral_token: Option<AccountId>,
+            debt_token: Option<AccountId>,
+            liquidity_index: Option<u128>,
+            liquidity_rate: Option<u128>,
+            debt_index: Option<u128>,
+            debt_rate: Option<u128>,
+            last_update_timestamp: Option<Timestamp>,
+        ) {
+            if let Some(v) = registry {
+                self.asset_pool.registry = v;
+            };
+            if let Some(v) = asset {
+                self.asset_pool.asset = v;
+            };
+            if let Some(v) = collateral_token {
+                self.asset_pool.collateral_token = v;
+            };
+            if let Some(v) = debt_token {
+                self.asset_pool.debt_token = v;
+            };
+            if let Some(v) = liquidity_index {
+                self.asset_pool.liquidity_index = v;
+            };
+            if let Some(v) = liquidity_rate {
+                self.asset_pool.liquidity_rate = v;
+            };
+            if let Some(v) = debt_index {
+                self.asset_pool.debt_index = v;
+            };
+            if let Some(v) = debt_rate {
+                self.asset_pool.debt_rate = v;
+            };
+            if let Some(v) = last_update_timestamp {
+                self.asset_pool.last_update_timestamp = v;
+            };
         }
     }
 }

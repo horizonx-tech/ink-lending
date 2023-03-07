@@ -61,7 +61,7 @@ pub trait Internal {
     fn _to_liquidity_share(&self, amount: Balance) -> Balance;
     fn _to_debt_share(&self, amount: Balance) -> Balance;
     fn _calculate_index_with_interest(current_index: u128, rate: u128, elapsed_sec: u128) -> u128;
-    fn _pool_data(&self) -> Data;
+    fn _data(&self) -> Data;
 }
 
 impl<T: Storage<Data>> AssetPool for T {
@@ -324,7 +324,7 @@ impl<T: Storage<Data>> Internal for T {
         todo!()
     }
 
-    default fn _pool_data(&self) -> Data {
+    default fn _data(&self) -> Data {
         self.data().clone()
     }
 }

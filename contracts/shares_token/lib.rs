@@ -88,16 +88,6 @@ pub mod token {
         pub fn asset(&self) -> AccountId {
             self.asset
         }
-
-        #[ink(message)]
-        pub fn total_share(&self) -> Balance {
-            self.psp22.supply.clone()
-        }
-
-        #[ink(message)]
-        pub fn share_of(&self, owner: AccountId) -> Balance {
-            self.psp22.balances.get(&owner).unwrap_or(0)
-        }
     }
 
     impl Shares for SharesToken {}
@@ -115,6 +105,17 @@ pub mod token {
         #[modifiers(only_owner)]
         fn mint(&mut self, account: AccountId, amount: Balance) -> Result<(), PSP22Error> {
             self._mint_to(account, amount)
+        }
+    }
+    impl PSP22Shareable for SharesToken {
+        #[ink(message)]
+        fn total_share(&self) -> Balance {
+            self.psp22.supply.clone()
+        }
+
+        #[ink(message)]
+        fn share_of(&self, owner: AccountId) -> Balance {
+            self.psp22.balances.get(&owner).unwrap_or(0)
         }
     }
     impl Ownable for SharesToken {}

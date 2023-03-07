@@ -7,3 +7,4 @@ pub mod registry;
 pub mod risk_strategy;
 pub mod service;
 pub mod shares;
+pub mod ui_data_providers;
