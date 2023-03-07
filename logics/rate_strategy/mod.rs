@@ -142,6 +142,7 @@ mod tests {
         borrow::Borrow,
         iter::empty,
         ops::{
+            Add,
             Div,
             Mul,
             Sub,
@@ -202,6 +203,25 @@ mod tests {
                 .clone()
                 .mul(u256::new(8))
                 .div(U256::new(10)),
+            PERCENTAGE_FACTOR.sub(RESERVE_FACTOR),
+        )
+        .unwrap();
+        assert_eq!(result.current_liquidity_rate, expected_liquidity_rate);
+        assert_eq!(result.current_borrow_rate, expected_borrow_rate);
+    }
+    #[test]
+    fn test_rate_at_100_percent() {
+        let target = rate_strategy();
+        let result = target.calculate_interest_rates(CalculateInterestRatesInput {
+            available_liquidity: U256::ZERO,
+            reserve_factor: RESERVE_FACTOR,
+            total_debt: U256::new(800000000000000000),
+        });
+        let expected_borrow_rate = rate_strategy()
+            .rate_slope_1
+            .add(rate_strategy().rate_slope_2);
+        let expected_liquidity_rate = percent_mul(
+            expected_borrow_rate.clone(),
             PERCENTAGE_FACTOR.sub(RESERVE_FACTOR),
         )
         .unwrap();
