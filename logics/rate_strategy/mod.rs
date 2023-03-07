@@ -60,6 +60,10 @@ pub struct CalculateInterestRatesOutput {
     current_borrow_rate: U256,
 }
 
+fn u256_from_str_unchecked(str: &String) -> U256 {
+    U256::from_dec_str(&stdStr::from_utf8_lossy(str)).unwrap()
+}
+
 impl DefaultRateStrategy {
     pub fn new(param: DefaultRateStrategyCreateParam) -> Self {
         Self {
@@ -77,18 +81,11 @@ impl DefaultRateStrategy {
 
     fn to_param(&self) -> DefaultRateStrategyParam {
         DefaultRateStrategyParam {
-            base_borrow_rate: U256::from_dec_str(&stdStr::from_utf8_lossy(&self.base_borrow_rate))
-                .unwrap(),
-            excess_utilization_rate: U256::from_dec_str(&stdStr::from_utf8_lossy(
-                &self.excess_utilization_rate,
-            ))
-            .unwrap(),
-            optimal_utilization_rate: U256::from_dec_str(&stdStr::from_utf8_lossy(
-                &self.optimal_utilization_rate,
-            ))
-            .unwrap(),
-            rate_slope_1: U256::from_dec_str(&stdStr::from_utf8_lossy(&self.rate_slope_1)).unwrap(),
-            rate_slope_2: U256::from_dec_str(&stdStr::from_utf8_lossy(&self.rate_slope_2)).unwrap(),
+            base_borrow_rate: u256_from_str_unchecked(&self.base_borrow_rate),
+            excess_utilization_rate: u256_from_str_unchecked(&self.excess_utilization_rate),
+            optimal_utilization_rate: u256_from_str_unchecked(&self.optimal_utilization_rate),
+            rate_slope_1: u256_from_str_unchecked(&self.rate_slope_1),
+            rate_slope_2: u256_from_str_unchecked(&self.rate_slope_2),
         }
     }
     pub fn calculate_interest_rates(
