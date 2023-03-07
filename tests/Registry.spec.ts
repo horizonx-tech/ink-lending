@@ -4,27 +4,26 @@ import {
 } from './../types/event-types/registry';
 import { expect } from '@jest/globals';
 import { encodeAddress } from '@polkadot/keyring';
-import Registry_factory from '../types/constructors/registry';
-import AssetPool_factory from '../types/constructors/asset_pool';
-import Factory_factory from '../types/constructors/factory';
-import SharesToken_factory from '../types/constructors/shares_token';
 import RateStrategy_factory from '../types/constructors/rate_strategies';
-import RiskStrategy_factory from '../types/constructors/risk_strategies';
-import Manager_factory from '../types/constructors/manager';
 import Token_factory from '../types/constructors/psp22_token';
 import Registry from '../types/contracts/registry';
 import AssetPool from '../types/contracts/asset_pool';
 import Factory from '../types/contracts/factory';
 import RateStrategy from '../types/contracts/rate_strategies';
-import RiskStrategy from '../types/contracts/risk_strategies';
-import Manager from '../types/contracts/manager';
-import Token from '../types/contracts/psp22_token';
-import SharesToken from '../types/contracts/shares_token';
+import PSP22Token from '../types/contracts/psp22_token';
 import { Hash } from 'types-arguments/factory';
 import { ApiPromise } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { expectToEmit } from './testHelpers';
 import { FactoryChanged } from 'event-types/registry';
+import {
+  deployAssetPool,
+  deployFactory,
+  deployPSP22Token,
+  deployRateStrategy,
+  deployRegistry,
+  deploySharesToken,
+} from './testContractsHelpers';
 
 const zeroAddress = encodeAddress(
   '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -33,94 +32,56 @@ const zeroAddress = encodeAddress(
 describe('Registry spec', () => {
   let api: ApiPromise;
   let deployer: KeyringPair;
-  let wallet: KeyringPair;
-
-  let registryFactory: Registry_factory;
-  let assetPoolFactory: AssetPool_factory;
-  let factoryFactory: Factory_factory;
-  let rateStrategyFactory: RateStrategy_factory;
-  let riskStrategyFactory: RiskStrategy_factory;
-  let sharesFactory: SharesToken_factory;
-  let tokenFactory: Token_factory;
 
   let registry: Registry;
   let assetPool: AssetPool;
   let factory: Factory;
   let rateStrategy: RateStrategy;
-  let riskStrategy: RiskStrategy;
-  let token: Token;
+  let token: PSP22Token;
 
   let assetPoolHash: Hash;
   let sharesHash: Hash;
 
   const setup = async (): Promise<void> => {
-    ({ api, alice: deployer, bob: wallet } = globalThis.setup);
+    ({ api, alice: deployer } = globalThis.setup);
 
-    registryFactory = new Registry_factory(api, deployer);
-    registry = new Registry(
-      (await registryFactory.new(
-        zeroAddress,
-        deployer.address
-      )).address,
-      deployer,
+    registry = await deployRegistry({
       api,
-    );
+      signer: deployer,
+      args: [zeroAddress, deployer.address],
+    });
 
-    assetPoolFactory = new AssetPool_factory(api, deployer);
-    assetPool = new AssetPool(
-      (
-        await assetPoolFactory.new(
-          zeroAddress,
-          zeroAddress,
-          zeroAddress,
-          zeroAddress,
-        )
-      ).address,
-      deployer,
+    assetPool = await deployAssetPool({
       api,
-    );
+      signer: deployer,
+      args: [zeroAddress, zeroAddress, zeroAddress, zeroAddress],
+    });
     assetPoolHash = assetPool.abi.info.source.wasmHash.toHex();
 
-    tokenFactory = new Token_factory(api, deployer);
-    token = new Token(
-      (await tokenFactory.new(1_000, ['Dai Stablecoin'], ['DAI'], 18)).address,
-      deployer,
+    token = await deployPSP22Token({
       api,
-    );
-    sharesFactory = new SharesToken_factory(api, deployer);
-    const shares = new SharesToken(
-      (await sharesFactory.new(token.address, [], [], 18)).address,
-      deployer,
+      signer: deployer,
+      args: [1_000, ['Dai Stablecoin'], ['DAI'], 18],
+    });
+
+    const shares = await deploySharesToken({
       api,
-    );
+      signer: deployer,
+      args: [token.address, [], [], 18],
+    });
     sharesHash = shares.abi.info.source.wasmHash.toHex();
 
-    factoryFactory = new Factory_factory(api, deployer);
-    factory = new Factory(
-      (
-        await factoryFactory.new(
-            registry.address,
-            assetPoolHash,
-            sharesHash,
-            deployer.address
-        )
-      ).address,
-      deployer,
+    factory = await deployFactory({
       api,
-    );
+      signer: deployer,
+      args: [registry.address, assetPoolHash, sharesHash, deployer.address],
+    });
 
-    rateStrategyFactory = new RateStrategy_factory(api, deployer);
-    rateStrategy = new RateStrategy(
-      (await rateStrategyFactory.new()).address,
-      deployer,
+    rateStrategy = await deployRateStrategy({
       api,
-    );
-    riskStrategyFactory = new RiskStrategy_factory(api, deployer);
-    riskStrategy = new RiskStrategy(
-      (await riskStrategyFactory.new(null)).address,
-      deployer,
-      api,
-    );
+      signer: deployer,
+      args: [],
+    });
   };
 
   beforeAll(async () => {
@@ -186,13 +147,15 @@ describe('Registry spec', () => {
     });
     it('set rate strategy with asset', async () => {
       const anotherStrategy = new RateStrategy(
-        (await rateStrategyFactory.new()).address,
+        (await new RateStrategy_factory(api, deployer).new()).address,
         deployer,
         api,
       ).address;
 
-      const anotherToken = new Token(
-        (await tokenFactory.new(1_000, null, null, 18)).address,
+      const anotherToken = new PSP22Token(
+        (
+          await new Token_factory(api, deployer).new(1_000, null, null, 18)
+        ).address,
         deployer,
         api,
       ).address;
