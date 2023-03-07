@@ -22,13 +22,13 @@ describe('SharesToken spec', () => {
     token = await deployPSP22Token({
       api,
       signer: deployer,
-      args: [1_000, ['Dai Stablecoin'], ['DAI'], 18]
+      args: [1_000, ['Dai Stablecoin'], ['DAI'], 18],
     });
 
     shares = await deploySharesToken({
       api,
       signer: deployer,
-      args: [token.address, null, null, 18]
+      args: [token.address, null, null, 18],
     });
   };
 
@@ -44,7 +44,7 @@ describe('SharesToken spec', () => {
 
     const instance = new SharesToken(
       (
-        await (new SharesToken_factory(api, deployer)).new(
+        await new SharesToken_factory(api, deployer).new(
           expectedAsset,
           expectedName as unknown as string[],
           expectedSymbol as unknown as string[],

@@ -8,7 +8,15 @@ import RiskStrategy from '../types/contracts/risk_strategies';
 import PSP22Token from '../types/contracts/psp22_token';
 import { ApiPromise } from '@polkadot/api';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { deployAssetPool, deployFactory, deployPSP22Token, deployRateStrategy, deployRegistry, deployRiskStrategy, deploySharesToken } from './testContractsHelpers';
+import {
+  deployAssetPool,
+  deployFactory,
+  deployPSP22Token,
+  deployRateStrategy,
+  deployRegistry,
+  deployRiskStrategy,
+  deploySharesToken,
+} from './testContractsHelpers';
 
 const zeroAddress = encodeAddress(
   '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -17,7 +25,6 @@ const zeroAddress = encodeAddress(
 describe('Lending spec', () => {
   let api: ApiPromise;
   let deployer: KeyringPair;
-  let wallet: KeyringPair;
 
   let registry: Registry;
   let assetPool: AssetPool;
@@ -27,50 +34,50 @@ describe('Lending spec', () => {
   let token: PSP22Token;
 
   const setup = async (): Promise<void> => {
-    ({ api, alice: deployer, bob: wallet } = globalThis.setup);
+    ({ api, alice: deployer } = globalThis.setup);
     registry = await deployRegistry({
       api,
       signer: deployer,
-      args: [zeroAddress, deployer.address]
-    })
+      args: [zeroAddress, deployer.address],
+    });
 
     assetPool = await deployAssetPool({
       api,
       signer: deployer,
-      args: [zeroAddress, zeroAddress, zeroAddress, zeroAddress]
+      args: [zeroAddress, zeroAddress, zeroAddress, zeroAddress],
     });
     const assetPoolHash = assetPool.abi.info.source.wasmHash.toHex();
 
     token = await deployPSP22Token({
       api,
       signer: deployer,
-      args: [1_000, ['Dai Stablecoin'], ['DAI'], 18]
-    })
+      args: [1_000, ['Dai Stablecoin'], ['DAI'], 18],
+    });
 
     const shares = await deploySharesToken({
       api,
       signer: deployer,
-      args: [token.address, [], [], 18]
-    })
+      args: [token.address, [], [], 18],
+    });
     const sharesHash = shares.abi.info.source.wasmHash.toHex();
 
     factory = await deployFactory({
       api,
       signer: deployer,
-      args: [registry.address, assetPoolHash, sharesHash, deployer.address]
-    })
+      args: [registry.address, assetPoolHash, sharesHash, deployer.address],
+    });
 
     rateStrategy = await deployRateStrategy({
       api,
       signer: deployer,
-      args: []
-    })
+      args: [],
+    });
 
     riskStrategy = await deployRiskStrategy({
       api,
       signer: deployer,
-      args: [null]
-    })
+      args: [null],
+    });
 
     // initialize
     await registry.tx.setRateStrategy(rateStrategy.address, null);

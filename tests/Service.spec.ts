@@ -1,4 +1,3 @@
-import { RateStrategyChanged } from '../types/event-types/registry';
 import { expect } from '@jest/globals';
 import { encodeAddress } from '@polkadot/keyring';
 import Service_factory from '../types/constructors/service';
@@ -16,7 +15,11 @@ import {
   Repaid,
   Withdrew,
 } from 'event-types/service';
-import { deployDummyPool, deployDummyRiskStrategy, deployRegistry } from './testContractsHelpers';
+import {
+  deployDummyPool,
+  deployDummyRiskStrategy,
+  deployRegistry,
+} from './testContractsHelpers';
 
 const zeroAddress = encodeAddress(
   '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -42,28 +45,23 @@ describe('Service spec', () => {
     registry = await deployRegistry({
       api,
       signer: deployer,
-      args: [zeroAddress, deployer.address]
-    })
+      args: [zeroAddress, deployer.address],
+    });
 
     dummyPool = await deployDummyPool({
       api,
       signer: deployer,
-      args: [
-        registry.address,
-        asset,
-        zeroAddress,
-        zeroAddress,
-      ]
-    })
+      args: [registry.address, asset, zeroAddress, zeroAddress],
+    });
 
     dummmyRiskStrategy = await deployDummyRiskStrategy({
       api,
       signer: deployer,
-      args: []
+      args: [],
     });
 
     service = new Service(
-      (await (new Service_factory(api, deployer)).new(registry.address)).address,
+      (await new Service_factory(api, deployer).new(registry.address)).address,
       wallet,
       api,
     );

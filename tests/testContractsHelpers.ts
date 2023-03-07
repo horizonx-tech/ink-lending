@@ -1,5 +1,5 @@
-import type { ApiPromise } from "@polkadot/api";
-import type { KeyringPair } from "@polkadot/keyring/types";
+import type { ApiPromise } from '@polkadot/api';
+import type { KeyringPair } from '@polkadot/keyring/types';
 
 import AssetPool_factory from '../types/constructors/asset_pool';
 import SharesToken_factory from '../types/constructors/shares_token';
@@ -30,179 +30,135 @@ type FactoryArgs = {
   signer: KeyringPair;
 };
 
-export const deployAssetPool = async (
-  {
-    api,
-    signer,
-    args
-  }: FactoryArgs & { args: Parameters<AssetPool_factory["new"]> }
-) => {
-  const factory = new AssetPool_factory(api, signer)
-  const contract = await factory.new(...args)
-  return new AssetPool(
-    contract.address,
-    signer,
-    api
-  )
-}
+export const deployAssetPool = async ({
+  api,
+  signer,
+  args,
+}: FactoryArgs & {
+  args: Parameters<AssetPool_factory['new']>;
+}): Promise<AssetPool> => {
+  const factory = new AssetPool_factory(api, signer);
+  const contract = await factory.new(...args);
+  return new AssetPool(contract.address, signer, api);
+};
 
-export const deploySharesToken = async (
-  {
-    api,
-    signer,
-    args
-  }: FactoryArgs & { args: Parameters<SharesToken_factory["new"]> }
-) => {
-  const factory = new SharesToken_factory(api, signer)
-  const contract = await factory.new(...args)
-  return new SharesToken(
-    contract.address,
-    signer,
-    api
-  )
-}
+export const deploySharesToken = async ({
+  api,
+  signer,
+  args,
+}: FactoryArgs & {
+  args: Parameters<SharesToken_factory['new']>;
+}): Promise<SharesToken> => {
+  const factory = new SharesToken_factory(api, signer);
+  const contract = await factory.new(...args);
+  return new SharesToken(contract.address, signer, api);
+};
 
-export const deployRateStrategy = async (
-  {
-    api,
-    signer,
-    args
-  }: FactoryArgs & { args: Parameters<RateStrategy_factory["new"]> }
-) => {
-  const factory = new RateStrategy_factory(api, signer)
-  const contract = await factory.new(...args)
-  return new RateStrategy(
-    contract.address,
-    signer,
-    api
-  )
-}
+export const deployRateStrategy = async ({
+  api,
+  signer,
+  args,
+}: FactoryArgs & {
+  args: Parameters<RateStrategy_factory['new']>;
+}): Promise<RateStrategy> => {
+  const factory = new RateStrategy_factory(api, signer);
+  const contract = await factory.new(...args);
+  return new RateStrategy(contract.address, signer, api);
+};
 
-export const deployRiskStrategy = async (
-  {
-    api,
-    signer,
-    args
-  }: FactoryArgs & { args: Parameters<RiskStrategy_factory["new"]> }
-) => {
-  const factory = new RiskStrategy_factory(api, signer)
-  const contract = await factory.new(...args)
-  return new RiskStrategy(
-    contract.address,
-    signer,
-    api
-  )
-}
+export const deployRiskStrategy = async ({
+  api,
+  signer,
+  args,
+}: FactoryArgs & {
+  args: Parameters<RiskStrategy_factory['new']>;
+}): Promise<RiskStrategy> => {
+  const factory = new RiskStrategy_factory(api, signer);
+  const contract = await factory.new(...args);
+  return new RiskStrategy(contract.address, signer, api);
+};
 
-export const deployService = async (
-  {
-    api,
-    signer,
-    args
-  }: FactoryArgs & { args: Parameters<Service_factory["new"]> }
-) => {
-  const factory = new Service_factory(api, signer)
-  const contract = await factory.new(...args)
-  return new Service(
-    contract.address,
-    signer,
-    api
-  )
-}
+export const deployService = async ({
+  api,
+  signer,
+  args,
+}: FactoryArgs & {
+  args: Parameters<Service_factory['new']>;
+}): Promise<Service> => {
+  const factory = new Service_factory(api, signer);
+  const contract = await factory.new(...args);
+  return new Service(contract.address, signer, api);
+};
 
-export const deployFactory = async (
-  {
-    api,
-    signer,
-    args
-  }: FactoryArgs & { args: Parameters<Factory_factory["new"]> }
-) => {
-  const factory = new Factory_factory(api, signer)
-  const contract = await factory.new(...args)
-  return new Factory(
-    contract.address,
-    signer,
-    api
-  )
-}
+export const deployFactory = async ({
+  api,
+  signer,
+  args,
+}: FactoryArgs & {
+  args: Parameters<Factory_factory['new']>;
+}): Promise<Factory> => {
+  const factory = new Factory_factory(api, signer);
+  const contract = await factory.new(...args);
+  return new Factory(contract.address, signer, api);
+};
 
-export const deployRegistry = async (
-  {
-    api,
-    signer,
-    args
-  }: FactoryArgs & { args: Parameters<Registry_factory["new"]> }
-) => {
-  const factory = new Registry_factory(api, signer)
-  const contract = await factory.new(...args)
-  return new Registry(
-    contract.address,
-    signer,
-    api
-  )
-}
+export const deployRegistry = async ({
+  api,
+  signer,
+  args,
+}: FactoryArgs & {
+  args: Parameters<Registry_factory['new']>;
+}): Promise<Registry> => {
+  const factory = new Registry_factory(api, signer);
+  const contract = await factory.new(...args);
+  return new Registry(contract.address, signer, api);
+};
 
-export const deployManager = async (
-  {
-    api,
-    signer,
-    args
-  }: FactoryArgs & { args: Parameters<Manager_factory["new"]> }
-) => {
-  const factory = new Manager_factory(api, signer)
-  const contract = await factory.new(...args)
-  return new Manager(
-    contract.address,
-    signer,
-    api
-  )
-}
+export const deployManager = async ({
+  api,
+  signer,
+  args,
+}: FactoryArgs & {
+  args: Parameters<Manager_factory['new']>;
+}): Promise<Manager> => {
+  const factory = new Manager_factory(api, signer);
+  const contract = await factory.new(...args);
+  return new Manager(contract.address, signer, api);
+};
 
 // Mocks
-export const deployDummyPool = async (
-  {
-    api,
-    signer,
-    args
-  }: FactoryArgs & { args: Parameters<DummyPool_factory["new"]> }
-) => {
-  const factory = new DummyPool_factory(api, signer)
-  const contract = await factory.new(...args)
-  return new DummyPool(
-    contract.address,
-    signer,
-    api
-  )
-}
+export const deployDummyPool = async ({
+  api,
+  signer,
+  args,
+}: FactoryArgs & {
+  args: Parameters<DummyPool_factory['new']>;
+}): Promise<DummyPool> => {
+  const factory = new DummyPool_factory(api, signer);
+  const contract = await factory.new(...args);
+  return new DummyPool(contract.address, signer, api);
+};
 
-export const deployDummyRiskStrategy = async (
-  {
-    api,
-    signer,
-    args
-  }: FactoryArgs & { args: Parameters<DummyRiskStrategy_factory["new"]> }
-) => {
-  const factory = new DummyRiskStrategy_factory(api, signer)
-  const contract = await factory.new(...args)
-  return new DummyRiskStrategy(
-    contract.address,
-    signer,
-    api
-  )
-}
+export const deployDummyRiskStrategy = async ({
+  api,
+  signer,
+  args,
+}: FactoryArgs & {
+  args: Parameters<DummyRiskStrategy_factory['new']>;
+}): Promise<DummyRiskStrategy> => {
+  const factory = new DummyRiskStrategy_factory(api, signer);
+  const contract = await factory.new(...args);
+  return new DummyRiskStrategy(contract.address, signer, api);
+};
 
-export const deployPSP22Token = async (
-  {
-    api,
-    signer,
-    args
-  }: FactoryArgs & { args: Parameters<PSP22Token_factory["new"]> }
-) => {
-  const factory = new PSP22Token_factory(api, signer)
-  const contract = await factory.new(...args)
-  return new PSP22Token(
-    contract.address,
-    signer,
-    api
-  )
-}
+export const deployPSP22Token = async ({
+  api,
+  signer,
+  args,
+}: FactoryArgs & {
+  args: Parameters<PSP22Token_factory['new']>;
+}): Promise<PSP22Token> => {
+  const factory = new PSP22Token_factory(api, signer);
+  const contract = await factory.new(...args);
+  return new PSP22Token(contract.address, signer, api);
+};
