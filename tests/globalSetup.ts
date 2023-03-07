@@ -10,5 +10,9 @@ export default async function setupApi(): Promise<void> {
   });
   const alice = keyring.addFromUri('//Alice');
   const bob = keyring.addFromUri('//Bob');
-  globalThis.setup = { api, alice, bob };
+  const charlie = keyring.addFromUri('//Charlie');
+  const django = keyring.addFromUri('//Django');
+  const eve = keyring.addFromUri('//Eve');
+  const frank = keyring.addFromUri('//Frank');
+  globalThis.setup = { api, alice, bob, charlie, django, eve, frank };
 }
