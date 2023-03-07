@@ -9,6 +9,7 @@ mod manager {
             EmitEvent,
             Env,
         },
+        prelude::vec::Vec,
     };
     use logics::{
         manager,

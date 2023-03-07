@@ -1,3 +1,4 @@
+use ink::prelude::vec::Vec;
 use openbrush::traits::AccountId;
 use openbrush::contracts::traits::access_control::AccessControlError;
 use super::{
