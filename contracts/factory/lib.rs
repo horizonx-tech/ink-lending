@@ -63,12 +63,11 @@ pub mod factory {
                     .code_hash(self.factory.shares_code_hash)
                     .salt_bytes(&salt[..4])
                     .instantiate();
-            let debt =
-                SharesTokenRef::new(asset, Some("debt".into()), Some("vd".into()), 18)
-                    .endowment(0)
-                    .code_hash(self.factory.shares_code_hash)
-                    .salt_bytes(&salt[5..9])
-                    .instantiate();
+            let debt = SharesTokenRef::new(asset, Some("debt".into()), Some("vd".into()), 18)
+                .endowment(0)
+                .code_hash(self.factory.shares_code_hash)
+                .salt_bytes(&salt[5..9])
+                .instantiate();
 
             let pool = AssetPoolContractRef::new(
                 self.factory.registry,
@@ -111,11 +110,7 @@ pub mod factory {
             let registry = AccountId::from([0xfa; 32]);
             let pool_code_hash = [1u8; 32].into();
             let shares_code_hash = [2u8; 32].into();
-            let contract = FactoryContract::new(
-                registry,
-                pool_code_hash,
-                shares_code_hash,
-            );
+            let contract = FactoryContract::new(registry, pool_code_hash, shares_code_hash);
 
             assert_eq!(contract.registry(), registry);
             assert_eq!(contract.pool_code_hash(), pool_code_hash);
@@ -135,7 +130,9 @@ pub mod factory {
 
             set_caller(accounts.charlie);
             assert_eq!(
-                contract.create(AccountId::from([0x00; 32]), vec![]).unwrap_err(),
+                contract
+                    .create(AccountId::from([0x00; 32]), vec![])
+                    .unwrap_err(),
                 Error::CallerIsNotManager
             );
         }

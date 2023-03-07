@@ -81,8 +81,7 @@ impl<T: Storage<Data>> Internal for T {
         address: AccountId,
         asset: Option<AccountId>,
     ) -> Result<()> {
-        RegistryRef::set_rate_strategy(&self._factory(), address, asset)
-            .map_err(to_registry_error)
+        RegistryRef::set_rate_strategy(&self._factory(), address, asset).map_err(to_registry_error)
     }
 
     default fn _update_risk_strategy(
@@ -90,8 +89,7 @@ impl<T: Storage<Data>> Internal for T {
         address: AccountId,
         asset: Option<AccountId>,
     ) -> Result<()> {
-        RegistryRef::set_risk_strategy(&self._factory(), address, asset)
-            .map_err(to_registry_error)
+        RegistryRef::set_risk_strategy(&self._factory(), address, asset).map_err(to_registry_error)
     }
 }
 

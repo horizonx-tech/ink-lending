@@ -1,16 +1,18 @@
-use ink::prelude::vec::Vec;
-use openbrush::traits::AccountId;
-use openbrush::contracts::traits::access_control::AccessControlError;
 use super::{
     factory::Error as FactoryError,
-    registry::Error as RegistryError
+    registry::Error as RegistryError,
+};
+use ink::prelude::vec::Vec;
+use openbrush::{
+    contracts::traits::access_control::AccessControlError,
+    traits::AccountId,
 };
 
 #[openbrush::wrapper]
 pub type ManagerRef = dyn Manager;
 
 #[openbrush::trait_definition]
-pub trait Manager: {
+pub trait Manager {
     #[ink(message)]
     fn registry(&self) -> AccountId;
 
