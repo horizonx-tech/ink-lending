@@ -263,14 +263,14 @@ impl<T: Storage<Data>> Internal for T {
     }
 
     default fn _assert_manager(&self) -> Result<()> {
-        if self.data().manager != Self::env().caller() {
+        if self._manager() != Self::env().caller() {
             return Err(Error::CallerIsNotManager)
         }
         Ok(())
     }
 
     default fn _assert_factory(&self) -> Result<()> {
-        if self.data().factory != Self::env().caller() {
+        if self._factory() != Self::env().caller() {
             return Err(Error::CallerIsNotFactory)
         }
         Ok(())
