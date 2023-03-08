@@ -35,6 +35,8 @@ pub trait Internal {
         -> Result<()>;
     fn _update_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>)
         -> Result<()>;
+    fn _set_factory(&mut self, address: AccountId) -> Result<()>;
+    fn _set_price_oracle(&mut self, address: AccountId) -> Result<()>;
 }
 
 impl<T: Storage<Data> + Storage<access_control::Data>> Manager for T {
@@ -60,6 +62,14 @@ impl<T: Storage<Data> + Storage<access_control::Data>> Manager for T {
         asset: Option<AccountId>,
     ) -> Result<()> {
         self._update_risk_strategy(address, asset)
+    }
+
+    default fn set_factory(&mut self, address: AccountId) -> Result<()> {
+        self._set_factory(address)
+    }
+
+    default fn set_price_oracle(&mut self, address: AccountId) -> Result<()> {
+        self._set_price_oracle(address)
     }
 }
 
@@ -90,6 +100,14 @@ impl<T: Storage<Data>> Internal for T {
         asset: Option<AccountId>,
     ) -> Result<()> {
         RegistryRef::set_risk_strategy(&self._registry(), address, asset).map_err(to_registry_error)
+    }
+
+    default fn _set_factory(&mut self, address: AccountId) -> Result<()> {
+        RegistryRef::set_factory(&self._registry(), address).map_err(to_registry_error)
+    }
+
+    default fn _set_price_oracle(&mut self, address: AccountId) -> Result<()> {
+        RegistryRef::set_price_oracle(&self._registry(), address).map_err(to_registry_error)
     }
 }
 
