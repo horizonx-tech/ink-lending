@@ -357,12 +357,17 @@ pub mod registry {
             set_caller(accounts.bob);
             let mut contract = RegistryContract::new(Some(accounts.bob));
 
-            let asset = AccountId::from([0xaa; 32]);
-            let strategy = AccountId::from([0xff; 32]);
+            let asset = AccountId::from([0xa1; 32]);
+            let strategy = AccountId::from([0xf1; 32]);
+            let default_strategy = AccountId::from([0xff; 32]);
             assert!(contract.set_risk_strategy(strategy, Some(asset)).is_ok());
+            assert!(contract.set_risk_strategy(default_strategy, None).is_ok());
             let event = decode_risk_strategy_changed_event(get_emitted_events()[0].clone());
             assert_eq!(event.asset, Some(asset));
             assert_eq!(event.strategy, strategy);
+            let event = decode_risk_strategy_changed_event(get_emitted_events()[1].clone());
+            assert_eq!(event.asset, None);
+            assert_eq!(event.strategy, default_strategy);
         }
 
         #[ink::test]
@@ -404,12 +409,17 @@ pub mod registry {
             set_caller(accounts.bob);
             let mut contract = RegistryContract::new(Some(accounts.bob));
 
-            let asset = AccountId::from([0xaa; 32]);
-            let strategy = AccountId::from([0xff; 32]);
+            let asset = AccountId::from([0xa1; 32]);
+            let strategy = AccountId::from([0xf1; 32]);
+            let default_strategy = AccountId::from([0xff; 32]);
             assert!(contract.set_rate_strategy(strategy, Some(asset)).is_ok());
+            assert!(contract.set_rate_strategy(default_strategy, None).is_ok());
             let event = decode_rate_strategy_changed_event(get_emitted_events()[0].clone());
             assert_eq!(event.asset, Some(asset));
             assert_eq!(event.strategy, strategy);
+            let event = decode_rate_strategy_changed_event(get_emitted_events()[1].clone());
+            assert_eq!(event.asset, None);
+            assert_eq!(event.strategy, default_strategy);
         }
 
         #[ink::test]
