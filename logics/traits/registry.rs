@@ -1,3 +1,4 @@
+use ink::prelude::vec::Vec;
 use openbrush::traits::AccountId;
 
 #[openbrush::wrapper]
@@ -7,6 +8,15 @@ pub type RegistryRef = dyn Registry;
 pub trait Registry {
     #[ink(message)]
     fn factory(&self) -> AccountId;
+
+    #[ink(message)]
+    fn asset_list(&self) -> Vec<AccountId>;
+
+    #[ink(message)]
+    fn asset(&self, index: u64) -> Option<AccountId>;
+
+    #[ink(message)]
+    fn assets_count(&self) -> u64;
 
     #[ink(message)]
     fn manager(&self) -> AccountId;
@@ -27,6 +37,9 @@ pub trait Registry {
     fn default_risk_strategy(&self) -> AccountId;
 
     #[ink(message)]
+    fn price_oracle(&self) -> AccountId;
+
+    #[ink(message)]
     fn register_pool(&mut self, asset: AccountId, pool: AccountId) -> Result<()>;
 
     #[ink(message)]
@@ -37,6 +50,9 @@ pub trait Registry {
 
     #[ink(message)]
     fn set_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
+
+    #[ink(message)]
+    fn set_price_oracle(&mut self, address: AccountId) -> Result<()>;
 }
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]

@@ -39,6 +39,11 @@ pub mod registry {
         strategy: AccountId,
     }
 
+    #[ink(event)]
+    pub struct PriceOracleChanged {
+        price_oracle: AccountId,
+    }
+
     #[ink(storage)]
     #[derive(Default, Storage)]
     pub struct RegistryContract {
@@ -74,6 +79,10 @@ pub mod registry {
         fn _emit_risk_strategy_changed_event(&self, strategy: AccountId, asset: Option<AccountId>) {
             self.env()
                 .emit_event(RiskStrategyChanged { strategy, asset });
+        }
+
+        fn _emit_price_oracle_changed_event(&self, price_oracle: AccountId) {
+            self.env().emit_event(PriceOracleChanged { price_oracle });
         }
     }
 

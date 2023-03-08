@@ -1,4 +1,5 @@
 use crate::traits::registry::*;
+use ink::prelude::vec::Vec;
 use openbrush::{
     storage::Mapping,
     traits::{
@@ -12,26 +13,33 @@ pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 #[derive(Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
-    pub factory: AccountId,
     pub manager: AccountId,
+    pub factory: AccountId,
+    pub asset_list: Vec<AccountId>,
     pub pools: Mapping<AccountId, AccountId>,
     pub rate_strategies: Mapping<AccountId, AccountId>,
     pub risk_strategies: Mapping<AccountId, AccountId>,
+    pub price_oracle: AccountId,
     pub default_rate_strategy: AccountId,
     pub default_risk_strategy: AccountId,
 }
 
 pub trait Internal {
     fn _factory(&self) -> AccountId;
+    fn _asset_list(&self) -> Vec<AccountId>;
+    fn _asset(&self, index: u64) -> Option<AccountId>;
+    fn _assets_count(&self) -> u64;
     fn _manager(&self) -> AccountId;
     fn _pool(&self, asset: &AccountId) -> Option<AccountId>;
     fn _rate_strategy(&self, asset: &AccountId) -> AccountId;
     fn _risk_strategy(&self, asset: &AccountId) -> AccountId;
+    fn _price_oracle(&self) -> AccountId;
     fn _register_pool(&mut self, asset: &AccountId, pool: &AccountId) -> Result<()>;
     fn _set_factory(&mut self, address: AccountId) -> Result<()>;
     fn _set_manager(&mut self, address: AccountId) -> Result<()>;
     fn _set_rate_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
     fn _set_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
+    fn _set_price_oracle(&mut self, address: AccountId) -> Result<()>;
     fn _assert_manager(&self) -> Result<()>;
 
     // event emission
@@ -39,11 +47,24 @@ pub trait Internal {
     fn _emit_factory_changed_event(&self, factory: AccountId);
     fn _emit_rate_strategy_changed_event(&self, strategy: AccountId, asset: Option<AccountId>);
     fn _emit_risk_strategy_changed_event(&self, strategy: AccountId, asset: Option<AccountId>);
+    fn _emit_price_oracle_changed_event(&self, price_oracle: AccountId);
 }
 
 impl<T: Storage<Data>> Registry for T {
     default fn factory(&self) -> AccountId {
         self._factory()
+    }
+
+    default fn asset_list(&self) -> Vec<AccountId> {
+        self._asset_list()
+    }
+
+    default fn asset(&self, index: u64) -> Option<AccountId> {
+        self._asset(index)
+    }
+
+    default fn assets_count(&self) -> u64 {
+        self._assets_count()
     }
 
     default fn manager(&self) -> AccountId {
@@ -68,6 +89,10 @@ impl<T: Storage<Data>> Registry for T {
 
     default fn default_risk_strategy(&self) -> AccountId {
         self.data().default_risk_strategy
+    }
+
+    default fn price_oracle(&self) -> AccountId {
+        self._price_oracle()
     }
 
     default fn register_pool(&mut self, asset: AccountId, pool: AccountId) -> Result<()> {
@@ -103,16 +128,24 @@ impl<T: Storage<Data>> Registry for T {
         self._emit_risk_strategy_changed_event(address, asset);
         Ok(())
     }
+
+    default fn set_price_oracle(&mut self, address: AccountId) -> Result<()> {
+        self._set_price_oracle(address)?;
+        self._emit_price_oracle_changed_event(address);
+        Ok(())
+    }
 }
 
 impl Default for Data {
     fn default() -> Self {
         Self {
-            factory: [0u8; 32].into(),
             manager: [0u8; 32].into(),
+            factory: [0u8; 32].into(),
+            asset_list: Vec::new(),
             pools: Default::default(),
             rate_strategies: Default::default(),
             risk_strategies: Default::default(),
+            price_oracle: [0u8; 32].into(),
             default_rate_strategy: [0u8; 32].into(),
             default_risk_strategy: [0u8; 32].into(),
         }
@@ -122,6 +155,18 @@ impl Default for Data {
 impl<T: Storage<Data>> Internal for T {
     default fn _factory(&self) -> AccountId {
         self.data().factory
+    }
+
+    default fn _asset_list(&self) -> Vec<AccountId> {
+        self.data().asset_list.clone()
+    }
+
+    default fn _asset(&self, index: u64) -> Option<AccountId> {
+        self.data().asset_list.get(index as usize).cloned()
+    }
+
+    default fn _assets_count(&self) -> u64 {
+        self.data().asset_list.len() as u64
     }
 
     default fn _manager(&self) -> AccountId {
@@ -146,10 +191,15 @@ impl<T: Storage<Data>> Internal for T {
             .unwrap_or(self.data().default_risk_strategy)
     }
 
+    default fn _price_oracle(&self) -> AccountId {
+        self.data().price_oracle
+    }
+
     default fn _register_pool(&mut self, asset: &AccountId, pool: &AccountId) -> Result<()> {
         if self._pool(asset).is_some() {
             return Err(Error::PoolAlreadyExists)
         }
+        self.data().asset_list.push(*asset);
         self.data().pools.insert(asset, pool);
 
         Ok(())
@@ -195,6 +245,11 @@ impl<T: Storage<Data>> Internal for T {
         Ok(())
     }
 
+    default fn _set_price_oracle(&mut self, address: AccountId) -> Result<()> {
+        self.data().price_oracle = address;
+        Ok(())
+    }
+
     default fn _assert_manager(&self) -> Result<()> {
         if self.data().manager != Self::env().caller() {
             return Err(Error::CallerIsNotManager)
@@ -217,4 +272,5 @@ impl<T: Storage<Data>> Internal for T {
         _asset: Option<AccountId>,
     ) {
     }
+    default fn _emit_price_oracle_changed_event(&self, _price_oracle: AccountId) {}
 }

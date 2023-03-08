@@ -9,3 +9,4 @@ pub mod rate_strategy;
 pub mod registry;
 pub mod service;
 pub mod traits;
+pub mod ui_data_providers;

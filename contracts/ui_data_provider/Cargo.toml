@@ -1,5 +1,5 @@
 [package]
-name = "asset_pool"
+name = "ui_data_provider"
 version = "0.1.0"
 authors = ["HorizonX"]
 edition = "2021"
@@ -12,13 +12,11 @@ scale-info = { version = "2.3", default-features = false, features = ["derive"],
 
 openbrush = { version = "3.0.0", git = "https://github.com/727-Ventures/openbrush-contracts", default-features = false }
 logics = { path = "../../logics", default-features = false }
+asset_pool = { path = "../asset_pool", default-features = false, features  = ["ink-as-dependency"] }
 
 [lib]
 path = "lib.rs"
-crate-type = [
-    "cdylib",
-    "rlib",
-]
+crate-type = ["cdylib"]
 
 [features]
 default = ["std"]
@@ -28,5 +26,5 @@ std = [
     "scale-info/std",
     "openbrush/std",
     "logics/std",
+    "asset_pool/std",
 ]
-ink-as-dependency = []

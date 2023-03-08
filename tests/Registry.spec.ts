@@ -1,4 +1,7 @@
-import { RateStrategyChanged } from './../types/event-types/registry';
+import {
+  PriceOracleChanged,
+  RateStrategyChanged,
+} from './../types/event-types/registry';
 import { expect } from '@jest/globals';
 import { encodeAddress } from '@polkadot/keyring';
 import RateStrategy_factory from '../types/constructors/rate_strategies';
@@ -177,5 +180,21 @@ describe('Registry spec', () => {
       } = await registry.query.rateStrategy(token.address));
       expect(address).toBe(rateStrategy.address);
     });
+  });
+  it('set price oracle', async () => {
+    const priceOracle = encodeAddress(
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
+    );
+    const res = await registry.tx.setPriceOracle(priceOracle);
+
+    expect(res.events).toHaveLength(1);
+    expectToEmit<PriceOracleChanged>(res.events[0], 'PriceOracleChanged', {
+      priceOracle,
+    });
+
+    const {
+      value: { ok: actual },
+    } = await registry.query.priceOracle();
+    expect(actual).toBe(priceOracle);
   });
 });

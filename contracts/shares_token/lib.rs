@@ -107,6 +107,17 @@ pub mod token {
             self._mint_to(account, amount)
         }
     }
+    impl PSP22Shareable for SharesToken {
+        #[ink(message)]
+        fn total_share(&self) -> Balance {
+            self.psp22.supply.clone()
+        }
+
+        #[ink(message)]
+        fn share_of(&self, owner: AccountId) -> Balance {
+            self.psp22.balances.get(&owner).unwrap_or(0)
+        }
+    }
     impl Ownable for SharesToken {}
 
     impl psp22::Internal for SharesToken {

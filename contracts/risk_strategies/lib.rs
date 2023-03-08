@@ -5,6 +5,7 @@
 pub mod strategies {
     use logics::traits::{
         price_oracle::PriceOracleRef,
+        registry::RegistryRef,
         risk_strategy::*,
     };
     use openbrush::traits::Storage;
@@ -12,15 +13,10 @@ pub mod strategies {
     #[ink(storage)]
     #[derive(Storage)]
     pub struct DefaultRiskStrategyContract {
-        price_oracle: AccountId,
+        registry: AccountId,
     }
 
     impl RiskStrategy for DefaultRiskStrategyContract {
-        #[ink(message)]
-        fn price_oracle(&self) -> AccountId {
-            self.price_oracle
-        }
-
         #[ink(message)]
         fn validate_borrow(
             &self,
@@ -58,22 +54,14 @@ pub mod strategies {
 
     impl DefaultRiskStrategyContract {
         #[ink(constructor)]
-        pub fn new(price_oracle: Option<AccountId>) -> Self {
-            Self {
-                price_oracle: price_oracle.unwrap_or(AccountId::from([0u8; 32])),
-            }
-        }
-
-        // TODO permission
-        #[ink(message)]
-        pub fn set_price_oracle(&mut self, price_oracle: AccountId) {
-            self.price_oracle = price_oracle;
+        pub fn new(registry: AccountId) -> Self {
+            Self { registry }
         }
     }
 
     impl DefaultRiskStrategyContract {
         fn _asset_price(&self, asset: AccountId) -> u128 {
-            PriceOracleRef::get(&self.price_oracle, asset)
+            PriceOracleRef::get(&RegistryRef::price_oracle(&self.registry), asset)
         }
     }
 }

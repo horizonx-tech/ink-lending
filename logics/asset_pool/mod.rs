@@ -21,7 +21,7 @@ use openbrush::{
 
 pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
 pub struct Data {
     // config
@@ -61,6 +61,7 @@ pub trait Internal {
     fn _to_liquidity_share(&self, amount: Balance) -> Balance;
     fn _to_debt_share(&self, amount: Balance) -> Balance;
     fn _calculate_index_with_interest(current_index: u128, rate: u128, elapsed_sec: u128) -> u128;
+    fn _data(&self) -> Data;
 }
 
 impl<T: Storage<Data>> AssetPool for T {
@@ -113,6 +114,22 @@ impl<T: Storage<Data>> AssetPool for T {
     default fn debt_index(&self) -> u128 { self.data().debt_index }
     default fn debt_rate(&self) -> u128 { self.data().debt_rate }
     default fn last_update_timestamp(&self) -> Timestamp { self.data().last_update_timestamp }
+}
+
+impl Default for Data {
+    fn default() -> Self {
+        Self {
+            registry: AccountId::from([0u8; 32]),
+            asset: AccountId::from([0u8; 32]),
+            collateral_token: AccountId::from([0u8; 32]),
+            debt_token: AccountId::from([0u8; 32]),
+            liquidity_index: 0,
+            liquidity_rate: 0,
+            debt_index: 0,
+            debt_rate: 0,
+            last_update_timestamp: 0,
+        }
+    }
 }
 
 impl<T: Storage<Data>> Internal for T {
@@ -305,6 +322,10 @@ impl<T: Storage<Data>> Internal for T {
         _elapsed_sec: u128,
     ) -> u128 {
         todo!()
+    }
+
+    default fn _data(&self) -> Data {
+        self.data().clone()
     }
 }
 
