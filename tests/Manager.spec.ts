@@ -6,7 +6,7 @@ import Factory from '../types/contracts/factory';
 import Manager from '../types/contracts/manager';
 import ASSET_POOL_ABI from '../artifacts/asset_pool.json';
 import SHARES_TOKEN_ABI from '../artifacts/shares_token.json';
-import { deployAssetPool, deployFactory, deployManager, deployPSP22Token, deployRegistry, deploySharesToken } from './testContractsHelpers';
+import { deployFactory, deployManager, deployRegistry } from './testContractsHelpers';
 
 const zeroAddress = encodeAddress(
   '0x0000000000000000000000000000000000000000000000000000000000000000',
