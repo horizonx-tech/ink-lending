@@ -37,6 +37,7 @@ pub trait Internal {
     // event emission
     fn _emit_pool_registered_event(&self, asset: AccountId, pool: AccountId);
     fn _emit_factory_changed_event(&self, factory: AccountId);
+    fn _emit_manager_changed_event(&self, manager: AccountId);
     fn _emit_rate_strategy_changed_event(&self, strategy: AccountId, asset: Option<AccountId>);
     fn _emit_risk_strategy_changed_event(&self, strategy: AccountId, asset: Option<AccountId>);
 }
@@ -77,8 +78,16 @@ impl<T: Storage<Data>> Registry for T {
     }
 
     default fn set_factory(&mut self, address: AccountId) -> Result<()> {
+        self._assert_manager()?;
         self._set_factory(address)?;
         self._emit_factory_changed_event(address);
+        Ok(())
+    }
+
+    default fn set_manager(&mut self, address: AccountId) -> Result<()> {
+        self._assert_manager()?;
+        self._set_manager(address)?;
+        self._emit_manager_changed_event(address);
         Ok(())
     }
 
@@ -205,6 +214,7 @@ impl<T: Storage<Data>> Internal for T {
     // event emission
     default fn _emit_pool_registered_event(&self, _asset: AccountId, _pool: AccountId) {}
     default fn _emit_factory_changed_event(&self, _factory: AccountId) {}
+    default fn _emit_manager_changed_event(&self, _manager: AccountId) {}
     default fn _emit_rate_strategy_changed_event(
         &self,
         _strategy: AccountId,

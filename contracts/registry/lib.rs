@@ -26,6 +26,11 @@ pub mod registry {
     }
 
     #[ink(event)]
+    pub struct ManagerChanged {
+        manager: AccountId,
+    }
+
+    #[ink(event)]
     pub struct RateStrategyChanged {
         #[ink(topic)]
         asset: Option<AccountId>,
@@ -64,6 +69,10 @@ pub mod registry {
 
         fn _emit_factory_changed_event(&self, factory: AccountId) {
             self.env().emit_event(FactoryChanged { factory });
+        }
+
+        fn _emit_manager_changed_event(&self, manager: AccountId) {
+            self.env().emit_event(ManagerChanged { manager });
         }
 
         fn _emit_rate_strategy_changed_event(&self, strategy: AccountId, asset: Option<AccountId>) {
@@ -118,6 +127,14 @@ pub mod registry {
             }
             panic!("unexpected event kind: expected FactoryChanged event")
         }
+        fn decode_manager_changed_event(event: EmittedEvent) -> ManagerChanged {
+            if let Ok(Event::ManagerChanged(x)) =
+                <Event as scale::Decode>::decode(&mut &event.data[..])
+            {
+                return x
+            }
+            panic!("unexpected event kind: expected ManagerChanged event")
+        }
         fn decode_risk_strategy_changed_event(event: EmittedEvent) -> RiskStrategyChanged {
             if let Ok(Event::RiskStrategyChanged(x)) =
                 <Event as scale::Decode>::decode(&mut &event.data[..])
@@ -144,6 +161,7 @@ pub mod registry {
             let default_account_id = [0u8; 32].into();
             let contract = RegistryContract::new(Some(manager));
 
+            assert_eq!(contract.factory(), default_account_id);
             assert_eq!(contract.manager(), manager);
             assert_eq!(contract.default_rate_strategy(), default_account_id);
             assert_eq!(contract.default_risk_strategy(), default_account_id);
@@ -209,6 +227,45 @@ pub mod registry {
 
             let event = decode_factory_changed_event(get_emitted_events()[0].clone());
             assert_eq!(event.factory, factory);
+        }
+
+        #[ink::test]
+        fn set_factory_works_cannot_by_not_manager() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::default();
+
+            let factory = AccountId::from([0xaa; 32]);
+            assert_eq!(
+                contract.set_factory(factory).unwrap_err(),
+                Error::CallerIsNotManager
+            );
+        }
+
+        #[ink::test]
+        fn set_manager_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::new(Some(accounts.charlie));
+
+            set_caller(accounts.charlie);
+            assert!(contract.set_manager(accounts.alice).is_ok());
+            assert_eq!(contract.manager(), accounts.alice);
+
+            let event = decode_manager_changed_event(get_emitted_events()[0].clone());
+            assert_eq!(event.manager, accounts.alice);
+        }
+
+        #[ink::test]
+        fn set_manager_works_cannot_by_not_manager() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let mut contract = RegistryContract::default();
+            assert_eq!(
+                contract.set_manager(accounts.alice).unwrap_err(),
+                Error::CallerIsNotManager
+            );
         }
 
         #[ink::test]
