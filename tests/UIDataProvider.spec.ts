@@ -2,6 +2,7 @@ import { expect } from '@jest/globals';
 import { encodeAddress } from '@polkadot/keyring';
 import Registry_factory from '../types/constructors/registry';
 import DummyPool_factory from '../types/constructors/dummy_pool';
+import DummyOracle_factory from '../types/constructors/dummy_oracle';
 import Factory_factory from '../types/constructors/factory';
 import SharesToken_factory from '../types/constructors/shares_token';
 import RateStrategy_factory from '../types/constructors/rate_strategies';
@@ -10,6 +11,7 @@ import UIDataProvider_factory from '../types/constructors/ui_data_provider';
 import Token_factory from '../types/constructors/psp22_token';
 import Registry from '../types/contracts/registry';
 import DummyPool from '../types/contracts/dummy_pool';
+import DummyOracle from '../types/contracts/dummy_oracle';
 import Factory from '../types/contracts/factory';
 import RateStrategy from '../types/contracts/rate_strategies';
 import RiskStrategy from '../types/contracts/risk_strategies';
@@ -32,6 +34,7 @@ describe('Lending spec', () => {
 
   let registryFactory: Registry_factory;
   let dummyPoolFactory: DummyPool_factory;
+  let dummyOracleFactory: DummyOracle_factory;
   let factoryFactory: Factory_factory;
   let rateStrategyFactory: RateStrategy_factory;
   let riskStrategyFactory: RiskStrategy_factory;
@@ -40,6 +43,7 @@ describe('Lending spec', () => {
 
   let registry: Registry;
   let dummyPool: DummyPool;
+  let dummyOracle: DummyOracle;
   let factory: Factory;
   let rateStrategy: RateStrategy;
   let riskStrategy: RiskStrategy;
@@ -116,9 +120,16 @@ describe('Lending spec', () => {
       deployer,
       api,
     );
+    dummyOracleFactory = new DummyOracle_factory(api, deployer);
+    dummyOracle = new DummyOracle(
+      (await dummyOracleFactory.new()).address,
+      deployer,
+      api,
+    );
     await registry.tx.setRateStrategy(rateStrategy.address, null);
     await registry.tx.setRiskStrategy(riskStrategy.address, null);
-    await registry.tx.setFactory(factory.address, null);
+    await registry.tx.setFactory(factory.address);
+    await registry.tx.setPriceOracle(dummyOracle.address);
   };
 
   beforeAll(async () => {
@@ -157,6 +168,25 @@ describe('Lending spec', () => {
       expect(pools[0].debtRate.toNumber()).toBe(0);
       expect(pools[0].lastUpdateTimestamp).toBe(0);
       expect(pools[1].asset).toBe(asset2);
+    });
+    it('market data', async () => {
+      const {
+        value: { ok: marketData },
+      } = await uiDataProvider.query.marketData(null);
+      expect(marketData).toHaveLength(2);
+      // TODO test mapping
+      expect(marketData[0].asset).toBe(asset1);
+      expect(marketData[0].price.toNumber()).not.toBe(zeroAddress);
+      expect(marketData[0].liquidityShare.toNumber()).not.toBe(zeroAddress);
+      expect(marketData[0].liquidityIndex.toNumber()).toBe(0);
+      expect(marketData[0].liquidityInterestRate.toNumber()).toBe(0);
+      expect(marketData[0].debtInterestRate.toNumber()).toBe(0);
+      expect(marketData[0].debtIndex.toNumber()).toBe(0);
+      expect(marketData[0].debtInterestRate.toNumber()).toBe(0);
+      expect(marketData[0].poolLastUpdateTimestamp).toBe(0);
+      expect(marketData[0].loanToValue).toBe(0);
+      expect(marketData[0].liquidationThreshold).toBe(0);
+      expect(marketData[1].asset).toBe(asset2);
     });
   });
 });
