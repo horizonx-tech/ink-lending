@@ -1,10 +1,20 @@
 import Head from 'next/head'
 import { Inter } from 'next/font/google'
 import styles from 'src/styles/Home.module.css'
+import { useUIPoolDataProvider } from 'src/hooks/useUIDataProvider'
+import { useEffect, useState } from 'react'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
+  const { provider } = useUIPoolDataProvider()
+  const [res, setRes] = useState()
+  useEffect(() => {
+    if(!provider)return
+    provider.query.marketData(null).then(({value:{ok}}) => {
+      setRes(ok)
+    })
+  },[provider])
   return (
     <>
       <Head>
@@ -14,6 +24,9 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
+        <code style={{whiteSpace:"pre-wrap"}}>
+          {res?JSON.stringify({marketData:res},null,2):"calling..."}
+        </code>
       </main>
     </>
   )
