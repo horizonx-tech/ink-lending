@@ -41,6 +41,7 @@ pub trait Internal {
     fn _set_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
     fn _set_price_oracle(&mut self, address: AccountId) -> Result<()>;
     fn _assert_manager(&self) -> Result<()>;
+    fn _assert_factory(&self) -> Result<()>;
 
     // event emission
     fn _emit_pool_registered_event(&self, asset: AccountId, pool: AccountId);
@@ -97,6 +98,7 @@ impl<T: Storage<Data>> Registry for T {
     }
 
     default fn register_pool(&mut self, asset: AccountId, pool: AccountId) -> Result<()> {
+        self._assert_factory()?;
         self._register_pool(&asset, &pool)?;
         self._emit_pool_registered_event(asset, pool);
         Ok(())
@@ -263,6 +265,13 @@ impl<T: Storage<Data>> Internal for T {
     default fn _assert_manager(&self) -> Result<()> {
         if self.data().manager != Self::env().caller() {
             return Err(Error::CallerIsNotManager)
+        }
+        Ok(())
+    }
+
+    default fn _assert_factory(&self) -> Result<()> {
+        if self.data().factory != Self::env().caller() {
+            return Err(Error::CallerIsNotFactory)
         }
         Ok(())
     }

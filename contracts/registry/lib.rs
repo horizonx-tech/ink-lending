@@ -203,12 +203,15 @@ pub mod registry {
             let accounts = default_accounts();
             set_caller(accounts.bob);
             let mut contract = RegistryContract::new(Some(accounts.bob));
+            assert!(contract.set_factory(accounts.bob).is_ok());
 
             let asset = AccountId::from([0xaa; 32]);
             assert_eq!(contract.pool(asset), None);
             let pool = AccountId::from([0xff; 32]);
             assert!(contract.register_pool(asset, pool).is_ok());
             assert_eq!(contract.pool(asset), Some(pool));
+
+            // duplicated
             assert_eq!(
                 contract
                     .register_pool(asset, AccountId::from([0xee; 32]))
@@ -218,16 +221,32 @@ pub mod registry {
         }
 
         #[ink::test]
+        fn registry_pool_works_cannot_by_not_factory() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::new(Some(accounts.bob));
+            assert_eq!(contract.factory(), AccountId::from([0x00; 32]));
+
+            assert_eq!(
+                contract
+                    .register_pool(AccountId::from([0x00; 32]), AccountId::from([0x00; 32]))
+                    .unwrap_err(),
+                Error::CallerIsNotFactory
+            );
+        }
+
+        #[ink::test]
         fn registry_pool_works_event() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
             let mut contract = RegistryContract::new(Some(accounts.bob));
+            assert!(contract.set_factory(accounts.bob).is_ok());
 
             let asset = AccountId::from([0xaa; 32]);
             let pool = AccountId::from([0xff; 32]);
             assert!(contract.register_pool(asset, pool).is_ok());
 
-            let event = decode_pool_registered_event(get_emitted_events()[0].clone());
+            let event = decode_pool_registered_event(get_emitted_events()[1].clone());
             assert_eq!(event.asset, asset);
             assert_eq!(event.pool, pool);
         }

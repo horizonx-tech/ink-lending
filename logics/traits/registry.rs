@@ -63,6 +63,7 @@ pub trait Registry {
 pub enum Error {
     PoolAlreadyExists,
     CallerIsNotManager,
+    CallerIsNotFactory
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
