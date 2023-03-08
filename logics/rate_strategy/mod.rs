@@ -52,6 +52,7 @@ struct CalcInterestRatesLocalVars {
     utilization_rate: U256,
 }
 
+#[allow(dead_code)]
 pub struct CalculateInterestRatesOutput {
     current_liquidity_rate: U256,
     current_borrow_rate: U256,

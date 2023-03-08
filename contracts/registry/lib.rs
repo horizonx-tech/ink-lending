@@ -50,7 +50,7 @@ pub mod registry {
         #[ink(constructor)]
         pub fn new(manager: Option<AccountId>) -> Self {
             let mut instance = Self::default();
-            instance._set_manager(manager.unwrap_or(Self::env().caller()));
+            instance._set_manager(manager.unwrap_or(Self::env().caller())).unwrap();
             instance
         }
     }
