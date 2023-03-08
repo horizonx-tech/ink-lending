@@ -160,6 +160,14 @@ pub mod registry {
             }
             panic!("unexpected event kind: expected RateStrategyChanged event")
         }
+        fn decode_price_oracle_changed_event(event: EmittedEvent) -> PriceOracleChanged {
+            if let Ok(Event::PriceOracleChanged(x)) =
+                <Event as scale::Decode>::decode(&mut &event.data[..])
+            {
+                return x
+            }
+            panic!("unexpected event kind: expected PriceOracleChanged event")
+        }
 
         #[ink::test]
         fn new_works() {
@@ -369,6 +377,32 @@ pub mod registry {
             let event = decode_rate_strategy_changed_event(get_emitted_events()[0].clone());
             assert_eq!(event.asset, Some(asset));
             assert_eq!(event.strategy, strategy);
+        }
+
+        #[ink::test]
+        fn set_price_oracle_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::new(Some(accounts.charlie));
+
+            set_caller(accounts.charlie);
+            assert!(contract.set_price_oracle(accounts.alice).is_ok());
+            assert_eq!(contract.price_oracle(), accounts.alice);
+
+            let event = decode_price_oracle_changed_event(get_emitted_events()[0].clone());
+            assert_eq!(event.price_oracle, accounts.alice);
+        }
+
+        #[ink::test]
+        fn set_price_oracle_works_cannot_by_not_manager() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::default();
+
+            assert_eq!(
+                contract.set_price_oracle(accounts.alice).unwrap_err(),
+                Error::CallerIsNotManager
+            );
         }
     }
 }

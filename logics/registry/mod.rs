@@ -139,6 +139,7 @@ impl<T: Storage<Data>> Registry for T {
     }
 
     default fn set_price_oracle(&mut self, address: AccountId) -> Result<()> {
+        self._assert_manager()?;
         self._set_price_oracle(address)?;
         self._emit_price_oracle_changed_event(address);
         Ok(())
