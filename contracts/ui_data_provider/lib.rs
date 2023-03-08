@@ -3,17 +3,16 @@
 
 #[ink::contract]
 pub mod ui_data_provider {
-    use asset_pool::pool::{
-        AssetPoolContractRef,
-        PoolData,
-    };
-    use ink::{
-        env::call::FromAccountId,
-        prelude::vec::Vec,
-    };
-    use logics::traits::{
-        price_oracle::PriceOracleRef,
-        registry::RegistryRef,
+    use ink::prelude::vec::Vec;
+    use logics::{
+        traits::{
+            price_oracle::PriceOracleRef,
+            registry::RegistryRef,
+        },
+        ui_data_providers::pool_data_provider::{
+            PoolData,
+            UIPoolDataProviderRef,
+        },
     };
     use scale::{
         Decode,
@@ -108,8 +107,7 @@ pub mod ui_data_provider {
 
         fn _pool(&self, asset: AccountId) -> PoolData {
             if let Some(pool_addr) = RegistryRef::pool(&self.registry, asset) {
-                let pool: AssetPoolContractRef = FromAccountId::from_account_id(pool_addr);
-                return pool.pool_data()
+                return UIPoolDataProviderRef::pool_data(&pool_addr)
             }
             panic!()
         }
