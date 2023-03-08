@@ -46,6 +46,9 @@ pub trait Registry {
     fn set_factory(&mut self, address: AccountId) -> Result<()>;
 
     #[ink(message)]
+    fn set_manager(&mut self, address: AccountId) -> Result<()>;
+
+    #[ink(message)]
     fn set_rate_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
 
     #[ink(message)]
