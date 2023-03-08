@@ -36,6 +36,7 @@ pub mod ui_data_provider {
         debt_share: Balance,
         debt_index: Balance,
         debt_interest_rate: u128,
+        pool_last_update_timestamp: Timestamp,
         loan_to_value: u64,
         liquidation_threshold: u64,
     }
@@ -76,6 +77,7 @@ pub mod ui_data_provider {
                         debt_share: pool.debt_share,
                         debt_index: pool.debt_index,
                         debt_interest_rate: pool.debt_rate,
+                        pool_last_update_timestamp: pool.last_update_timestamp,
                         // TODO
                         loan_to_value: 0,
                         liquidation_threshold: 0,
