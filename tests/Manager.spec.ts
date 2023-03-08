@@ -6,7 +6,7 @@ import Factory from '../types/contracts/factory';
 import Manager from '../types/contracts/manager';
 import ASSET_POOL_ABI from '../artifacts/asset_pool.json';
 import SHARES_TOKEN_ABI from '../artifacts/shares_token.json';
-import { deployAssetPool, deployFactory, deployManager, deployRegistry, deploySharesToken } from './testContractsHelpers';
+import { deployFactory, deployManager, deployRegistry } from './testContractsHelpers';
 
 const zeroAddress = encodeAddress(
   '0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -32,20 +32,8 @@ describe("Manager spec", () => {
       args: [registry.address],
     });
 
-    const assetPool = await deployAssetPool({
-      api,
-      signer: deployer,
-      args: [zeroAddress, zeroAddress, zeroAddress, zeroAddress],
-    });
-    const assetPoolHash = assetPool.abi.info.source.wasmHash.toHex();
-    // const assetPoolHash = new Abi(ASSET_POOL_ABI).info.source.wasmHash.toHex();
-    const shares = await deploySharesToken({
-      api,
-      signer: deployer,
-      args: [zeroAddress, [], [], 18],
-    });
-    const sharesHash = shares.abi.info.source.wasmHash.toHex();
-    // const sharesHash = new Abi(SHARES_TOKEN_ABI).info.source.wasmHash.toHex();
+    const assetPoolHash = new Abi(ASSET_POOL_ABI).info.source.wasmHash.toHex();
+    const sharesHash = new Abi(SHARES_TOKEN_ABI).info.source.wasmHash.toHex();
     const factory = await deployFactory({
       api,
       signer: deployer,
@@ -133,10 +121,8 @@ describe("Manager spec", () => {
       expect((await registry.query.pool(token)).value.ok).toBeNull;
 
       const {
-        value: {
-          ok: { ok: expectedPoolAddress },
-        },
-      } = await manager.query.createPool(token, []);
+        value: { ok: { ok: expectedPoolAddress } },
+      } = await manager.query.createPool(token, []); // dry-run
       await manager.withSigner(deployer).tx.createPool(token, []);
       expect((await registry.query.pool(token)).value.ok).toBe(expectedPoolAddress);
     })
