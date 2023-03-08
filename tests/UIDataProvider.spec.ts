@@ -1,7 +1,7 @@
 import { expect } from '@jest/globals';
 import { encodeAddress } from '@polkadot/keyring';
 import Registry_factory from '../types/constructors/registry';
-import AssetPool_factory from '../types/constructors/asset_pool';
+import DummyPool_factory from '../types/constructors/dummy_pool';
 import Factory_factory from '../types/constructors/factory';
 import SharesToken_factory from '../types/constructors/shares_token';
 import RateStrategy_factory from '../types/constructors/rate_strategies';
@@ -9,7 +9,7 @@ import RiskStrategy_factory from '../types/constructors/risk_strategies';
 import UIDataProvider_factory from '../types/constructors/ui_data_provider';
 import Token_factory from '../types/constructors/psp22_token';
 import Registry from '../types/contracts/registry';
-import AssetPool from '../types/contracts/asset_pool';
+import DummyPool from '../types/contracts/dummy_pool';
 import Factory from '../types/contracts/factory';
 import RateStrategy from '../types/contracts/rate_strategies';
 import RiskStrategy from '../types/contracts/risk_strategies';
@@ -31,7 +31,7 @@ describe('Lending spec', () => {
   let wallet: KeyringPair;
 
   let registryFactory: Registry_factory;
-  let assetPoolFactory: AssetPool_factory;
+  let dummyPoolFactory: DummyPool_factory;
   let factoryFactory: Factory_factory;
   let rateStrategyFactory: RateStrategy_factory;
   let riskStrategyFactory: RiskStrategy_factory;
@@ -39,7 +39,7 @@ describe('Lending spec', () => {
   let tokenFactory: Token_factory;
 
   let registry: Registry;
-  let assetPool: AssetPool;
+  let dummyPool: DummyPool;
   let factory: Factory;
   let rateStrategy: RateStrategy;
   let riskStrategy: RiskStrategy;
@@ -54,7 +54,7 @@ describe('Lending spec', () => {
     ({ api, alice: deployer, bob: wallet } = globalThis.setup);
     registryFactory = new Registry_factory(api, deployer);
     registry = new Registry(
-      (await registryFactory.new()).address,
+      (await registryFactory.new(null)).address,
       deployer,
       api,
     );
@@ -66,10 +66,10 @@ describe('Lending spec', () => {
       api,
     );
 
-    assetPoolFactory = new AssetPool_factory(api, deployer);
-    assetPool = new AssetPool(
+    dummyPoolFactory = new DummyPool_factory(api, deployer);
+    dummyPool = new DummyPool(
       (
-        await assetPoolFactory.new(
+        await dummyPoolFactory.new(
           zeroAddress,
           zeroAddress,
           zeroAddress,
@@ -79,7 +79,7 @@ describe('Lending spec', () => {
       deployer,
       api,
     );
-    assetPoolHash = assetPool.abi.info.source.wasmHash.toHex();
+    assetPoolHash = dummyPool.abi.info.source.wasmHash.toHex();
 
     tokenFactory = new Token_factory(api, deployer);
     token = new Token(
@@ -146,7 +146,7 @@ describe('Lending spec', () => {
     it('pools', async () => {
       const {
         value: { ok: pools },
-      } = await uiDataProvider.query.pools();
+      } = await uiDataProvider.query.pools(null);
       expect(pools).toHaveLength(2);
       expect(pools[0].asset).toBe(asset1);
       expect(pools[0].collateralToken).not.toBe(zeroAddress);
