@@ -1,0 +1,607 @@
+{
+  "source": {
+    "hash": "0x1b10aa7529793e21bbfb675621c4697b56290587f46f70beb7b62628b03ee160",
+    "language": "ink! 4.0.0",
+    "compiler": "rustc 1.70.0-nightly",
+    "build_info": {
+      "build_mode": "Debug",
+      "cargo_contract_version": "2.0.2",
+      "rust_toolchain": "nightly-aarch64-apple-darwin",
+      "wasm_opt_settings": {
+        "keep_debug_symbols": false,
+        "optimization_passes": "Z"
+      }
+    }
+  },
+  "contract": {
+    "name": "ui_data_provider",
+    "version": "0.1.0",
+    "authors": [
+      "HorizonX"
+    ]
+  },
+  "spec": {
+    "constructors": [
+      {
+        "args": [
+          {
+            "label": "registry",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "docs": [],
+        "label": "new",
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink_primitives",
+            "ConstructorResult"
+          ],
+          "type": 3
+        },
+        "selector": "0x9bae9d5e"
+      }
+    ],
+    "docs": [],
+    "events": [],
+    "lang_error": {
+      "displayName": [
+        "ink",
+        "LangError"
+      ],
+      "type": 5
+    },
+    "messages": [
+      {
+        "args": [],
+        "docs": [],
+        "label": "assets",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 6
+        },
+        "selector": "0xc47d7428"
+      },
+      {
+        "args": [
+          {
+            "label": "assets",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 8
+            }
+          }
+        ],
+        "docs": [],
+        "label": "pools",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 9
+        },
+        "selector": "0x21e7bb4e"
+      },
+      {
+        "args": [
+          {
+            "label": "_assets",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 8
+            }
+          }
+        ],
+        "docs": [],
+        "label": "market_data",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 14
+        },
+        "selector": "0xeb6ddbfd"
+      }
+    ]
+  },
+  "storage": {
+    "root": {
+      "layout": {
+        "struct": {
+          "fields": [
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 0
+                }
+              },
+              "name": "registry"
+            }
+          ],
+          "name": "UIDataProvider"
+        }
+      },
+      "root_key": "0x00000000"
+    }
+  },
+  "types": [
+    {
+      "id": 0,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "type": 1,
+                "typeName": "[u8; 32]"
+              }
+            ]
+          }
+        },
+        "path": [
+          "ink_primitives",
+          "types",
+          "AccountId"
+        ]
+      }
+    },
+    {
+      "id": 1,
+      "type": {
+        "def": {
+          "array": {
+            "len": 32,
+            "type": 2
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "type": {
+        "def": {
+          "primitive": "u8"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 4
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 5
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 4
+          },
+          {
+            "name": "E",
+            "type": 5
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "type": {
+        "def": {
+          "tuple": []
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 1,
+                "name": "CouldNotReadInput"
+              }
+            ]
+          }
+        },
+        "path": [
+          "ink_primitives",
+          "LangError"
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 7
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 5
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 7
+          },
+          {
+            "name": "E",
+            "type": 5
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 7,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 0
+          }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "None"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 7
+                  }
+                ],
+                "index": 1,
+                "name": "Some"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 7
+          }
+        ],
+        "path": [
+          "Option"
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 10
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 5
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 10
+          },
+          {
+            "name": "E",
+            "type": 5
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 10,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 11
+          }
+        }
+      }
+    },
+    {
+      "id": 11,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "name": "registry",
+                "type": 0,
+                "typeName": "AccountId"
+              },
+              {
+                "name": "asset",
+                "type": 0,
+                "typeName": "AccountId"
+              },
+              {
+                "name": "collateral_token",
+                "type": 0,
+                "typeName": "AccountId"
+              },
+              {
+                "name": "debt_token",
+                "type": 0,
+                "typeName": "AccountId"
+              },
+              {
+                "name": "liquidity_share",
+                "type": 12,
+                "typeName": "u128"
+              },
+              {
+                "name": "liquidity_index",
+                "type": 12,
+                "typeName": "u128"
+              },
+              {
+                "name": "liquidity_rate",
+                "type": 12,
+                "typeName": "u128"
+              },
+              {
+                "name": "debt_share",
+                "type": 12,
+                "typeName": "u128"
+              },
+              {
+                "name": "debt_index",
+                "type": 12,
+                "typeName": "u128"
+              },
+              {
+                "name": "debt_rate",
+                "type": 12,
+                "typeName": "u128"
+              },
+              {
+                "name": "last_update_timestamp",
+                "type": 13,
+                "typeName": "Timestamp"
+              }
+            ]
+          }
+        },
+        "path": [
+          "logics",
+          "traits",
+          "ui_data_providers",
+          "PoolData"
+        ]
+      }
+    },
+    {
+      "id": 12,
+      "type": {
+        "def": {
+          "primitive": "u128"
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": {
+        "def": {
+          "primitive": "u64"
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 15
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 5
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 15
+          },
+          {
+            "name": "E",
+            "type": 5
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 15,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 16
+          }
+        }
+      }
+    },
+    {
+      "id": 16,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "name": "asset",
+                "type": 0,
+                "typeName": "AccountId"
+              },
+              {
+                "name": "price",
+                "type": 12,
+                "typeName": "u128"
+              },
+              {
+                "name": "liquidity_share",
+                "type": 12,
+                "typeName": "Balance"
+              },
+              {
+                "name": "liquidity_index",
+                "type": 12,
+                "typeName": "Balance"
+              },
+              {
+                "name": "liquidity_interest_rate",
+                "type": 12,
+                "typeName": "u128"
+              },
+              {
+                "name": "debt_share",
+                "type": 12,
+                "typeName": "Balance"
+              },
+              {
+                "name": "debt_index",
+                "type": 12,
+                "typeName": "Balance"
+              },
+              {
+                "name": "debt_interest_rate",
+                "type": 12,
+                "typeName": "u128"
+              },
+              {
+                "name": "pool_last_update_timestamp",
+                "type": 13,
+                "typeName": "Timestamp"
+              },
+              {
+                "name": "loan_to_value",
+                "type": 13,
+                "typeName": "u64"
+              },
+              {
+                "name": "liquidation_threshold",
+                "type": 13,
+                "typeName": "u64"
+              }
+            ]
+          }
+        },
+        "path": [
+          "ui_data_provider",
+          "ui_data_provider",
+          "MarketData"
+        ]
+      }
+    }
+  ],
+  "version": "4"
+}
