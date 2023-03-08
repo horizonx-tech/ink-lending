@@ -160,6 +160,14 @@ pub mod registry {
             }
             panic!("unexpected event kind: expected RateStrategyChanged event")
         }
+        fn decode_price_oracle_changed_event(event: EmittedEvent) -> PriceOracleChanged {
+            if let Ok(Event::PriceOracleChanged(x)) =
+                <Event as scale::Decode>::decode(&mut &event.data[..])
+            {
+                return x
+            }
+            panic!("unexpected event kind: expected PriceOracleChanged event")
+        }
 
         #[ink::test]
         fn new_works() {
@@ -195,12 +203,15 @@ pub mod registry {
             let accounts = default_accounts();
             set_caller(accounts.bob);
             let mut contract = RegistryContract::new(Some(accounts.bob));
+            assert!(contract.set_factory(accounts.bob).is_ok());
 
             let asset = AccountId::from([0xaa; 32]);
             assert_eq!(contract.pool(asset), None);
             let pool = AccountId::from([0xff; 32]);
             assert!(contract.register_pool(asset, pool).is_ok());
             assert_eq!(contract.pool(asset), Some(pool));
+
+            // duplicated
             assert_eq!(
                 contract
                     .register_pool(asset, AccountId::from([0xee; 32]))
@@ -210,16 +221,32 @@ pub mod registry {
         }
 
         #[ink::test]
+        fn registry_pool_works_cannot_by_not_factory() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::new(Some(accounts.bob));
+            assert_eq!(contract.factory(), AccountId::from([0x00; 32]));
+
+            assert_eq!(
+                contract
+                    .register_pool(AccountId::from([0x00; 32]), AccountId::from([0x00; 32]))
+                    .unwrap_err(),
+                Error::CallerIsNotFactory
+            );
+        }
+
+        #[ink::test]
         fn registry_pool_works_event() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
             let mut contract = RegistryContract::new(Some(accounts.bob));
+            assert!(contract.set_factory(accounts.bob).is_ok());
 
             let asset = AccountId::from([0xaa; 32]);
             let pool = AccountId::from([0xff; 32]);
             assert!(contract.register_pool(asset, pool).is_ok());
 
-            let event = decode_pool_registered_event(get_emitted_events()[0].clone());
+            let event = decode_pool_registered_event(get_emitted_events()[1].clone());
             assert_eq!(event.asset, asset);
             assert_eq!(event.pool, pool);
         }
@@ -369,6 +396,32 @@ pub mod registry {
             let event = decode_rate_strategy_changed_event(get_emitted_events()[0].clone());
             assert_eq!(event.asset, Some(asset));
             assert_eq!(event.strategy, strategy);
+        }
+
+        #[ink::test]
+        fn set_price_oracle_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::new(Some(accounts.charlie));
+
+            set_caller(accounts.charlie);
+            assert!(contract.set_price_oracle(accounts.alice).is_ok());
+            assert_eq!(contract.price_oracle(), accounts.alice);
+
+            let event = decode_price_oracle_changed_event(get_emitted_events()[0].clone());
+            assert_eq!(event.price_oracle, accounts.alice);
+        }
+
+        #[ink::test]
+        fn set_price_oracle_works_cannot_by_not_manager() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+            let mut contract = RegistryContract::default();
+
+            assert_eq!(
+                contract.set_price_oracle(accounts.alice).unwrap_err(),
+                Error::CallerIsNotManager
+            );
         }
     }
 }

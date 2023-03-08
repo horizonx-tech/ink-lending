@@ -21,6 +21,7 @@ mod manager {
             self,
             Internal as AccessControlInternal,
             RoleType,
+            DEFAULT_ADMIN_ROLE,
         },
         modifiers,
         traits::Storage,
@@ -93,6 +94,18 @@ mod manager {
         ) -> Result<()> {
             self._update_risk_strategy(address, asset)
         }
+
+        #[ink(message)]
+        #[modifiers(access_control::only_role(DEFAULT_ADMIN_ROLE))]
+        fn set_factory(&mut self, address: AccountId) -> Result<()> {
+            self._set_factory(address)
+        }
+
+        #[ink(message)]
+        #[modifiers(access_control::only_role(DEFAULT_ADMIN_ROLE))]
+        fn set_price_oracle(&mut self, address: AccountId) -> Result<()> {
+            self._set_price_oracle(address)
+        }
     }
 
     impl access_control::AccessControl for ManagerContract {}
@@ -152,7 +165,6 @@ mod manager {
         use logics::traits::manager::Error;
         use openbrush::contracts::access_control::{
             AccessControl,
-            DEFAULT_ADMIN_ROLE,
         };
 
         type Event = <ManagerContract as ink::reflect::ContractEventBase>::Type;
@@ -235,6 +247,44 @@ mod manager {
             assert_eq!(
                 contract
                     .update_risk_strategy(AccountId::from([0x00; 32]), None)
+                    .unwrap_err(),
+                Error::AccessControl(access_control::AccessControlError::MissingRole)
+            );
+        }
+
+        #[ink::test]
+        fn set_factory_works_cannot_by_not_owner() {
+            let accounts = default_accounts();
+
+            set_caller(accounts.bob);
+            let mut contract = ManagerContract::new(AccountId::from([0x00; 32]));
+            assert!(contract.grant_role(POOL_ADMIN, accounts.charlie).is_ok());
+
+            set_caller(accounts.charlie);
+            assert!(contract.has_role(POOL_ADMIN, accounts.charlie));
+            assert!(!contract.has_role(DEFAULT_ADMIN_ROLE, accounts.charlie));
+            assert_eq!(
+                contract
+                    .set_factory(AccountId::from([0x00; 32]))
+                    .unwrap_err(),
+                Error::AccessControl(access_control::AccessControlError::MissingRole)
+            );
+        }
+
+        #[ink::test]
+        fn set_price_oracle_works_cannot_by_not_owner() {
+            let accounts = default_accounts();
+
+            set_caller(accounts.bob);
+            let mut contract = ManagerContract::new(AccountId::from([0x00; 32]));
+            assert!(contract.grant_role(POOL_ADMIN, accounts.charlie).is_ok());
+
+            set_caller(accounts.charlie);
+            assert!(contract.has_role(POOL_ADMIN, accounts.charlie));
+            assert!(!contract.has_role(DEFAULT_ADMIN_ROLE, accounts.charlie));
+            assert_eq!(
+                contract
+                    .set_price_oracle(AccountId::from([0x00; 32]))
                     .unwrap_err(),
                 Error::AccessControl(access_control::AccessControlError::MissingRole)
             );

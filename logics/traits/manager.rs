@@ -24,6 +24,12 @@ pub trait Manager {
 
     #[ink(message)]
     fn update_risk_strategy(&mut self, address: AccountId, asset: Option<AccountId>) -> Result<()>;
+
+    #[ink(message)]
+    fn set_factory(&mut self, address: AccountId) -> Result<()>;
+
+    #[ink(message)]
+    fn set_price_oracle(&mut self, address: AccountId) -> Result<()>;
 }
 
 #[derive(Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
