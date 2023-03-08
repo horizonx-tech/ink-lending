@@ -11,6 +11,7 @@ import type BN from 'bn.js';
 //@ts-ignore
 import {ReturnNumber} from '@727-ventures/typechain-types';
 import {getTypeDescription} from './../shared/utils';
+import ABI from '../../artifacts/ui_data_provider.json';
 
 
 export default class Methods {
@@ -36,7 +37,7 @@ export default class Methods {
 	"assets" (
 		__options ? : GasLimit,
 	): Promise< QueryReturnType< Result<Array<ReturnTypes.AccountId>, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "assets", [], __options , (result) => { return handleReturnType(result, getTypeDescription(6, 'ui_data_provider')); });
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "assets", [], __options , (result) => { return handleReturnType(result, getTypeDescription(6, 'ui_data_provider',ABI)); });
 	}
 
 	/**
@@ -49,7 +50,7 @@ export default class Methods {
 		assets: Array<ArgumentTypes.AccountId> | null,
 		__options ? : GasLimit,
 	): Promise< QueryReturnType< Result<Array<ReturnTypes.PoolData>, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "pools", [assets], __options , (result) => { return handleReturnType(result, getTypeDescription(9, 'ui_data_provider')); });
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "pools", [assets], __options , (result) => { return handleReturnType(result, getTypeDescription(9, 'ui_data_provider',ABI)); });
 	}
 
 	/**
@@ -62,7 +63,7 @@ export default class Methods {
 		assets: Array<ArgumentTypes.AccountId> | null,
 		__options ? : GasLimit,
 	): Promise< QueryReturnType< Result<Array<ReturnTypes.MarketData>, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "marketData", [assets], __options , (result) => { return handleReturnType(result, getTypeDescription(14, 'ui_data_provider')); });
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "marketData", [assets], __options , (result) => { return handleReturnType(result, getTypeDescription(14, 'ui_data_provider',ABI)); });
 	}
 
 }
