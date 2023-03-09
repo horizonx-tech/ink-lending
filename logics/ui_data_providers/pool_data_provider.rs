@@ -1,28 +1,40 @@
 pub use crate::traits::ui_data_providers::*;
 use crate::{
     asset_pool,
-    traits::{
-        asset_pool::AssetPool,
-        shares::SharesRef,
-    },
+    traits::shares::SharesRef,
+};
+use openbrush::traits::{
+    AccountId,
+    Storage,
 };
 
 pub trait Internal {
     fn _pool_data(&self) -> PoolData;
+    fn _account_data(&self, account: AccountId) -> AccountData;
 }
 
-impl<T: AssetPool + asset_pool::Internal> UIPoolDataProvider for T {
+impl<T: Storage<asset_pool::Data> + asset_pool::Internal> UIPoolDataProvider for T {
     default fn pool_data(&self) -> PoolData {
         self._pool_data()
     }
+    default fn account_data(&self, account: AccountId) -> AccountData {
+        self._account_data(account)
+    }
 }
 
-impl<T: AssetPool + asset_pool::Internal> Internal for T {
+impl<T: Storage<asset_pool::Data> + asset_pool::Internal> Internal for T {
     default fn _pool_data(&self) -> PoolData {
         let mut data: PoolData = self._data().into();
         data.liquidity_share = SharesRef::total_share(&data.collateral_token);
         data.debt_share = SharesRef::total_share(&data.debt_token);
         data
+    }
+    default fn _account_data(&self, account: AccountId) -> AccountData {
+        AccountData {
+            asset: self.data().asset,
+            liquidity_share: SharesRef::share_of(&self.data().collateral_token, account),
+            debt_share: SharesRef::share_of(&self.data().debt_token, account),
+        }
     }
 }
 

@@ -10,6 +10,7 @@ pub mod ui_data_provider {
             registry::RegistryRef,
         },
         ui_data_providers::pool_data_provider::{
+            AccountData,
             PoolData,
             UIPoolDataProviderRef,
         },
@@ -59,8 +60,8 @@ pub mod ui_data_provider {
         #[ink(message)]
         pub fn market_data(&self, _assets: Option<Vec<AccountId>>) -> Vec<MarketData> {
             let assets = _assets.unwrap_or(self._assets());
-            let pools: Vec<PoolData> = self._pools(&(assets));
-            let prices = self._prices(&(assets));
+            let pools: Vec<PoolData> = self._pools(&assets);
+            let prices = self._prices(&assets);
 
             assets
                 .iter()
@@ -83,6 +84,17 @@ pub mod ui_data_provider {
                     }
                 })
                 .collect()
+        }
+
+        #[ink(message)]
+        pub fn account_data(
+            &self,
+            _account: Option<AccountId>,
+            _assets: Option<Vec<AccountId>>,
+        ) -> Vec<AccountData> {
+            let account = _account.unwrap_or(Self::env().caller());
+            let assets = _assets.unwrap_or(self._assets());
+            self._pools_account_data(&assets, account)
         }
 
         fn _assets(&self) -> Vec<AccountId> {
@@ -108,6 +120,24 @@ pub mod ui_data_provider {
         fn _pool(&self, asset: AccountId) -> PoolData {
             if let Some(pool_addr) = RegistryRef::pool(&self.registry, asset) {
                 return UIPoolDataProviderRef::pool_data(&pool_addr)
+            }
+            panic!()
+        }
+
+        fn _pools_account_data(
+            &self,
+            assets: &Vec<AccountId>,
+            account: AccountId,
+        ) -> Vec<AccountData> {
+            assets
+                .iter()
+                .map(|asset| self._pool_account_data(*asset, account))
+                .collect()
+        }
+
+        fn _pool_account_data(&self, asset: AccountId, account: AccountId) -> AccountData {
+            if let Some(pool_addr) = RegistryRef::pool(&self.registry, asset) {
+                return UIPoolDataProviderRef::account_data(&pool_addr, account)
             }
             panic!()
         }

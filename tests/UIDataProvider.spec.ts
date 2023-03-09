@@ -177,15 +177,26 @@ describe('Lending spec', () => {
       // TODO test mapping
       expect(marketData[0].asset).toBe(asset1);
       expect(marketData[0].price.toNumber()).not.toBe(zeroAddress);
-      expect(marketData[0].liquidityShare.toNumber()).not.toBe(zeroAddress);
+      expect(marketData[0].liquidityShare.toNumber()).toBe(0);
       expect(marketData[0].liquidityIndex.toNumber()).toBe(0);
       expect(marketData[0].liquidityInterestRate.toNumber()).toBe(0);
-      expect(marketData[0].debtInterestRate.toNumber()).toBe(0);
+      expect(marketData[0].debtShare.toNumber()).toBe(0);
       expect(marketData[0].debtIndex.toNumber()).toBe(0);
       expect(marketData[0].debtInterestRate.toNumber()).toBe(0);
       expect(marketData[0].poolLastUpdateTimestamp).toBe(0);
       expect(marketData[0].loanToValue).toBe(0);
       expect(marketData[0].liquidationThreshold).toBe(0);
+      expect(marketData[1].asset).toBe(asset2);
+    });
+    it('account data', async () => {
+      const {
+        value: { ok: marketData },
+      } = await uiDataProvider.query.accountData(null, null);
+      expect(marketData).toHaveLength(2);
+      // TODO test mapping
+      expect(marketData[0].asset).toBe(asset1);
+      expect(marketData[0].liquidityShare.toNumber()).toBe(0);
+      expect(marketData[0].debtShare.toNumber()).toBe(0);
       expect(marketData[1].asset).toBe(asset2);
     });
   });

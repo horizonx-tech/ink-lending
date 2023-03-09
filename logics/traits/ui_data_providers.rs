@@ -23,6 +23,14 @@ pub struct PoolData {
     pub last_update_timestamp: Timestamp,
 }
 
+#[derive(Decode, Encode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub struct AccountData {
+    pub asset: AccountId,
+    pub liquidity_share: u128,
+    pub debt_share: u128,
+}
+
 #[openbrush::wrapper]
 pub type UIPoolDataProviderRef = dyn UIPoolDataProvider;
 
@@ -30,4 +38,6 @@ pub type UIPoolDataProviderRef = dyn UIPoolDataProvider;
 pub trait UIPoolDataProvider {
     #[ink(message)]
     fn pool_data(&self) -> PoolData;
+    #[ink(message)]
+    fn account_data(&self, account: AccountId) -> AccountData;
 }
