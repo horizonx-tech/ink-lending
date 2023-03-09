@@ -1,10 +1,14 @@
-use crate::traits::{
-    asset_pool::*,
-    rate_strategy::RateStrategyRef,
-    registry::RegistryRef,
-    risk_strategy::RiskStrategyRef,
-    shares::SharesRef,
+use crate::{
+    rate_strategy::BigEndian,
+    traits::{
+        asset_pool::*,
+        rate_strategy::RateStrategyRef,
+        registry::RegistryRef,
+        risk_strategy::RiskStrategyRef,
+        shares::SharesRef,
+    },
 };
+use ethnum::U256;
 use ink::prelude::vec::Vec;
 use openbrush::{
     contracts::{
@@ -31,9 +35,9 @@ pub struct Data {
     pub debt_token: AccountId,
     // state
     pub liquidity_index: u128,
-    pub liquidity_rate: u128,
+    pub liquidity_rate: BigEndian,
     pub debt_index: u128,
-    pub debt_rate: u128,
+    pub debt_rate: BigEndian,
     pub last_update_timestamp: Timestamp,
 }
 
@@ -60,7 +64,11 @@ pub trait Internal {
         -> Result<()>;
     fn _to_liquidity_share(&self, amount: Balance) -> Balance;
     fn _to_debt_share(&self, amount: Balance) -> Balance;
-    fn _calculate_index_with_interest(current_index: u128, rate: u128, elapsed_sec: u128) -> u128;
+    fn _calculate_index_with_interest(
+        current_index: u128,
+        rate: BigEndian,
+        elapsed_sec: u128,
+    ) -> u128;
     fn _data(&self) -> Data;
 }
 
@@ -105,15 +113,33 @@ impl<T: Storage<Data>> AssetPool for T {
         self._transfer_collateral_on_liquidation(liquidatee, receiver, amount)
     }
 
-    default fn registry(&self) -> AccountId { self.data().registry }
-    default fn asset(&self) -> AccountId { self.data().asset }
-    default fn collateral_token(&self) -> AccountId { self.data().collateral_token }
-    default fn debt_token(&self) -> AccountId { self.data().debt_token }
-    default fn liquidity_index(&self) -> u128 { self.data().liquidity_index }
-    default fn liquidity_rate(&self) -> u128 { self.data().liquidity_rate }
-    default fn debt_index(&self) -> u128 { self.data().debt_index }
-    default fn debt_rate(&self) -> u128 { self.data().debt_rate }
-    default fn last_update_timestamp(&self) -> Timestamp { self.data().last_update_timestamp }
+    default fn registry(&self) -> AccountId {
+        self.data().registry
+    }
+    default fn asset(&self) -> AccountId {
+        self.data().asset
+    }
+    default fn collateral_token(&self) -> AccountId {
+        self.data().collateral_token
+    }
+    default fn debt_token(&self) -> AccountId {
+        self.data().debt_token
+    }
+    default fn liquidity_index(&self) -> u128 {
+        self.data().liquidity_index
+    }
+    default fn liquidity_rate(&self) -> BigEndian {
+        self.data().liquidity_rate.clone()
+    }
+    default fn debt_index(&self) -> u128 {
+        self.data().debt_index
+    }
+    default fn debt_rate(&self) -> BigEndian {
+        self.data().debt_rate.clone()
+    }
+    default fn last_update_timestamp(&self) -> Timestamp {
+        self.data().last_update_timestamp
+    }
 }
 
 impl Default for Data {
@@ -124,9 +150,9 @@ impl Default for Data {
             collateral_token: AccountId::from([0u8; 32]),
             debt_token: AccountId::from([0u8; 32]),
             liquidity_index: 0,
-            liquidity_rate: 0,
+            liquidity_rate: Vec::from(U256::ZERO.to_be_bytes()),
             debt_index: 0,
-            debt_rate: 0,
+            debt_rate: Vec::from(U256::ZERO.to_be_bytes()),
             last_update_timestamp: 0,
         }
     }
@@ -248,12 +274,12 @@ impl<T: Storage<Data>> Internal for T {
 
         self.data().liquidity_index = Self::_calculate_index_with_interest(
             self.data().liquidity_index,
-            self.data().liquidity_rate,
+            self.data().liquidity_rate.clone(),
             elapsed,
         );
         self.data().debt_index = Self::_calculate_index_with_interest(
             self.data().debt_index,
-            self.data().debt_rate,
+            self.data().debt_rate.clone(),
             elapsed,
         );
         self.data().last_update_timestamp = timestamp;
@@ -266,8 +292,14 @@ impl<T: Storage<Data>> Internal for T {
         liquidity_taken: Balance,
     ) {
         let strategy = RegistryRef::rate_strategy(&self.data().registry, asset);
-        let (liquidity_rate, debt_rate) =
-            RateStrategyRef::calculate_rate(&strategy, asset, liquidity_added, liquidity_taken);
+        let (liquidity_rate, debt_rate) = RateStrategyRef::calculate_rate(
+            &strategy,
+            SharesRef::total_share(&self.data().collateral_token),
+            liquidity_added,
+            liquidity_taken,
+            SharesRef::total_share(&self.data().collateral_token),
+            0, // TODO
+        );
 
         self.data().liquidity_rate = liquidity_rate;
         self.data().debt_rate = debt_rate;
@@ -318,7 +350,7 @@ impl<T: Storage<Data>> Internal for T {
 
     default fn _calculate_index_with_interest(
         _current_index: u128,
-        _rate: u128,
+        _rate: BigEndian,
         _elapsed_sec: u128,
     ) -> u128 {
         todo!()

@@ -73,9 +73,9 @@ pub mod pool {
             assert_eq!(contract.collateral_token(), collateral_token);
             assert_eq!(contract.debt_token(), debt_token);
             assert_eq!(contract.liquidity_index(), 0);
-            assert_eq!(contract.liquidity_rate(), 0);
+            assert_eq!(contract.liquidity_rate(), Vec::new());
             assert_eq!(contract.debt_index(), 0);
-            assert_eq!(contract.debt_rate(), 0);
+            assert_eq!(contract.debt_rate(), Vec::new());
             assert_eq!(contract.last_update_timestamp(), 0);
         }
     }

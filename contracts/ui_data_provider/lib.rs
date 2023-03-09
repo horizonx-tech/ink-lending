@@ -5,6 +5,7 @@
 pub mod ui_data_provider {
     use ink::prelude::vec::Vec;
     use logics::{
+        rate_strategy::BigEndian,
         traits::{
             price_oracle::PriceOracleRef,
             registry::RegistryRef,
@@ -31,10 +32,10 @@ pub mod ui_data_provider {
         price: u128,
         liquidity_share: Balance,
         liquidity_index: Balance,
-        liquidity_interest_rate: u128,
+        liquidity_interest_rate: BigEndian,
         debt_share: Balance,
         debt_index: Balance,
-        debt_interest_rate: u128,
+        debt_interest_rate: BigEndian,
         pool_last_update_timestamp: Timestamp,
         loan_to_value: u64,
         liquidation_threshold: u64,
@@ -72,10 +73,10 @@ pub mod ui_data_provider {
                         price: prices[index],
                         liquidity_share: pool.liquidity_share,
                         liquidity_index: pool.liquidity_index,
-                        liquidity_interest_rate: pool.liquidity_rate,
+                        liquidity_interest_rate: pool.liquidity_rate.clone(),
                         debt_share: pool.debt_share,
                         debt_index: pool.debt_index,
-                        debt_interest_rate: pool.debt_rate,
+                        debt_interest_rate: pool.debt_rate.clone(),
                         pool_last_update_timestamp: pool.last_update_timestamp,
                         // TODO
                         loan_to_value: 0,

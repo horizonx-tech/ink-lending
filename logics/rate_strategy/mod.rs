@@ -6,25 +6,35 @@ use crate::math::{
     ray_mul,
     wad_to_ray,
 };
+pub type BigEndian = Vec<u8>;
+
+pub fn u256_from_be(be: BigEndian) -> U256 {
+    u256_from_be_bytes_unchecked(be)
+}
+use crate::traits::rate_strategy::*;
 use core::ops::{
     Add,
     Sub,
 };
 use ethnum::U256;
 use ink::prelude::vec::Vec;
-pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(DefaultRateStrategy);
+use openbrush::traits::{
+    Balance,
+    Storage,
+};
+pub const STORAGE_KEY: u32 = openbrush::storage_unique_key!(Data);
 
 #[derive(Debug)]
 #[openbrush::upgradeable_storage(STORAGE_KEY)]
-pub struct DefaultRateStrategy {
-    optimal_utilization_rate: Vec<u8>,
-    base_borrow_rate: Vec<u8>,
-    rate_slope_1: Vec<u8>,
-    rate_slope_2: Vec<u8>,
-    excess_utilization_rate: Vec<u8>,
+pub struct Data {
+    optimal_utilization_rate: BigEndian,
+    base_borrow_rate: BigEndian,
+    rate_slope_1: BigEndian,
+    rate_slope_2: BigEndian,
+    excess_utilization_rate: BigEndian,
 }
 
-pub struct DefaultRateStrategyParam {
+struct DefaultRateStrategyParam {
     optimal_utilization_rate: U256,
     base_borrow_rate: U256,
     rate_slope_1: U256,
@@ -32,14 +42,7 @@ pub struct DefaultRateStrategyParam {
     excess_utilization_rate: U256,
 }
 
-pub struct DefaultRateStrategyCreateParam {
-    optimal_utilization_rate: U256,
-    base_borrow_rate: U256,
-    rate_slope_1: U256,
-    rate_slope_2: U256,
-}
-
-pub struct CalculateInterestRatesInput {
+struct CalculateInterestRatesInput {
     available_liquidity: U256,
     total_debt: U256,
     reserve_factor: U256,
@@ -53,7 +56,7 @@ struct CalcInterestRatesLocalVars {
 }
 
 #[allow(dead_code)]
-pub struct CalculateInterestRatesOutput {
+struct CalculateInterestRatesOutput {
     current_liquidity_rate: U256,
     current_borrow_rate: U256,
 }
@@ -63,24 +66,95 @@ fn u256_from_be_bytes_unchecked(vec: Vec<u8>) -> U256 {
 }
 
 pub trait Internal {
-    fn _calculate_interest_rates(
-        &mut self,
-        input: CalculateInterestRatesInput,
-    ) -> CalculateInterestRatesOutput;
+    fn _calculate_rate(
+        &self,
+        _balance: Balance,
+        _liquidity_added: Balance,
+        _liquidity_taken: Balance,
+        _total_debt: Balance,
+        _reserve_factor: Balance,
+    ) -> (BigEndian, BigEndian);
 }
+
+impl<T: Storage<Data>> RateStrategy for T {
+    default fn calculate_rate(
+        &self,
+        _balance: Balance,
+        _liquidity_added: Balance,
+        _liquidity_taken: Balance,
+        _total_debt: Balance,
+        _reserve_factor: Balance,
+    ) -> (BigEndian, BigEndian) {
+        self._calculate_rate(
+            _balance,
+            _liquidity_added,
+            _liquidity_taken,
+            _total_debt,
+            _reserve_factor,
+        )
+    }
+}
+impl Default for Data {
+    fn default() -> Self {
+        Self {
+            optimal_utilization_rate: be_frrom_u256(U256::ZERO),
+            base_borrow_rate: be_frrom_u256(U256::ZERO),
+            rate_slope_1: be_frrom_u256(U256::ZERO),
+            rate_slope_2: be_frrom_u256(U256::ZERO),
+            excess_utilization_rate: be_frrom_u256(U256::ZERO),
+        }
+    }
+}
+impl<T: Storage<Data>> Internal for T {
+    default fn _calculate_rate(
+        &self,
+        _balance: Balance,
+        _liquidity_added: Balance,
+        _liquidity_taken: Balance,
+        _total_debt: Balance,
+        _reserve_factor: Balance,
+    ) -> (BigEndian, BigEndian) {
+        let available_liquidity = _balance.add(_liquidity_added).sub(_liquidity_taken);
+
+        let out = self
+            .data()
+            .calculate_interest_rates(CalculateInterestRatesInput {
+                available_liquidity: U256::new(available_liquidity),
+                total_debt: U256::new(_total_debt),
+                reserve_factor: U256::new(_reserve_factor),
+            });
+        (
+            be_frrom_u256(out.current_liquidity_rate),
+            be_frrom_u256(out.current_borrow_rate),
+        )
+    }
+}
+
 fn into_slice<T, const N: usize>(v: Vec<T>) -> [T; N] {
     v.try_into()
         .unwrap_or_else(|v: Vec<T>| panic!("Expected a Vec of length {} but it was {}", N, v.len()))
 }
-impl DefaultRateStrategy {
-    pub fn new(param: DefaultRateStrategyCreateParam) -> Self {
-        let to_vec = |val: U256| Vec::from(val.to_be_bytes());
+fn be_frrom_u256(val: U256) -> BigEndian {
+    Vec::from(val.to_be_bytes())
+}
+
+impl Data {
+    pub fn new(
+        base_borrow_rate: BigEndian,
+        optimal_utilization_rate: BigEndian,
+        rate_slope_1: BigEndian,
+        rate_slope_2: BigEndian,
+    ) -> Self {
         Self {
-            base_borrow_rate: to_vec(param.base_borrow_rate),
-            optimal_utilization_rate: to_vec(param.optimal_utilization_rate),
-            rate_slope_1: to_vec(param.rate_slope_1),
-            rate_slope_2: to_vec(param.rate_slope_2),
-            excess_utilization_rate: to_vec(ray().sub(param.optimal_utilization_rate)),
+            base_borrow_rate,
+            optimal_utilization_rate: optimal_utilization_rate.clone(),
+            rate_slope_1,
+            rate_slope_2,
+            excess_utilization_rate: Vec::from(
+                ray()
+                    .sub(u256_from_be_bytes_unchecked(optimal_utilization_rate))
+                    .to_be_bytes(),
+            ),
         }
     }
 
@@ -94,7 +168,7 @@ impl DefaultRateStrategy {
             rate_slope_2: into_u256(self.rate_slope_2.clone()),
         }
     }
-    pub fn calculate_interest_rates(
+    fn calculate_interest_rates(
         &self,
         input: CalculateInterestRatesInput,
     ) -> CalculateInterestRatesOutput {
@@ -183,8 +257,8 @@ mod tests {
         Sub,
     };
 
+    use crate::rate_strategy::*;
     use ethnum::U256;
-
     fn reserve_factor() -> U256 {
         U256::from_str_prefixed("1000").unwrap()
     }
@@ -197,8 +271,7 @@ mod tests {
 
     use super::{
         CalculateInterestRatesInput,
-        DefaultRateStrategy,
-        DefaultRateStrategyCreateParam,
+        Data,
         DefaultRateStrategyParam,
     };
 
@@ -206,14 +279,14 @@ mod tests {
         rate_strategy().to_param()
     }
 
-    fn rate_strategy() -> DefaultRateStrategy {
+    fn rate_strategy() -> Data {
         let to_u256 = |src: &str| U256::from_str_prefixed(src).unwrap();
-        DefaultRateStrategy::new(DefaultRateStrategyCreateParam {
-            base_borrow_rate: U256::ZERO,
-            optimal_utilization_rate: ray().mul(to_u256("8")).div(to_u256("10")), // 0.8
-            rate_slope_1: ray().mul(to_u256("4")).div(to_u256("100")),            // 4%
-            rate_slope_2: ray().mul(to_u256("75")).div(to_u256("100")),           // 75%
-        })
+        Data::new(
+            be_frrom_u256(U256::ZERO),
+            be_frrom_u256(ray().mul(to_u256("8")).div(to_u256("10"))), // 0.8
+            be_frrom_u256(ray().mul(to_u256("4")).div(to_u256("100"))), // 4%
+            be_frrom_u256(ray().mul(to_u256("75")).div(to_u256("100"))), // 75%
+        )
     }
     #[test]
     fn test_with_empty_reserve() {

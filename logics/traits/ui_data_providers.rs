@@ -7,6 +7,8 @@ use scale::{
     Encode,
 };
 
+use crate::rate_strategy::BigEndian;
+
 #[derive(Decode, Encode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct PoolData {
@@ -16,10 +18,10 @@ pub struct PoolData {
     pub debt_token: AccountId,
     pub liquidity_share: u128,
     pub liquidity_index: u128,
-    pub liquidity_rate: u128,
+    pub liquidity_rate: BigEndian,
     pub debt_share: u128,
     pub debt_index: u128,
-    pub debt_rate: u128,
+    pub debt_rate: BigEndian,
     pub last_update_timestamp: Timestamp,
 }
 
