@@ -17,7 +17,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Restore mtime
-        run: python .github/git-remote-mtime.py
+        run: python .github/git-restore-mtime.py
       - name: Install & display rust toolchain
         run: |
           rustup show
@@ -43,6 +43,8 @@ jobs:
           cargo install cargo-dylint dylint-link
           cargo install --force --locked cargo-contract
       - name: Compile checks
+        env:
+          CARGO_INCREMENTAL: 1
         run: |
           manifest_paths=`find contracts -type f -name Cargo.toml`
           echo $manifest_paths
