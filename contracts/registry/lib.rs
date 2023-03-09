@@ -170,6 +170,22 @@ pub mod registry {
         }
 
         #[ink::test]
+        fn default_works() {
+            let accounts = default_accounts();
+            set_caller(accounts.bob);
+
+            let default_account_id = [0u8; 32].into();
+            let contract = RegistryContract::default();
+
+            assert_eq!(contract.factory(), default_account_id);
+            assert_eq!(contract.manager(), default_account_id);
+            assert_eq!(contract.asset_list(), vec![]);
+            assert_eq!(contract.assets_count(), 0);
+            assert_eq!(contract.default_rate_strategy(), default_account_id);
+            assert_eq!(contract.default_risk_strategy(), default_account_id);
+        }
+
+        #[ink::test]
         fn new_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
@@ -185,36 +201,34 @@ pub mod registry {
         }
 
         #[ink::test]
-        fn default_works() {
-            let accounts = default_accounts();
-            set_caller(accounts.bob);
-
-            let default_account_id = [0u8; 32].into();
-            let contract = RegistryContract::default();
-
-            assert_eq!(contract.factory(), default_account_id);
-            assert_eq!(contract.manager(), default_account_id);
-            assert_eq!(contract.default_rate_strategy(), default_account_id);
-            assert_eq!(contract.default_risk_strategy(), default_account_id);
-        }
-
-        #[ink::test]
         fn registry_pool_works() {
             let accounts = default_accounts();
             set_caller(accounts.bob);
             let mut contract = RegistryContract::new(Some(accounts.bob));
             assert!(contract.set_factory(accounts.bob).is_ok());
 
-            let asset = AccountId::from([0xaa; 32]);
-            assert_eq!(contract.pool(asset), None);
-            let pool = AccountId::from([0xff; 32]);
-            assert!(contract.register_pool(asset, pool).is_ok());
-            assert_eq!(contract.pool(asset), Some(pool));
+            let asset1 = AccountId::from([0xa1; 32]);
+            let asset2 = AccountId::from([0xa2; 32]);
+            assert_eq!(contract.pool(asset1), None);
+            assert_eq!(contract.pool(asset2), None);
+
+            // first
+            let pool1 = AccountId::from([0xf1; 32]);
+            assert!(contract.register_pool(asset1, pool1).is_ok());
+            assert_eq!(contract.pool(asset1), Some(pool1));
+            assert_eq!(contract.assets_count(), 1);
+            assert_eq!(contract.asset_list(), vec![asset1]);
+            // second
+            let pool2 = AccountId::from([0xf2; 32]);
+            assert!(contract.register_pool(asset2, pool2).is_ok());
+            assert_eq!(contract.pool(asset2), Some(pool2));
+            assert_eq!(contract.assets_count(), 2);
+            assert_eq!(contract.asset_list(), vec![asset1, asset2]);
 
             // duplicated
             assert_eq!(
                 contract
-                    .register_pool(asset, AccountId::from([0xee; 32]))
+                    .register_pool(asset1, AccountId::from([0xee; 32]))
                     .unwrap_err(),
                 Error::PoolAlreadyExists
             );
@@ -343,12 +357,17 @@ pub mod registry {
             set_caller(accounts.bob);
             let mut contract = RegistryContract::new(Some(accounts.bob));
 
-            let asset = AccountId::from([0xaa; 32]);
-            let strategy = AccountId::from([0xff; 32]);
+            let asset = AccountId::from([0xa1; 32]);
+            let strategy = AccountId::from([0xf1; 32]);
+            let default_strategy = AccountId::from([0xff; 32]);
             assert!(contract.set_risk_strategy(strategy, Some(asset)).is_ok());
+            assert!(contract.set_risk_strategy(default_strategy, None).is_ok());
             let event = decode_risk_strategy_changed_event(get_emitted_events()[0].clone());
             assert_eq!(event.asset, Some(asset));
             assert_eq!(event.strategy, strategy);
+            let event = decode_risk_strategy_changed_event(get_emitted_events()[1].clone());
+            assert_eq!(event.asset, None);
+            assert_eq!(event.strategy, default_strategy);
         }
 
         #[ink::test]
@@ -390,12 +409,17 @@ pub mod registry {
             set_caller(accounts.bob);
             let mut contract = RegistryContract::new(Some(accounts.bob));
 
-            let asset = AccountId::from([0xaa; 32]);
-            let strategy = AccountId::from([0xff; 32]);
+            let asset = AccountId::from([0xa1; 32]);
+            let strategy = AccountId::from([0xf1; 32]);
+            let default_strategy = AccountId::from([0xff; 32]);
             assert!(contract.set_rate_strategy(strategy, Some(asset)).is_ok());
+            assert!(contract.set_rate_strategy(default_strategy, None).is_ok());
             let event = decode_rate_strategy_changed_event(get_emitted_events()[0].clone());
             assert_eq!(event.asset, Some(asset));
             assert_eq!(event.strategy, strategy);
+            let event = decode_rate_strategy_changed_event(get_emitted_events()[1].clone());
+            assert_eq!(event.asset, None);
+            assert_eq!(event.strategy, default_strategy);
         }
 
         #[ink::test]
