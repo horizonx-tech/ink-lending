@@ -1,8 +1,11 @@
 import { ApiPromise } from '@polkadot/api';
 import { Abi } from '@polkadot/api-contract';
-import { encodeAddress } from '@polkadot/keyring';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { deployFactory, deployPSP22Token, deployRegistry } from './testContractsHelpers';
+import {
+  deployFactory,
+  deployPSP22Token,
+  deployRegistry,
+} from './testContractsHelpers';
 import AssetPool from '../types/contracts/asset_pool';
 import SharesToken from '../types/contracts/shares_token';
 import Registry from '../types/contracts/registry';
@@ -11,10 +14,6 @@ import PSP22Token from '../types/contracts/psp22_token';
 import ASSET_POOL_ABI from '../artifacts/asset_pool.json';
 import SHARES_TOKEN_ABI from '../artifacts/shares_token.json';
 import { hexToUtf8 } from './testHelpers';
-
-const zeroAddress = encodeAddress(
-  '0x0000000000000000000000000000000000000000000000000000000000000000',
-);
 
 describe('Factory spec', () => {
   const setup = async () => {
@@ -36,19 +35,19 @@ describe('Factory spec', () => {
 
     return {
       api,
-      deployer: (deployer as KeyringPair),
+      deployer: deployer as KeyringPair,
       registry,
       factory,
-    }
-  }
+    };
+  };
 
-  it("initialized", async () => {
-    const { registry, factory } = await setup()
+  it('initialized', async () => {
+    const { registry, factory } = await setup();
 
     expect((await factory.query.registry()).value.ok).toBe(registry.address);
-  })
+  });
 
-  describe(".create", () => {
+  describe('.create', () => {
     let api: ApiPromise;
     let deployer: KeyringPair;
     let registry: Registry;
@@ -65,49 +64,60 @@ describe('Factory spec', () => {
       });
     });
 
-    it("preparations", async () => {
+    it('preparations', async () => {
       // for registry
       await registry.tx.setFactory(factory.address);
       expect((await registry.query.manager()).value.ok).toBe(deployer.address);
       expect((await registry.query.factory()).value.ok).toBe(factory.address);
-    })
+    });
 
-    it("execute", async () => {
+    it('execute', async () => {
       const {
         value: {
-          ok: { ok: expectedPoolAddress }
+          ok: { ok: expectedPoolAddress },
         },
       } = await factory.query.create(token.address, []); // dry-run
 
       await factory.tx.create(token.address, []);
-      expect((await registry.query.pool(token.address)).value.ok).toBe(expectedPoolAddress);
-    })
+      expect((await registry.query.pool(token.address)).value.ok).toBe(
+        expectedPoolAddress,
+      );
+    });
 
-    it("check generated asset_pool", async () => {
-      const assetPoolAddr = (await registry.query.pool(token.address)).value.ok
-      const assetPool = new AssetPool((assetPoolAddr as string), deployer, api);
-      const collateralTokenAddr = (await assetPool.query.collateralToken()).value.ok
-      const debtTokenAddr = (await assetPool.query.debtToken()).value.ok
+    it('check generated asset_pool', async () => {
+      const assetPoolAddr = (await registry.query.pool(token.address)).value.ok;
+      const assetPool = new AssetPool(assetPoolAddr as string, deployer, api);
+      const collateralTokenAddr = (await assetPool.query.collateralToken())
+        .value.ok;
+      const debtTokenAddr = (await assetPool.query.debtToken()).value.ok;
       const collateralToken = new SharesToken(
         collateralTokenAddr as string,
         deployer,
-        api
-      )
-      const debtToken = new SharesToken(
-        debtTokenAddr as string,
-        deployer,
-        api
-      )
+        api,
+      );
+      const debtToken = new SharesToken(debtTokenAddr as string, deployer, api);
 
-      expect((await collateralToken.query.asset()).value.ok).toBe(token.address);
-      expect((await collateralToken.query.owner()).value.ok).toBe(factory.address); // TODO: should be asset_pool
-      expect(hexToUtf8((await collateralToken.query.tokenName()).value.ok)).toBe("collateral"); // TODO: not only prefix
-      expect(hexToUtf8((await collateralToken.query.tokenSymbol()).value.ok)).toBe("c"); // TODO: not only prefix
+      expect((await collateralToken.query.asset()).value.ok).toBe(
+        token.address,
+      );
+      expect((await collateralToken.query.owner()).value.ok).toBe(
+        factory.address,
+      ); // TODO: should be asset_pool
+      expect(
+        hexToUtf8((await collateralToken.query.tokenName()).value.ok),
+      ).toBe('collateral'); // TODO: not only prefix
+      expect(
+        hexToUtf8((await collateralToken.query.tokenSymbol()).value.ok),
+      ).toBe('c'); // TODO: not only prefix
 
       expect((await debtToken.query.asset()).value.ok).toBe(token.address);
       expect((await debtToken.query.owner()).value.ok).toBe(factory.address); // TODO: should be asset_pool
-      expect(hexToUtf8((await debtToken.query.tokenName()).value.ok)).toBe("debt"); // TODO: not only prefix
-      expect(hexToUtf8((await debtToken.query.tokenSymbol()).value.ok)).toBe("vd"); // TODO: not only prefix
-    })
-  })
-})
+      expect(hexToUtf8((await debtToken.query.tokenName()).value.ok)).toBe(
+        'debt',
+      ); // TODO: not only prefix
+      expect(hexToUtf8((await debtToken.query.tokenSymbol()).value.ok)).toBe(
+        'vd',
+      ); // TODO: not only prefix
+    });
+  });
+});
