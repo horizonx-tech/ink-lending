@@ -17,7 +17,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Restore mtime
-        run: python .github/git-restore-mtime.py
+        run: python .github/git-remote-mtime.py
       - name: Install & display rust toolchain
         run: |
           rustup show
