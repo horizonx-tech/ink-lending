@@ -54,3 +54,5 @@ jobs:
           done
       - name: test
         run: cargo test
+        env:
+          CARGO_INCREMENTAL: 1
