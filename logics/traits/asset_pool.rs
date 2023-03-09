@@ -7,6 +7,8 @@ use openbrush::{
     },
 };
 
+use crate::rate_strategy::BigEndian;
+
 #[openbrush::wrapper]
 pub type AssetPoolRef = dyn AssetPool;
 
@@ -43,11 +45,11 @@ pub trait AssetPool {
     #[ink(message)]
     fn liquidity_index(&self) -> u128;
     #[ink(message)]
-    fn liquidity_rate(&self) -> u128;
+    fn liquidity_rate(&self) -> BigEndian;
     #[ink(message)]
     fn debt_index(&self) -> u128;
     #[ink(message)]
-    fn debt_rate(&self) -> u128;
+    fn debt_rate(&self) -> BigEndian;
     #[ink(message)]
     fn last_update_timestamp(&self) -> Timestamp;
 }

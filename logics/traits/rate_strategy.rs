@@ -1,7 +1,6 @@
-use openbrush::traits::{
-    AccountId,
-    Balance,
-};
+use openbrush::traits::Balance;
+
+use crate::rate_strategy::BigEndian;
 
 #[openbrush::wrapper]
 pub type RateStrategyRef = dyn RateStrategy;
@@ -12,8 +11,10 @@ pub trait RateStrategy {
     #[ink(message)]
     fn calculate_rate(
         &self,
-        asset: AccountId,
-        liquidity_added: Balance,
-        liquidity_taken: Balance,
-    ) -> (u128, u128);
+        _balance: Balance,
+        _liquidity_added: Balance,
+        _liquidity_taken: Balance,
+        _total_debt: Balance,
+        _reserve_factor: Balance,
+    ) -> (BigEndian, BigEndian);
 }
