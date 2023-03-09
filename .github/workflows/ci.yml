@@ -52,6 +52,8 @@ jobs:
             echo $manifest_path
             cargo contract check --manifest-path $manifest_path
           done
+      - name: cache
+        uses: Swatinem/rust-cache@v2
       - name: test
         run: cargo test
         env:
