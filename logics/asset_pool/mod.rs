@@ -297,7 +297,7 @@ impl<T: Storage<Data>> Internal for T {
             SharesRef::total_share(&self.data().collateral_token),
             liquidity_added,
             liquidity_taken,
-            SharesRef::total_share(&self.data().collateral_token),
+            SharesRef::total_share(&self.data().debt_token),
             0, // TODO
         );
 
