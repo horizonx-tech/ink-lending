@@ -67,6 +67,7 @@ describe('Service spec', () => {
     );
 
     // initialize
+    await registry.tx.setFactory(deployer.address);
     await registry.tx.registerPool(asset, dummyPool.address);
     await registry.tx.setRiskStrategy(dummmyRiskStrategy.address, null);
   };
