@@ -64,7 +64,7 @@ describe('Factory spec', () => {
           1_000,
           'Dai Stablecoin' as unknown as string[],
           'DAI' as unknown as string[],
-          18
+          18,
         ],
       });
     });
