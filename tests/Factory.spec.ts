@@ -101,8 +101,8 @@ describe('Factory spec', () => {
         token.address,
       );
       expect((await collateralToken.query.owner()).value.ok).toBe(
-        factory.address,
-      ); // TODO: should be asset_pool
+        assetPoolAddr,
+      );
       expect(
         hexToUtf8((await collateralToken.query.tokenName()).value.ok),
       ).toBe('collateral'); // TODO: not only prefix
@@ -111,7 +111,7 @@ describe('Factory spec', () => {
       ).toBe('c'); // TODO: not only prefix
 
       expect((await debtToken.query.asset()).value.ok).toBe(token.address);
-      expect((await debtToken.query.owner()).value.ok).toBe(factory.address); // TODO: should be asset_pool
+      expect((await debtToken.query.owner()).value.ok).toBe(assetPoolAddr);
       expect(hexToUtf8((await debtToken.query.tokenName()).value.ok)).toBe(
         'debt',
       ); // TODO: not only prefix
