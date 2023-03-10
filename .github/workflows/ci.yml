@@ -64,8 +64,6 @@ jobs:
           path: |
             **/target
           key: artifacts-${{ runner.os }}-${{ env.GIT_BRANCH_NAME }}
-          restore-keys: |
-            artifacts-${{ runner.os }}-
       - name: test
         run: cargo test
         env:
