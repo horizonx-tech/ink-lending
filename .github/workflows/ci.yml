@@ -42,6 +42,7 @@ jobs:
           sudo apt-get install binaryen
           cargo install cargo-dylint dylint-link
           cargo install --force --locked cargo-contract
+      - uses: Swatinem/rust-cache@v1
       - name: Compile checks
         env:
           CARGO_INCREMENTAL: 1
