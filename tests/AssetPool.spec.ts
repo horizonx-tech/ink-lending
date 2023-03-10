@@ -25,7 +25,7 @@ describe("AssetPool spec", () => {
       const assetPool = await deployAssetPool({
         api,
         signer: deployer,
-        args: [registry.address, zeroAddress, zeroAddress, zeroAddress],
+        args: [registry.address, zeroAddress, zeroAddress, zeroAddress, null, null],
       })
 
       return { deployer, registry, assetPool, notManager }
