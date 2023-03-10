@@ -33,6 +33,11 @@ pub trait AssetPool {
     ) -> Result<()>;
 
     #[ink(message)]
+    fn set_deposit_paused(&mut self, paused: bool) -> Result<()>;
+    #[ink(message)]
+    fn set_borrow_paused(&mut self, paused: bool) -> Result<()>;
+
+    #[ink(message)]
     fn registry(&self) -> AccountId;
     #[ink(message)]
     fn asset(&self) -> AccountId;
@@ -40,6 +45,10 @@ pub trait AssetPool {
     fn collateral_token(&self) -> AccountId;
     #[ink(message)]
     fn debt_token(&self) -> AccountId;
+    #[ink(message)]
+    fn deposit_paused(&self) -> bool;
+    #[ink(message)]
+    fn borrow_paused(&self) -> bool;
     #[ink(message)]
     fn liquidity_index(&self) -> u128;
     #[ink(message)]
@@ -57,6 +66,7 @@ pub trait AssetPool {
 pub enum Error {
     PSP22(PSP22Error),
     Risk(u8),
+    CallerIsNotManager
 }
 
 pub type Result<T> = core::result::Result<T, Error>;

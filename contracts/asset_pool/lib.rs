@@ -34,6 +34,8 @@ pub mod pool {
             instance.asset_pool.asset = asset;
             instance.asset_pool.collateral_token = collateral_token;
             instance.asset_pool.debt_token = debt_token;
+            instance.asset_pool.deposit_paused = false;
+            instance.asset_pool.borrow_paused = false;
 
             instance
         }
@@ -72,7 +74,8 @@ pub mod pool {
             assert_eq!(contract.asset(), asset);
             assert_eq!(contract.collateral_token(), collateral_token);
             assert_eq!(contract.debt_token(), debt_token);
-            assert_eq!(contract.liquidity_index(), 0);
+            assert_eq!(contract.deposit_paused(), false);
+            assert_eq!(contract.borrow_paused(), false);
             assert_eq!(contract.liquidity_rate(), 0);
             assert_eq!(contract.debt_index(), 0);
             assert_eq!(contract.debt_rate(), 0);
