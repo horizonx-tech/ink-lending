@@ -44,7 +44,7 @@ describe('Lending spec', () => {
     assetPool = await deployAssetPool({
       api,
       signer: deployer,
-      args: [zeroAddress, zeroAddress, zeroAddress, zeroAddress],
+      args: [zeroAddress, zeroAddress, zeroAddress, zeroAddress, null, null],
     });
     const assetPoolHash = assetPool.abi.info.source.wasmHash.toHex();
 

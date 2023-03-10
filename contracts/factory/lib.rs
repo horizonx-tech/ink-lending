@@ -74,6 +74,8 @@ pub mod factory {
                 asset,
                 collateral.to_account_id(),
                 debt.to_account_id(),
+                None,
+                None
             )
             .endowment(0)
             .code_hash(self.factory.pool_code_hash)

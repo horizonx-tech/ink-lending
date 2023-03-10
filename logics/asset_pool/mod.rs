@@ -29,6 +29,8 @@ pub struct Data {
     pub asset: AccountId,
     pub collateral_token: AccountId,
     pub debt_token: AccountId,
+    pub deposit_paused: bool,
+    pub borrow_paused: bool,
     // state
     pub liquidity_index: u128,
     pub liquidity_rate: u128,
@@ -61,6 +63,11 @@ pub trait Internal {
     fn _to_liquidity_share(&self, amount: Balance) -> Balance;
     fn _to_debt_share(&self, amount: Balance) -> Balance;
     fn _calculate_index_with_interest(current_index: u128, rate: u128, elapsed_sec: u128) -> u128;
+    fn _set_deposit_paused(&mut self, paused: bool) -> Result<()>;
+    fn _set_borrow_paused(&mut self, paused: bool) -> Result<()>;
+    fn _assert_deposit_status(&self) -> Result<()>;
+    fn _assert_borrow_status(&self) -> Result<()>;
+    fn _assert_manager(&self) -> Result<()>;
     fn _data(&self) -> Data;
 }
 
@@ -105,10 +112,22 @@ impl<T: Storage<Data>> AssetPool for T {
         self._transfer_collateral_on_liquidation(liquidatee, receiver, amount)
     }
 
+    default fn set_deposit_paused(&mut self, paused: bool) -> Result<()> {
+        self._assert_manager().unwrap();
+        self._set_deposit_paused(paused)
+    }
+
+    default fn set_borrow_paused(&mut self, paused: bool) -> Result<()> {
+        self._assert_manager().unwrap();
+        self._set_borrow_paused(paused)
+    }
+
     default fn registry(&self) -> AccountId { self.data().registry }
     default fn asset(&self) -> AccountId { self.data().asset }
     default fn collateral_token(&self) -> AccountId { self.data().collateral_token }
     default fn debt_token(&self) -> AccountId { self.data().debt_token }
+    default fn deposit_paused(&self) -> bool { self.data().deposit_paused }
+    default fn borrow_paused(&self) -> bool { self.data().borrow_paused }
     default fn liquidity_index(&self) -> u128 { self.data().liquidity_index }
     default fn liquidity_rate(&self) -> u128 { self.data().liquidity_rate }
     default fn debt_index(&self) -> u128 { self.data().debt_index }
@@ -123,6 +142,8 @@ impl Default for Data {
             asset: AccountId::from([0u8; 32]),
             collateral_token: AccountId::from([0u8; 32]),
             debt_token: AccountId::from([0u8; 32]),
+            deposit_paused: false,
+            borrow_paused: false,
             liquidity_index: 0,
             liquidity_rate: 0,
             debt_index: 0,
@@ -139,6 +160,8 @@ impl<T: Storage<Data>> Internal for T {
         from: AccountId,
         amount: Balance,
     ) -> Result<()> {
+        self._assert_deposit_status()?;
+
         self._update_state();
         let asset = self.data().asset;
         self._update_rate(asset, amount, 0);
@@ -179,6 +202,8 @@ impl<T: Storage<Data>> Internal for T {
         to: AccountId,
         amount: Balance,
     ) -> Result<()> {
+        self._assert_borrow_status()?;
+
         self._update_state();
         let asset = self.data().asset;
         self._update_rate(asset, 0, amount);
@@ -322,6 +347,38 @@ impl<T: Storage<Data>> Internal for T {
         _elapsed_sec: u128,
     ) -> u128 {
         todo!()
+    }
+
+    default fn _set_deposit_paused(&mut self, paused: bool) -> Result<()> {
+        self.data().deposit_paused = paused;
+        Ok(())
+    }
+
+    default fn _set_borrow_paused(&mut self, paused: bool) -> Result<()> {
+        self.data().borrow_paused = paused;
+        Ok(())
+    }
+
+    default fn _assert_deposit_status(&self) -> Result<()> {
+        if self.data().deposit_paused {
+            return Err(Error::DepositPaused)
+        }
+        Ok(())
+    }
+
+    default fn _assert_borrow_status(&self) -> Result<()> {
+        if self.data().borrow_paused {
+            return Err(Error::BorrowPaused)
+        }
+        Ok(())
+    }
+
+    default fn _assert_manager(&self) -> Result<()> {
+        let manager = RegistryRef::manager(&self.data().registry);
+        if manager != Self::env().caller() {
+            return Err(Error::CallerIsNotManager)
+        }
+        Ok(())
     }
 
     default fn _data(&self) -> Data {
