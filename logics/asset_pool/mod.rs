@@ -65,6 +65,8 @@ pub trait Internal {
     fn _calculate_index_with_interest(current_index: u128, rate: u128, elapsed_sec: u128) -> u128;
     fn _set_deposit_paused(&mut self, paused: bool) -> Result<()>;
     fn _set_borrow_paused(&mut self, paused: bool) -> Result<()>;
+    fn _assert_deposit_status(&self) -> Result<()>;
+    fn _assert_borrow_status(&self) -> Result<()>;
     fn _assert_manager(&self) -> Result<()>;
     fn _data(&self) -> Data;
 }
@@ -158,6 +160,8 @@ impl<T: Storage<Data>> Internal for T {
         from: AccountId,
         amount: Balance,
     ) -> Result<()> {
+        self._assert_deposit_status()?;
+
         self._update_state();
         let asset = self.data().asset;
         self._update_rate(asset, amount, 0);
@@ -198,6 +202,8 @@ impl<T: Storage<Data>> Internal for T {
         to: AccountId,
         amount: Balance,
     ) -> Result<()> {
+        self._assert_borrow_status()?;
+
         self._update_state();
         let asset = self.data().asset;
         self._update_rate(asset, 0, amount);
@@ -350,6 +356,20 @@ impl<T: Storage<Data>> Internal for T {
 
     default fn _set_borrow_paused(&mut self, paused: bool) -> Result<()> {
         self.data().borrow_paused = paused;
+        Ok(())
+    }
+
+    default fn _assert_deposit_status(&self) -> Result<()> {
+        if self.data().deposit_paused {
+            return Err(Error::DepositPaused)
+        }
+        Ok(())
+    }
+
+    default fn _assert_borrow_status(&self) -> Result<()> {
+        if self.data().borrow_paused {
+            return Err(Error::BorrowPaused)
+        }
         Ok(())
     }
 

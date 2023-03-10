@@ -66,7 +66,9 @@ pub trait AssetPool {
 pub enum Error {
     PSP22(PSP22Error),
     Risk(u8),
-    CallerIsNotManager
+    CallerIsNotManager,
+    DepositPaused,
+    BorrowPaused,
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
