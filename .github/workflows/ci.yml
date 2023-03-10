@@ -10,14 +10,11 @@ jobs:
   unit-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Python
-        uses: actions/setup-python@v2
+      - name: Git branch name
+        id: git-branch-name
+        uses: EthanSK/git-branch-name-action@v1
       - name: Checkout the source code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Restore mtime
-        run: python .github/git-restore-mtime.py
       - name: Install & display rust toolchain
         run: |
           rustup show
@@ -31,6 +28,14 @@ jobs:
           key: ${{ runner.os }}-rust-${{ hashFiles('rust-toolchain.toml') }}
           restore-keys: |
             ${{ runner.os }}-rust
+      - name: Cache build artifacts
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/target
+          key: artifacts-${{ runner.os }}-${{ env.GIT_BRANCH_NAME }}
+          restore-keys: |
+            artifacts-${{ runner.os }}-
       - name: Check if cargo-contract exists
         id: check-cargo-contract
         continue-on-error: true
@@ -53,17 +58,6 @@ jobs:
             echo $manifest_path
             cargo contract check --manifest-path $manifest_path
           done
-      - name: Git branch name
-        id: git-branch-name
-        uses: EthanSK/git-branch-name-action@v1
-      - name: Cache build artifacts
-        uses: actions/cache@v1.0.3
-        with:
-          path: |
-            **/target
-          key: artifacts-${{ runner.os }}-${{ env.GIT_BRANCH_NAME }}
-          restore-keys: |
-            artifacts-${{ runner.os }}-
       - name: test
         run: cargo test
         env:
