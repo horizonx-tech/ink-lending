@@ -76,6 +76,8 @@ pub mod dummy_pool {
                     asset,
                     collateral_token,
                     debt_token,
+                    deposit_paused: false,
+                    borrow_paused: false,
                     liquidity_index: 0,
                     liquidity_rate: 0,
                     debt_index: 0,
@@ -91,6 +93,8 @@ pub mod dummy_pool {
             asset: Option<AccountId>,
             collateral_token: Option<AccountId>,
             debt_token: Option<AccountId>,
+            deposit_paused: Option<bool>,
+            borrow_paused: Option<bool>,
             liquidity_index: Option<u128>,
             liquidity_rate: Option<u128>,
             debt_index: Option<u128>,
@@ -108,6 +112,12 @@ pub mod dummy_pool {
             };
             if let Some(v) = debt_token {
                 self.asset_pool.debt_token = v;
+            };
+            if let Some(v) = deposit_paused {
+                self.asset_pool.deposit_paused = v;
+            };
+            if let Some(v) = borrow_paused {
+                self.asset_pool.borrow_paused = v;
             };
             if let Some(v) = liquidity_index {
                 self.asset_pool.liquidity_index = v;
