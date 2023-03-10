@@ -19,23 +19,14 @@ jobs:
         run: |
           rustup show
           rustup component add rust-src
-      - name: Cache build
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            /usr/share/rust/.rustup/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
       - name: Check targets are installed correctly
         run: rustup target list --installed
       - name: Cache Crates
         uses: actions/cache@v3
         with:
-          path: ~/.cargo
+          path: |
+            ~/.cargo
+            /usr/share/rust/.rustup/
           key: ${{ runner.os }}-rust-${{ hashFiles('rust-toolchain.toml') }}
           restore-keys: |
             ${{ runner.os }}-rust
@@ -77,5 +68,3 @@ jobs:
           key: artifacts-${{ runner.os }}-${{ env.GIT_BRANCH_NAME }}
       - name: test
         run: cargo test
-        env:
-          CARGO_INCREMENTAL: 1
