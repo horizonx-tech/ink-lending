@@ -61,7 +61,7 @@ jobs:
         with:
           path: |
             **/target
-          key: artifacts-${{ runner.os }}-${{ GIT_BRANCH_NAME }}
+          key: artifacts-${{ runner.os }}-${{ env.GIT_BRANCH_NAME }}
           restore-keys: |
             artifacts-${{ runner.os }}-
       - name: test
