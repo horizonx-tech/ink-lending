@@ -60,7 +60,12 @@ describe('Factory spec', () => {
       token = await deployPSP22Token({
         api,
         signer: deployer,
-        args: [1_000, ['Dai Stablecoin'], ['DAI'], 18],
+        args: [
+          1_000,
+          'Dai Stablecoin' as unknown as string[],
+          'DAI' as unknown as string[],
+          18,
+        ],
       });
     });
 
@@ -105,19 +110,19 @@ describe('Factory spec', () => {
       );
       expect(
         hexToUtf8((await collateralToken.query.tokenName()).value.ok),
-      ).toBe('collateral'); // TODO: not only prefix
+      ).toBe('collateral Dai Stablecoin');
       expect(
         hexToUtf8((await collateralToken.query.tokenSymbol()).value.ok),
-      ).toBe('c'); // TODO: not only prefix
+      ).toBe('cDAI');
 
       expect((await debtToken.query.asset()).value.ok).toBe(token.address);
       expect((await debtToken.query.owner()).value.ok).toBe(assetPoolAddr);
       expect(hexToUtf8((await debtToken.query.tokenName()).value.ok)).toBe(
-        'debt',
-      ); // TODO: not only prefix
+        'debt Dai Stablecoin',
+      );
       expect(hexToUtf8((await debtToken.query.tokenSymbol()).value.ok)).toBe(
-        'vd',
-      ); // TODO: not only prefix
+        'vdDAI',
+      );
     });
   });
 });

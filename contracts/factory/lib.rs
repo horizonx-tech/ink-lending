@@ -13,7 +13,10 @@ pub mod factory {
         traits::factory::*,
     };
     use openbrush::{
-        contracts::ownable::OwnableRef,
+        contracts::{
+            ownable::OwnableRef,
+            psp22::extensions::metadata::PSP22MetadataRef
+        },
         traits::Storage,
     };
     use shares_token::token::SharesTokenRef;
@@ -59,13 +62,23 @@ pub mod factory {
             salt: &[u8],
             _data: &Vec<u8>,
         ) -> Result<AccountId> {
+            let base_name = PSP22MetadataRef::token_name(&asset).unwrap();
+            let base_symbol = PSP22MetadataRef::token_symbol(&asset).unwrap();
+            let mut collateral_name = "collateral ".as_bytes().to_vec();
+            collateral_name.append(&mut base_name.clone());
+            let mut collateral_symbol = "c".as_bytes().to_vec();
+            collateral_symbol.append(&mut base_symbol.clone());
             let collateral =
-                SharesTokenRef::new(asset, Some("collateral".into()), Some("c".into()), 18)
+                SharesTokenRef::new(asset, Some(collateral_name), Some(collateral_symbol), 18)
                     .endowment(0)
                     .code_hash(self.factory.shares_code_hash)
                     .salt_bytes(&salt[..4])
                     .instantiate();
-            let debt = SharesTokenRef::new(asset, Some("debt".into()), Some("vd".into()), 18)
+            let mut debt_name = "debt ".as_bytes().to_vec();
+            debt_name.append(&mut base_name.clone());
+            let mut debt_symbol = "vd".as_bytes().to_vec();
+            debt_symbol.append(&mut base_symbol.clone());    
+            let debt = SharesTokenRef::new(asset, Some(debt_name), Some(debt_symbol), 18)
                 .endowment(0)
                 .code_hash(self.factory.shares_code_hash)
                 .salt_bytes(&salt[5..9])
