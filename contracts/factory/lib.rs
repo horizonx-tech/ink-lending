@@ -12,7 +12,10 @@ pub mod factory {
         factory::*,
         traits::factory::*,
     };
-    use openbrush::traits::Storage;
+    use openbrush::{
+        contracts::ownable::OwnableRef,
+        traits::Storage,
+    };
     use shares_token::token::SharesTokenRef;
 
     #[ink(storage)]
@@ -56,7 +59,6 @@ pub mod factory {
             salt: &[u8],
             _data: &Vec<u8>,
         ) -> Result<AccountId> {
-            // TODO name, symbol
             let collateral =
                 SharesTokenRef::new(asset, Some("collateral".into()), Some("c".into()), 18)
                     .endowment(0)
@@ -81,6 +83,9 @@ pub mod factory {
             .code_hash(self.factory.pool_code_hash)
             .salt_bytes(&salt[..4])
             .instantiate();
+
+            OwnableRef::transfer_ownership(&collateral.to_account_id(), pool.to_account_id()).unwrap();
+            OwnableRef::transfer_ownership(&debt.to_account_id(), pool.to_account_id()).unwrap();
 
             Ok(pool.to_account_id())
         }
