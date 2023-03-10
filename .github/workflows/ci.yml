@@ -41,14 +41,12 @@ jobs:
         id: check-cargo-contract
         continue-on-error: true
         run: cargo contract --version
-
       - name: Install cargo contract
         if: ${{ steps.check-cargo-contract.outcome == 'failure' }}
         run: |
           sudo apt-get install binaryen
           cargo install cargo-dylint dylint-link
           cargo install --force --locked cargo-contract
-      - uses: Swatinem/rust-cache@v1
       - name: Compile checks
         env:
           CARGO_INCREMENTAL: 1
